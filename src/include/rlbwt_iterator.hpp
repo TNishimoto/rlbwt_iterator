@@ -1,0 +1,9 @@
+#pragma once
+#include "rlbwt.hpp"
+#include "backward_isa.hpp"
+#include "backward_text.hpp"
+#include "forward_lcp_array.hpp"
+#include "forward_sa.hpp"
+#include "postorder_suffix_tree.hpp"
+#include "postorder_maximal_substrings.hpp"
+#include "lcp_interval.hpp"
