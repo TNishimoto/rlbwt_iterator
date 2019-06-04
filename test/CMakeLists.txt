@@ -4,7 +4,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11  -m64  -D_INT128 -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG  "-g -O0 -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE  "-O3 -DNDEBUG")
 
-LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../build/bin)
+LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../build/lib)
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../build/include)
 
 add_executable(test.out test_main.cpp)
