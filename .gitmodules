@@ -1,0 +1,9 @@
+[submodule "module/OnlineRlbwt"]
+	path = module/OnlineRlbwt
+	url = https://github.com/TNishimoto/OnlineRlbwt.git
+[submodule "module/BTree"]
+	path = module/BTree
+	url = https://github.com/TNishimoto/BTree.git
+[submodule "module/Basics"]
+	path = module/Basics
+	url = https://github.com/TNishimoto/Basics.git
