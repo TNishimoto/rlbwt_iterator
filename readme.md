@@ -29,11 +29,11 @@ So, to download all the necessary source codes, do the following:
 
 ## Compile
 
-> mkdir build
-> cd build
-> cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_INSTALL_PREFIX="./" .. 
-> make
-> make install
+> mkdir build  
+> cd build  
+> cmake -DCMAKE_BUILD_TYPE="Release" -DCMAKE_INSTALL_PREFIX="./" ..  
+> make  
+> make install  
 
 After you excecute above commands, lib and include directories are created in the build directory.  
 You can use iterators in this library using the two directories.  
