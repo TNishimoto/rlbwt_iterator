@@ -1,13 +1,18 @@
 
 project(rlbwt_iterator)
 #SET(CMAKE_INSTALL_PREFIX "abc")
-cmake_minimum_required(VERSION 2.8)
 
-if(APPLE)
-set(CMAKE_CXX_FLAGS "-std=c++11  -m64  -D_INT128 -Wall -Wextra")
-else(APPLE)
-set(CMAKE_CXX_FLAGS "-std=c++11  -m64  -D_INT128 -static -Wall -Wextra")
-endif(APPLE)
+if(CMAKE_OLD)
+cmake_minimum_required(VERSION 2.8)
+else(CMAKE_OLD)
+cmake_minimum_required(VERSION 3.1)
+endif(CMAKE_OLD)
+
+if(CPP_STATIC)
+set(CMAKE_CXX_FLAGS "-std=c++14 -m64 -Wall -Wextra -static")
+else(CPP_STATIC)
+set(CMAKE_CXX_FLAGS "-std=c++14 -m64 -Wall -Wextra")
+endif(CPP_STATIC)
 
 #set(CMAKE_CXX_FLAGS_DEBUG  "-g -O0 -DDEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG  "-g -O0 -DDEBUG")

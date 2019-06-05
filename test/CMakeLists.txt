@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 
-set(CMAKE_CXX_FLAGS "-std=c++11  -m64  -D_INT128 -Wall -Wextra")
+if(CPP_STATIC)
+set(CMAKE_CXX_FLAGS "-std=c++14 -m64 -Wall -Wextra -static")
+else(CPP_STATIC)
+set(CMAKE_CXX_FLAGS "-std=c++14 -m64 -Wall -Wextra")
+endif(CPP_STATIC)
+
 set(CMAKE_CXX_FLAGS_DEBUG  "-g -O0 -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE  "-O3 -DNDEBUG")
 
