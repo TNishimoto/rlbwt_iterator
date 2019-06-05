@@ -17,7 +17,7 @@ This library supports the following operations:
     * It uses 2 * SIZE(VEC<uint64_t>(r)) bytes.
 + [The backward iterator for the text](https://github.com/TNishimoto/rlbwt_iterator/blob/master/src/include/backward_text.hpp "The backward iterator for the text") of T for a given RLBWT of T.  
     * It runs in O(log r) time per element.
-    * It uses SIZE(VEC<char>(r)) + SIZE(ISA) bytes, where size(ISA) is the space for the ISA iterator in this iterator.
+    * It uses SIZE(VEC<char>(r)) + SIZE(ISA_ITERATOR) bytes.
 + [The Forward iterator for the suffix array(SA)](https://github.com/TNishimoto/rlbwt_iterator/blob/master/src/include/forward_sa.hpp "The Forward iterator for the suffix array(SA)") of T for a given RLBWT of T.  
     * It runs in O(log r) time per element.
     * It uses 2 * SIZE(VEC<uint64_t>(r)) bytes.
@@ -26,8 +26,10 @@ This library supports the following operations:
     * It uses 3 * SIZE(VEC<uint64_t>(r)) bytes.
 + [The postorder iterator for the suffix tree nodes](https://github.com/TNishimoto/rlbwt_iterator/blob/master/src/include/postorder_suffix_tree.hpp "The postorder iterator for the suffix tree nodes") of T for a given RLBWT of T.  
     * It runs in O(n log r) time.
+    * It uses SIZE(LCP_ITERATOR) + alpha bytes.
 + [The postorder iterator for maximal substrings](https://github.com/TNishimoto/rlbwt_iterator/blob/master/src/include/postorder_maximal_substrings.hpp#L185 "The postorder iterator for maximal substrings") in T for a given RLBWT of T.  
     * It runs in O(n log r) time.
+    * It uses SIZE(ST_ITERATOR) + SIZE(VEC<uint64_t>(r)) bytes.
 
 ## Download
 
