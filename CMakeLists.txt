@@ -1,7 +1,7 @@
 
 project(rlbwt_iterator)
 #SET(CMAKE_INSTALL_PREFIX "abc")
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 2.8)
 
 if(APPLE)
 set(CMAKE_CXX_FLAGS "-std=c++11  -m64  -D_INT128 -Wall -Wextra")
