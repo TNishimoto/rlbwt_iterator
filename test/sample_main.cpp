@@ -1,10 +1,8 @@
-#include <cassert>
-#include <chrono>
 #include "rlbwt_iterator/rlbwt_iterator.hpp"
-
 
 using namespace std;
 
+// The example that RLBWT is constructed from a string.
 void rlbwt_sample1(){
 
     string text = "pississmpii";
@@ -23,9 +21,8 @@ void rlbwt_sample1(){
 }
 
 
+// The example that RLBWT is directly constructed.
 void rlbwt_sample2(){
-
-
     std::vector<char> chars{ 'i', 'p', 's', 'm', 0, 's', 'i' };
     std::vector<uint64_t> run_vec{ 0, 2, 4, 6, 7, 8, 10, 12 };
     stool::rlbwt::RLBWT<char, uint64_t, vector<char>, vector<uint64_t>> rle_str;
@@ -33,6 +30,22 @@ void rlbwt_sample2(){
     rle_str.print_info();
     //RLBWT: i^2, p^2, s^2, m^1, #^1, s^2, i^2
 }
+
+// The example that RLBWT is constructed from an input text file.
+void rlbwt_sample3(){
+    ofstream outputfile("./test.txt");
+    outputfile << "pississmpii";
+    outputfile.close();
+
+    stool::rlbwt::RLBWT<char, uint64_t, vector<char>, vector<uint64_t>> rle_str;
+    stool::rlbwt::Constructor::construct_from_file(rle_str, "./test.txt");
+
+    rle_str.print_info();
+    //RLBWT: i^2, p^2, s^2, m^1, #^1, s^2, i^2
+
+}
+
+// The example backward enumerating values in the inverse suffix array for the input RLBWT.
 void isa_sample1(){
 
     string text = "pississmpii";
@@ -48,6 +61,8 @@ void isa_sample1(){
     std::cout << std::endl;
     // ISA(Reversed): 0 1 2 6 5 9 11 4 8 10 3 7
 }
+
+// The example backward enumerating characters in the original text of the input RLBWT.
 void text_sample1(){
 
     string text = "pississmpii";
@@ -63,7 +78,7 @@ void text_sample1(){
     std::cout << std::endl;
     // Text(Reversed):  i i p m s s i s s i p
 }
-
+// The example enumerating values in the suffix array for the input RLBWT.
 void sa_sample1(){
 
     string text = "pississmpii";
@@ -80,6 +95,7 @@ void sa_sample1(){
     // SA: 11 10 9 1 4 7 8 0 3 6 2 5
 }
 
+// The example enumerating values in the longest common prefix array for the input RLBWT.
 void lcp_sample1(){
     stool::rlbwt::RLBWT<char, uint64_t, vector<char>, vector<uint64_t>> rle_str;
     rle_str.set(std::vector<char>{ 105, 112, 115, 109, 0, 115, 105 }, std::vector<uint64_t>{ 0, 2, 4, 6, 7, 8, 10, 12 });
@@ -94,6 +110,7 @@ void lcp_sample1(){
     // LCP: 0 0 1 1 3 0 0 2 0 1 1 2
 }
 
+// The example postorder enumerating nodes in the suffix tree of the input RLBWT.
 void st_sample1(){
     string text = "pississmpii";
     stool::rlbwt::RLBWT<char, uint64_t, vector<char>, vector<uint64_t>> rle_str;
@@ -132,6 +149,8 @@ void st_sample1(){
     string: , SA[i, j] = [0, 11], node depth = 0
     */
 }
+
+// The example postorder enumerating maximal substrings in the input RLBWT.
 void ms_sample1(){
     string text = "pississmpii";
     stool::rlbwt::RLBWT<char, uint64_t, vector<char>, vector<uint64_t>> rle_str;
@@ -165,6 +184,8 @@ int main()
 {
     rlbwt_sample1();
     rlbwt_sample2();
+    rlbwt_sample3();
+
     isa_sample1();
     text_sample1();
     sa_sample1();
