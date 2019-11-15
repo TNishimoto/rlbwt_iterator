@@ -373,6 +373,14 @@ public:
     this->_str_size = str_size;
     deleteFlag = true;
   }
+  void construct(VEC* __sorted_end_ssa, VEC* __succ_ssa_yorder, INDEX __first_psa_value, INDEX str_size)
+  {
+    this->_sorted_end_ssa = __sorted_end_ssa;
+    this->_succ_ssa_yorder = __succ_ssa_yorder;
+    this->_first_psa_value = __first_psa_value;
+    this->_str_size = str_size;
+    deleteFlag = false;
+  }
 
   /*
   ForwardSA(RLBWT<CHAR> &__rlbwt, bool faster = false)

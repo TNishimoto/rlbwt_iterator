@@ -51,14 +51,14 @@ FILE(GLOB SOURCES src/common/*.cpp)
 #add_executable(slcp.out src/slcp_main.cpp ${SOURCES})
 #target_link_libraries(slcp.out online_rlbwt Basics BTree)
 
-add_executable(slcp.out src/debug/slcp_main.cpp ${INCLUDE_FILES})
-target_link_libraries(slcp.out online_rlbwt Basics BTree)
+#add_executable(slcp.out src/debug/slcp_main.cpp ${INCLUDE_FILES})
+#target_link_libraries(slcp.out online_rlbwt Basics BTree)
 
-add_executable(test.out src/debug/test_main.cpp ${INCLUDE_FILES})
-target_link_libraries(test.out online_rlbwt Basics BTree)
+#add_executable(test.out src/debug/test_main.cpp ${INCLUDE_FILES})
+#target_link_libraries(test.out online_rlbwt Basics BTree)
 
-add_executable(check.out src/debug/check_main.cpp)
-target_link_libraries(check.out online_rlbwt Basics BTree)
+#add_executable(check.out src/debug/check_main.cpp)
+#target_link_libraries(check.out online_rlbwt Basics BTree)
 
 
 FILE(GLOB INCLUDE_FILES src/include/*.hpp)
