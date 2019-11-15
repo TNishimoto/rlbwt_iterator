@@ -96,6 +96,7 @@ static std::vector<uint64_t> construct_isa(std::vector<uint64_t> &sa)
               });
     return sa;
   }
+  
   template <typename INDEX>
   static std::string construct_bwt(std::string &text, std::vector<INDEX> &sa)
   {
@@ -115,6 +116,32 @@ static std::vector<uint64_t> construct_isa(std::vector<uint64_t> &sa)
     }
     return output;
   }
+  static std::string naive_bwt(std::string &text){
+    std::vector<uint64_t> sa = SuffixArrayConstructor::naive_sa<uint64_t>(text);
+    return construct_bwt(text,sa);
+  }
+
+  static void naive_rlbwt(std::string &text, std::vector<char> &output_chars, std::vector<uint64_t> &output_runs){
+      std::vector<uint64_t> sa = SuffixArrayConstructor::naive_sa<uint64_t>(text);
+      std::string bwt = construct_bwt(text,sa);
+      uint64_t l=1;
+      char c = bwt[0];      
+      for(uint64_t i=1;i<bwt.size();i++){
+        if(c != bwt[i]){          
+          output_chars.push_back(c);
+          output_runs.push_back(l);
+          c = bwt[i];
+          l = 1;
+        }else{
+          l++;
+        }
+      }
+      output_chars.push_back(c);
+      output_runs.push_back(l);
+
+  }
+
+
 };
   }
 } // namespace stool

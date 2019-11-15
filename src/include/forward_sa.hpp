@@ -483,6 +483,18 @@ public:
   {
     return this->_str_size;
   }
+std::vector<INDEX> copy_slcp_array() const 
+  {
+    std::vector<INDEX> r;
+    r.resize(this->_succ_slcp_yorder->size() );
+    INDEX p = 0;
+    for (INDEX c : *this->_succ_slcp_yorder)
+    {
+      r[p++] = c;
+    }
+    return r;
+  }
+
   template <typename RLBWT_STR>
   void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
   {

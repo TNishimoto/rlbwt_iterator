@@ -150,6 +150,12 @@ class ForwardLCPArray
     }
     return r;
   }
+  std::vector<INDEX> copy_slcp_array() const 
+  {
+    return this->_sa->copy_slcp_array();
+  }
+
+
     template <typename CHAR, typename CHARVEC, typename POWVEC>
     void construct_from_rlbwt(const RLBWT<CHAR, INDEX, CHARVEC, POWVEC> *_rlbwt, bool faster = false)
     {

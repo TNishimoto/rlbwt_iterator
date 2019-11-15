@@ -13,6 +13,7 @@ void Printer::print_item<char>(char item)
 {
 	std::cout << item << std::endl;
 }
+/*
 template <>
 void Printer::print<char>(const std::vector<char> &items)
 {
@@ -34,5 +35,6 @@ void Printer::print<char>(const std::vector<char> &items)
 	s += "]";
 	std::cout << s << std::endl;
 }
+*/
 
 } // namespace stool

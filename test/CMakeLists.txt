@@ -17,3 +17,7 @@ target_link_libraries(test.out online_rlbwt Basics BTree)
 
 add_executable(sample.out sample_main.cpp)
 target_link_libraries(sample.out online_rlbwt Basics BTree)
+
+add_executable(slcp.out slcp_main.cpp)
+target_link_libraries(slcp.out online_rlbwt Basics BTree)
+

@@ -13,7 +13,7 @@ namespace rlbwt
 
 
 template <typename CHAR, typename INDEX, typename RLBWT_STR>
-class SamplingFIndexIterator
+class RLEFArrayIterator
 {
   private:
     INDEX _rle_findex = 0;
@@ -22,9 +22,9 @@ class SamplingFIndexIterator
     INDEX _findex = 0;
 
   public:
-    SamplingFIndexIterator() = default;
+    RLEFArrayIterator() = default;
 
-    SamplingFIndexIterator(INDEX __rle_findex, const RLBWT_STR &__rlbwt, std::vector<INDEX> &__fl_mapper) : 
+    RLEFArrayIterator(INDEX __rle_findex, const RLBWT_STR &__rlbwt, std::vector<INDEX> &__fl_mapper) : 
     _rle_findex(__rle_findex), _rlbwt(__rlbwt), fl_mapper(__fl_mapper) 
     {
     }
@@ -48,7 +48,7 @@ class SamplingFIndexIterator
         return this->_rle_findex;
     }
 
-    SamplingFIndexIterator &operator++()
+    RLEFArrayIterator &operator++()
     {
         if(this->_rle_findex > _rlbwt.rle_size()-1 ){            
             throw std::logic_error("error" + std::to_string(this->_rle_findex) + "/"  + std::to_string(_rlbwt.rle_size()));
@@ -70,31 +70,31 @@ class SamplingFIndexIterator
     {
         return this->_findex;
     }
-    bool operator!=(const SamplingFIndexIterator &rhs) const
+    bool operator!=(const RLEFArrayIterator &rhs) const
     {
         return (_rle_findex != rhs._rle_findex);
     }
 };
 
 template <typename CHAR, typename INDEX, typename RLBWT_STR>
-class SamplingFIndexGenerator
+class RLEFArrayGenerator
 {
   private:
     const RLBWT_STR &_rlbwt;
     std::vector<INDEX> _fl_mapper;
 
   public:
-    SamplingFIndexGenerator(const RLBWT_STR &__rlbwt): _rlbwt(__rlbwt)
+    RLEFArrayGenerator(const RLBWT_STR &__rlbwt): _rlbwt(__rlbwt)
     {
         this->_fl_mapper = RLBWTFunctions::construct_rle_fl_mapper<INDEX>(_rlbwt);
     }
-    SamplingFIndexIterator<CHAR,INDEX, RLBWT_STR> begin()
+    RLEFArrayIterator<CHAR,INDEX, RLBWT_STR> begin()
     {
-        return SamplingFIndexIterator<CHAR,INDEX, RLBWT_STR>(0, _rlbwt, _fl_mapper);
+        return RLEFArrayIterator<CHAR,INDEX, RLBWT_STR>(0, _rlbwt, _fl_mapper);
     }
-    SamplingFIndexIterator<CHAR,INDEX, RLBWT_STR> end()
+    RLEFArrayIterator<CHAR,INDEX, RLBWT_STR> end()
     {
-        return SamplingFIndexIterator<CHAR,INDEX, RLBWT_STR>(std::numeric_limits<INDEX>::max(), _rlbwt, _fl_mapper);
+        return RLEFArrayIterator<CHAR,INDEX, RLBWT_STR>(std::numeric_limits<INDEX>::max(), _rlbwt, _fl_mapper);
     }
 };
 
@@ -103,11 +103,11 @@ class RLBWTFunctions2{
     public:
     template <typename CHAR = char, typename INDEX = uint64_t, typename RLBWT_STR>
     static std::vector<uint64_t> construct_rle_lf_lorder(const RLBWT_STR &__rlbwt){
-        SamplingFIndexGenerator<CHAR, INDEX, RLBWT_STR> generator(__rlbwt);
+        RLEFArrayGenerator<CHAR, INDEX, RLBWT_STR> generator(__rlbwt);
         std::vector<uint64_t> rle_lf_lorder;
         rle_lf_lorder.resize(__rlbwt.rle_size(), std::numeric_limits<uint64_t>::max());
         INDEX k=0;
-        for(SamplingFIndexIterator<CHAR, INDEX, RLBWT_STR> it = generator.begin(), end = generator.end(); it != end;++it){
+        for(RLEFArrayIterator<CHAR, INDEX, RLBWT_STR> it = generator.begin(), end = generator.end(); it != end;++it){
             INDEX findex = *it;
             while(findex >= __rlbwt.get_lpos(k) ){
                 k++;

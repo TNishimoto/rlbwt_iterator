@@ -6,7 +6,7 @@
 #include <unordered_set>
 //#include "lfitem.hpp"
 #include "other_functions.hpp"
-#include "sampling_findex_iterator.hpp"
+#include "rle_farray_iterator.hpp"
 
 namespace stool
 {
