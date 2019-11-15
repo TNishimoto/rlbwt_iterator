@@ -10,7 +10,7 @@
 //#include "common/io.h"
 //#include "common/print.hpp"
 #include "other_functions.hpp"
-#include "online_rlbwt.hpp"
+#include "OnlineRlbwt/online_rlbwt.hpp"
 //using namespace std;
 
 namespace stool

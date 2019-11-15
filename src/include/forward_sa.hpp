@@ -463,6 +463,9 @@ public:
   {
     return this->_str_size;
   }
+  INDEX size() const{
+    return this->_str_size;
+  }
 std::vector<INDEX> copy_slcp_array() const 
   {
     std::vector<INDEX> r;

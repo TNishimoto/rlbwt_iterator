@@ -162,7 +162,7 @@ public:
   {
     return this->_sa->copy_slcp_array();
   }
-  ForwardSA<INDEX,VEC> get_ForwardSA() const {
+  const ForwardSA<INDEX,VEC>* get_ForwardSA() const {
     return this->_sa;
   }
 
