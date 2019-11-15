@@ -12,12 +12,20 @@ namespace stool
 {
 namespace rlbwt
 {
+
+
+/*
+    This class is the generator for BackwardISAIterator. 
+  */
+template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX>>
+class BackwardISA
+{
 /*
     This iterator enumerates ranks of suffixes in the input text in the back-to-front order of the text, 
     i.e., the i-th value is ISA[|T|-i], where T is the input text and ISA is the inverse suffix array of T.
   */
-template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX>>
-class BackwardISAIterator
+public:
+class iterator
 {
 private:
   const VEC &_run_vec;
@@ -30,13 +38,13 @@ private:
   INDEX _end_lposition = std::numeric_limits<INDEX>::max();
 
 public:
-  BackwardISAIterator() = default;
+  iterator() = default;
 
-  BackwardISAIterator(INDEX __rle_lposition, INDEX __diff, const VEC &__run_vec, const VEC &__findexes_lorder)
+  iterator(INDEX __rle_lposition, INDEX __diff, const VEC &__run_vec, const VEC &__findexes_lorder)
       : _run_vec(__run_vec), _findexes_lorder(__findexes_lorder), _diff(__diff), _rle_lposition(__rle_lposition), _end_lposition(__rle_lposition)
   {
   }
-  BackwardISAIterator(const VEC &__run_vec, const VEC &__findexes_lorder) : _run_vec(__run_vec), _findexes_lorder(__findexes_lorder)
+  iterator(const VEC &__run_vec, const VEC &__findexes_lorder) : _run_vec(__run_vec), _findexes_lorder(__findexes_lorder)
   {
   }
 
@@ -68,7 +76,7 @@ public:
     return this->_diff;
   }
 
-  BackwardISAIterator &operator++()
+  iterator &operator++()
   {
     if (this->_rle_lf_lorder == nullptr)
     {
@@ -106,11 +114,11 @@ public:
   {
     return this->fpos();
   }
-  bool operator!=(const BackwardISAIterator &rhs) const
+  bool operator!=(const iterator &rhs) const
   {
     return (_rle_lposition != rhs._rle_lposition) || (_diff != rhs._diff);
   }
-  static std::vector<INDEX> construct_suffix_array(INDEX str_size, BackwardISAIterator<> &&beginIt, BackwardISAIterator<> &&endIt)
+  static std::vector<INDEX> construct_suffix_array(INDEX str_size, iterator &&beginIt, iterator &&endIt)
   {
     std::vector<INDEX> r;
     r.resize(str_size, std::numeric_limits<INDEX>::max());
@@ -133,12 +141,6 @@ public:
   }
 };
 
-/*
-    This class is the generator for BackwardISAIterator. 
-  */
-template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX>>
-class BackwardISA
-{
 private:
   //const RLBWT_STR *_rlbwt = nullptr;
   const VEC *_run_vec = nullptr;
@@ -233,18 +235,18 @@ public:
     return this->_findexes_lorder;
   }
 
-  BackwardISAIterator<INDEX, VEC> begin() const
+  iterator begin() const
   {
-    auto p = BackwardISAIterator<INDEX, VEC>(this->_rle_end_lposition, 0, *this->_run_vec, *_findexes_lorder);
+    auto p = iterator(this->_rle_end_lposition, 0, *this->_run_vec, *_findexes_lorder);
     if (_rle_lf_lorder != nullptr)
     {
       p.set_rle_lf_lorder(this->_rle_lf_lorder);
     }
     return p;
   }
-  BackwardISAIterator<INDEX, VEC> end() const
+  iterator end() const
   {
-    return BackwardISAIterator<INDEX, VEC>(*this->_run_vec, *_findexes_lorder);
+    return iterator(*this->_run_vec, *_findexes_lorder);
   }
   std::vector<INDEX> to_isa() const
   {

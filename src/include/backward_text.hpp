@@ -10,23 +10,34 @@ namespace stool
 namespace rlbwt
 {
 
-  /*
+
+
+
+/*
+    This class is the generator for BackwardTextIterator. 
+  */
+template <typename CHAR = char, typename INDEX = uint64_t, typename CHARVEC = std::vector<CHAR>, typename VEC = std::vector<INDEX> >
+class BackwardText
+{
+  using ISA_IT = typename BackwardISA<INDEX, VEC>::iterator;
+
+    /*
     This iterator enumerates the original input text in the back-to-front order of the text, 
     i.e., the i-th value is T[|T|-i], where T is the original input text.
   */
-template <typename CHAR = char, typename INDEX = uint64_t, typename CHARVEC = std::vector<CHAR>, typename VEC = std::vector<INDEX> >
-class BackwardTextIterator
+ public:
+class iterator
 {
 private:
   const CHARVEC &_char_vec;
-  BackwardISAIterator<INDEX, VEC> _iterator;
+  ISA_IT _iterator;
 
 public:
-  BackwardTextIterator() = default;
-  explicit BackwardTextIterator(const CHARVEC &__char_vec, BackwardISAIterator<INDEX, VEC> &__iter) : _char_vec(__char_vec), _iterator(__iter)
+  iterator() = default;
+  explicit iterator(const CHARVEC &__char_vec, ISA_IT &__iter) : _char_vec(__char_vec), _iterator(__iter)
   {
   }
-  BackwardTextIterator &operator++()
+  iterator &operator++()
   {
     ++_iterator;
     return *this;
@@ -35,7 +46,7 @@ public:
   {
     return this->_char_vec[this->_iterator.get_rle_lposition()];
   }
-  bool operator!=(const BackwardTextIterator<CHAR> &rhs) const
+  bool operator!=(const iterator &rhs) const
   {
     return _iterator != rhs._iterator;
   }
@@ -44,7 +55,7 @@ public:
     return _iterator.is_end();
   }
   /*
-  static string decompress(RLBWT<char> &rlbwt, BackwardTextIterator &&begIt, BackwardTextIterator &&endIt, bool removeEndCharacter)
+  static string decompress(RLBWT<char> &rlbwt, iterator &&begIt, iterator &&endIt, bool removeEndCharacter)
   {
 
     uint64_t size = rlbwt.str_size();
@@ -78,14 +89,7 @@ public:
   }
   */
 };
-
-
-/*
-    This class is the generator for BackwardTextIterator. 
-  */
-template <typename CHAR = char, typename INDEX = uint64_t, typename CHARVEC = std::vector<CHAR>, typename VEC = std::vector<INDEX> >
-class BackwardText
-{
+  private:
   //const RLBWT<CHAR, INDEX> &_rlbwt;
   const CHARVEC *_char_vec;
   const BackwardISA<INDEX, VEC> *_isa;
@@ -130,15 +134,15 @@ public:
     if (deleteFlag)
       delete _isa;
   }
-  BackwardTextIterator<CHAR> begin() const
+  iterator begin() const
   {
     auto it = this->_isa->begin();
-    return BackwardTextIterator<CHAR, INDEX, CHARVEC, VEC>(*this->_char_vec,it);
+    return iterator(*this->_char_vec,it);
   }
-  BackwardTextIterator<CHAR> end() const
+  iterator end() const
   {
     auto end = this->_isa->end();
-    return BackwardTextIterator<CHAR, INDEX, CHARVEC, VEC>(*this->_char_vec, end);
+    return iterator(*this->_char_vec, end);
   }
 
   std::vector<CHAR> to_vector() const

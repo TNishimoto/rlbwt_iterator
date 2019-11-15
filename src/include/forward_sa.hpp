@@ -12,12 +12,23 @@ namespace stool
 {
 namespace rlbwt
 {
+
 /*
+class DataStructuresForSA
+{
+  
+};
+*/
+
+template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX>>
+class ForwardSA
+{
+public:
+  /*
     This iterator enumerates the suffix array of the original input text, 
     i.e., the i-th value is SA[i], where SA is the suffix array of the original input text.
   */
-template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX>>
-class SAIterator
+class iterator
 {
 private:
   INDEX _tIndex = std::numeric_limits<INDEX>::max();
@@ -32,13 +43,13 @@ public:
   const VEC *_succ_slcp_yorder;
   const VEC *_cache = nullptr;
 
-  SAIterator() = default;
+  iterator() = default;
 
-  SAIterator(INDEX __tIndex, INDEX __saIndex, INDEX __max_sa_index, const VEC &__sorted_end_ssa, const VEC &__succ_ssa_yorder, const VEC *__succ_slcp_yorder)
+  iterator(INDEX __tIndex, INDEX __saIndex, INDEX __max_sa_index, const VEC &__sorted_end_ssa, const VEC &__succ_ssa_yorder, const VEC *__succ_slcp_yorder)
       : _tIndex(__tIndex), _saIndex(__saIndex), _max_sa_index(__max_sa_index), _sorted_end_ssa(__sorted_end_ssa), _succ_ssa_yorder(__succ_ssa_yorder), _succ_slcp_yorder(__succ_slcp_yorder)
   {
   }
-  SAIterator(const VEC &__sorted_end_ssa, const VEC &__succ_ssa_yorder) : _sorted_end_ssa(__sorted_end_ssa), _succ_ssa_yorder(__succ_ssa_yorder)
+  iterator(const VEC &__sorted_end_ssa, const VEC &__succ_ssa_yorder) : _sorted_end_ssa(__sorted_end_ssa), _succ_ssa_yorder(__succ_ssa_yorder)
   {
   }
 
@@ -121,7 +132,7 @@ private:
   }
 
 public:
-  SAIterator &operator++()
+  iterator &operator++()
   {
     if (this->_saIndex < _max_sa_index)
     {
@@ -146,13 +157,13 @@ public:
   {
     return this->_tIndex;
   }
-  bool operator!=(const SAIterator &rhs)
+  bool operator!=(const iterator &rhs)
   {
     return (_tIndex != rhs._tIndex) || (_saIndex != rhs._saIndex);
   }
 
   template <typename CHAR = char>
-  static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa_lorder(const RLBWT<CHAR> &rlbwt, BackwardISAIterator<> &&beginIt, BackwardISAIterator<> &&endIt)
+  static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa_lorder(const RLBWT<CHAR> &rlbwt, typename BackwardISA<INDEX, VEC>::iterator &&beginIt, typename BackwardISA<INDEX, VEC>::iterator &&endIt)
   {
     //std::cout << "Constructing sampled suffix array" << std::flush;
 
@@ -204,7 +215,7 @@ public:
   }
   /*
   template <typename CHAR = char>
-  static std::pair<vector<INDEX>, vector<INDEX>> construct_sampling_sa(RLBWT<CHAR> &rlbwt, BackwardISAIterator<CHAR> &&beginIt, BackwardISAIterator<CHAR> &&endIt)
+  static std::pair<vector<INDEX>, vector<INDEX>> construct_sampling_sa(RLBWT<CHAR> &rlbwt, BackwardIiterator<CHAR> &&beginIt, BackwardIiterator<CHAR> &&endIt)
   {
     std::pair<vector<INDEX>, vector<INDEX>> r = construct_sampling_sa_lorder(rlbwt, std::move(beginIt), std::move(endIt));
     vector<INDEX> mapper = RLBWTFunctions::construct_rle_lf_mapper<INDEX>(rlbwt);
@@ -290,7 +301,7 @@ public:
     }
     return sum;
   }
-  static std::vector<INDEX> decompress(RLBWT<char> &rlbwt, SAIterator &&begIt, SAIterator &&endIt)
+  static std::vector<INDEX> decompress(RLBWT<char> &rlbwt, iterator &&begIt, iterator &&endIt)
   {
     std::vector<INDEX> sa;
 
@@ -321,45 +332,6 @@ public:
     return sa;
   }
 };
-
-class DataStructuresForSA
-{
-  public:
-  template <typename INDEX = uint64_t, typename RLBWT_STR>
-  static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa(const RLBWT_STR *rlbwt)
-  {
-    BackwardISA<INDEX, std::vector<INDEX>> tpb;
-    tpb.construct_from_rlbwt(rlbwt);
-    std::pair<std::vector<INDEX>, std::vector<INDEX>> r = SAIterator<INDEX, std::vector<INDEX>>::construct_sampling_sa_lorder(*rlbwt, tpb.begin(), tpb.end());
-
-    tpb.clear();
-
-    std::vector<INDEX> mapper = RLBWTFunctions::construct_rle_lf_mapper<INDEX>(*rlbwt);
-    r.first = stool::rlbwt::permutate(std::move(r.first), mapper);
-    r.second = stool::rlbwt::permutate(std::move(r.second), mapper);
-
-    return r;
-  }
-  template <typename INDEX = uint64_t>
-  static std::vector<INDEX> construct_sorted_end_ssa(std::vector<INDEX> &&_last_psa)
-  {
-    std::sort(_last_psa.begin(), _last_psa.end());
-    return std::move(_last_psa);
-  }
-  template <typename INDEX = uint64_t>
-  static std::vector<INDEX> construct_succ_ssa_yorder(std::vector<INDEX> &&_first_psa, std::vector<INDEX> &_last_psa)
-  {
-    std::vector<INDEX> yf_mapper = get_sorted_positions(_last_psa);
-    std::vector<INDEX> fy_mapper = change_inv(std::move(yf_mapper));
-    std::vector<INDEX> succ_ssa = stool::rlbwt::rotate(std::move(_first_psa));
-    auto _succ_ssa_yorder = stool::rlbwt::permutate(std::move(succ_ssa), fy_mapper);
-    return _succ_ssa_yorder;
-  }
-};
-
-template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX>>
-class ForwardSA
-{
 private:
   //RLBWT<CHAR> &_rlbwt;
 
@@ -455,18 +427,18 @@ public:
   }
 */
 
-  SAIterator<INDEX, VEC> begin() const
+  iterator begin() const
   {
-    auto it = SAIterator<INDEX, VEC>(_first_psa_value, 0, _str_size - 1, *this->_sorted_end_ssa, *this->_succ_ssa_yorder, this->_succ_slcp_yorder);
+    auto it = iterator(_first_psa_value, 0, _str_size - 1, *this->_sorted_end_ssa, *this->_succ_ssa_yorder, this->_succ_slcp_yorder);
     if (this->_cache != nullptr)
     {
       it.set_cache(this->_cache);
     }
     return it;
   }
-  SAIterator<INDEX, VEC> end() const
+  iterator end() const
   {
-    return SAIterator<INDEX, VEC>(*this->_sorted_end_ssa, *this->_succ_ssa_yorder);
+    return iterator(*this->_sorted_end_ssa, *this->_succ_ssa_yorder);
   }
   std::vector<INDEX> to_sa() const
   {
@@ -498,15 +470,15 @@ std::vector<INDEX> copy_slcp_array() const
   template <typename RLBWT_STR>
   void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
   {
-    std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = DataStructuresForSA::construct_sampling_sa<INDEX, RLBWT_STR>(_rlbwt);
+    std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = ForwardSA<INDEX,VEC>::construct_sampling_sa<RLBWT_STR>(_rlbwt);
     //__rlbwt.clear();
 
     std::vector<INDEX> _first_psa = std::move(pairVec.first);
     std::vector<INDEX> _last_psa = std::move(pairVec.second);
     INDEX _first_psa_value = _first_psa[0];
 
-    auto _succ_ssa_yorder = DataStructuresForSA::construct_succ_ssa_yorder(std::move(_first_psa), _last_psa);
-    auto _sorted_end_ssa = DataStructuresForSA::construct_sorted_end_ssa(std::move(_last_psa));
+    auto _succ_ssa_yorder = ForwardSA<INDEX,VEC>::construct_succ_ssa_yorder(std::move(_first_psa), _last_psa);
+    auto _sorted_end_ssa = ForwardSA<INDEX,VEC>::construct_sorted_end_ssa(std::move(_last_psa));
 
     if (faster)
     {
@@ -519,6 +491,38 @@ std::vector<INDEX> copy_slcp_array() const
       this->set(std::move(_sorted_end_ssa), std::move(_succ_ssa_yorder), _first_psa_value, _rlbwt->str_size());
       //return ForwardSA<INDEX, vector<INDEX>>(std::move(_sorted_end_ssa), std::move(_succ_ssa_yorder), _first_psa_value, _rlbwt->str_size());
     }
+  }
+
+  public:
+  template <typename RLBWT_STR>
+  static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa(const RLBWT_STR *rlbwt)
+  {
+    BackwardISA<INDEX, std::vector<INDEX>> tpb;
+    tpb.construct_from_rlbwt(rlbwt);
+    std::pair<std::vector<INDEX>, std::vector<INDEX>> r = iterator::construct_sampling_sa_lorder(*rlbwt, tpb.begin(), tpb.end());
+
+    tpb.clear();
+
+    std::vector<INDEX> mapper = RLBWTFunctions::construct_rle_lf_mapper<INDEX>(*rlbwt);
+    r.first = stool::rlbwt::permutate(std::move(r.first), mapper);
+    r.second = stool::rlbwt::permutate(std::move(r.second), mapper);
+
+    return r;
+  }
+  //template <typename INDEX = uint64_t>
+  static std::vector<INDEX> construct_sorted_end_ssa(std::vector<INDEX> &&_last_psa)
+  {
+    std::sort(_last_psa.begin(), _last_psa.end());
+    return std::move(_last_psa);
+  }
+  //template <typename INDEX = uint64_t>
+  static std::vector<INDEX> construct_succ_ssa_yorder(std::vector<INDEX> &&_first_psa, std::vector<INDEX> &_last_psa)
+  {
+    std::vector<INDEX> yf_mapper = get_sorted_positions(_last_psa);
+    std::vector<INDEX> fy_mapper = change_inv(std::move(yf_mapper));
+    std::vector<INDEX> succ_ssa = stool::rlbwt::rotate(std::move(_first_psa));
+    auto _succ_ssa_yorder = stool::rlbwt::permutate(std::move(succ_ssa), fy_mapper);
+    return _succ_ssa_yorder;
   }
 };
 

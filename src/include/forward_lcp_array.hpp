@@ -15,19 +15,25 @@ namespace rlbwt
 {
 
 
-/*
+
+template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX> >
+class ForwardLCPArray
+{
+  using SA_ITERATOR = typename ForwardSA<INDEX,VEC>::iterator;
+  public:
+  /*
     This iterator enumerates the LCP array of the original input text, 
     i.e., the i-th value is LCP[i], where LCP is the LCP array of the original input text.
   */
-template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX> >
-class LCPIterator
+//template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX> >
+class iterator
 {
 private:
-  SAIterator<INDEX, VEC> _sa_iterator;
+  SA_ITERATOR _sa_iterator;
 
 public:
-  LCPIterator() = default;
-  LCPIterator(SAIterator<INDEX, VEC> &__sa_iterator) : _sa_iterator(__sa_iterator)
+  iterator() = default;
+  iterator(SA_ITERATOR &__sa_iterator) : _sa_iterator(__sa_iterator)
   {
   }
   INDEX get_sa_index()
@@ -47,7 +53,7 @@ public:
     return this->_sa_iterator.get_text_size();
   }
 
-  LCPIterator &operator++()
+  iterator &operator++()
   {
     ++(this->_sa_iterator);
     return *this;
@@ -56,16 +62,16 @@ public:
   {
     return this->_sa_iterator.get_lcp();
   }
-  bool operator!=(const LCPIterator &rhs)
+  bool operator!=(const iterator &rhs)
   {
     bool b = (_sa_iterator) != (rhs._sa_iterator);
     return b;
   }
 
   template <typename CHAR = char>
-  static std::vector<INDEX> construct_sampling_lcp_array(RLBWT<CHAR> &rlbwt, BackwardTextIterator<CHAR> &&beginIt, BackwardTextIterator<CHAR> &&endIt)
+  static std::vector<INDEX> construct_sampling_lcp_array(RLBWT<CHAR> &rlbwt, typename BackwardText<CHAR, INDEX>::iterator &&beginIt, typename BackwardText<CHAR, INDEX>::iterator &&endIt)
   {
-    std::vector<INDEX> lcp_vec = construct_lcp_array(rlbwt, std::forward<BackwardTextIterator<CHAR>>(beginIt), std::forward<BackwardTextIterator<CHAR>>(endIt));
+    std::vector<INDEX> lcp_vec = construct_lcp_array(rlbwt, std::forward<typename BackwardText<CHAR, INDEX>::iterator>(beginIt), std::forward<typename BackwardText<CHAR, INDEX>::iterator>(endIt));
 
     std::vector<INDEX> mapper = rlbwt.construct_rle_fl_mapper();
 
@@ -91,9 +97,7 @@ public:
   }
   */
 };
-template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX> >
-class ForwardLCPArray
-{
+  using SA = ForwardSA<INDEX,VEC>;
   const ForwardSA<INDEX,VEC> *_sa = nullptr;
   bool deleteFlag = false;
   public:
@@ -101,7 +105,7 @@ class ForwardLCPArray
   {
   }
 
-  ForwardLCPArray(ForwardSA<INDEX,VEC> &&__sa) : _sa(new ForwardSA<INDEX,VEC> (std::move(__sa))), deleteFlag(true)
+  ForwardLCPArray(SA &&__sa) : _sa(new SA (std::move(__sa))), deleteFlag(true)
   {
   }
   ForwardLCPArray(ForwardLCPArray &&obj)
@@ -129,15 +133,15 @@ class ForwardLCPArray
   {
     if(deleteFlag)delete _sa;
   }
-  LCPIterator<INDEX, VEC> begin() const 
+  iterator begin() const 
   {
     auto it = this->_sa->begin();
-    return LCPIterator<INDEX, VEC >(it);
+    return iterator(it);
   }
-  LCPIterator<INDEX, VEC> end() const
+  iterator end() const
   {
     auto it = this->_sa->end();
-    return LCPIterator<INDEX, VEC>(it);
+    return iterator(it);
   }
   std::vector<INDEX> to_lcp_array() const 
   {
@@ -161,15 +165,15 @@ class ForwardLCPArray
     {
 
         //INDEX _str_size = _rlbwt->str_size();
-        std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = DataStructuresForSA::construct_sampling_sa(_rlbwt);
+        std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = SA::construct_sampling_sa(_rlbwt);
         std::vector<INDEX> _first_psa = std::move(pairVec.first);
         std::vector<INDEX> _last_psa = std::move(pairVec.second);
         INDEX _first_psa_value = _first_psa[0];
 
         std::vector<INDEX> succ_slcp_yorder = SamplingLCP<CHAR>::construct_sampling_lcp_array(*_rlbwt, _last_psa);
 
-        auto _succ_ssa_yorder = DataStructuresForSA::construct_succ_ssa_yorder(std::move(_first_psa), _last_psa);
-        auto _sorted_end_ssa = DataStructuresForSA::construct_sorted_end_ssa(std::move(_last_psa));
+        auto _succ_ssa_yorder = SA::construct_succ_ssa_yorder(std::move(_first_psa), _last_psa);
+        auto _sorted_end_ssa = SA::construct_sorted_end_ssa(std::move(_last_psa));
 
         auto _sa = ForwardSA<INDEX, std::vector<INDEX>>(std::move(_sorted_end_ssa), std::move(_succ_ssa_yorder), std::move(succ_slcp_yorder), _first_psa_value, _rlbwt->str_size());
 

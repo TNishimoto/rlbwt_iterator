@@ -35,7 +35,8 @@ public:
 template <typename INDEX = uint64_t, typename VEC = std::vector<uint64_t>>
 class PostorderSTIterator
 {
-  LCPIterator<INDEX, VEC> _lcp_forward_iterator;
+  using LCP_ITERATOR = typename ForwardLCPArray<INDEX, VEC>::iterator;
+  LCP_ITERATOR _lcp_forward_iterator;
   std::stack<IncompleteLCPInterval<INDEX>> incompleteStack;
   std::queue<IncompleteLCPInterval<INDEX>> outputQueue;
   LCPInterval<INDEX> _currenct_lcp_interval;
@@ -151,7 +152,7 @@ class PostorderSTIterator
 
 public:
   PostorderSTIterator() = default;
-  PostorderSTIterator(LCPIterator<INDEX, VEC> &__lcp_forward_iterator, bool isBegin) : _lcp_forward_iterator(__lcp_forward_iterator)
+  PostorderSTIterator(LCP_ITERATOR &__lcp_forward_iterator, bool isBegin) : _lcp_forward_iterator(__lcp_forward_iterator)
   {
     if (isBegin)
     {
@@ -187,6 +188,7 @@ public:
 template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX>>
 class PostorderSuffixTree
 {
+  using LCP_ITERATOR = typename ForwardLCPArray<INDEX, VEC>::iterator;
   const ForwardLCPArray<INDEX, VEC> *_lcp_generator;
   bool deleteFlag = false;
 
@@ -226,13 +228,13 @@ public:
 
   PostorderSTIterator<INDEX, VEC> begin() const
   {
-    LCPIterator<INDEX, VEC> lcp_it = this->_lcp_generator->begin();
+    LCP_ITERATOR lcp_it = this->_lcp_generator->begin();
     auto it = PostorderSTIterator<INDEX, VEC>(lcp_it, true);
     return it;
   }
   PostorderSTIterator<INDEX, VEC> end() const
   {
-    LCPIterator<INDEX, VEC> lcp_it = this->_lcp_generator->begin();
+    LCP_ITERATOR lcp_it = this->_lcp_generator->begin();
     auto it = PostorderSTIterator<INDEX, VEC>(lcp_it, false);
     return it;
   }
