@@ -360,16 +360,16 @@ public:
     template <typename CHAR = char, typename INDEX = uint64_t>
     static void construct_from_file(RLBWT<CHAR, INDEX, std::vector<CHAR>, std::vector<INDEX>> &rlbwt, std::string filepath)
     {
-        std::vector<char> cVec;
-        std::vector<uint64_t> nVec;
+        std::vector<CHAR> cVec;
+        std::vector<INDEX> nVec;
         itmmti::online_rlbwt_from_file(filepath, cVec, nVec, 1);
         rlbwt.set(std::move(cVec), std::move(nVec) );
     }
     template <typename CHAR = char, typename INDEX = uint64_t>
     static void construct_from_string(RLBWT<CHAR, INDEX, std::vector<CHAR>, std::vector<INDEX>> &rlbwt, std::string &text)
     {
-        std::vector<char> cVec;
-        std::vector<uint64_t> nVec;
+        std::vector<CHAR> cVec;
+        std::vector<INDEX> nVec;
         itmmti::online_rlbwt(text, cVec, nVec, 1);
         rlbwt.set(std::move(cVec), std::move(nVec) );
         /*
@@ -382,7 +382,7 @@ public:
     {
 
         std::vector<CHAR> cVec;
-        std::vector<uint64_t> nVec;
+        std::vector<INDEX> nVec;
         itmmti::online_rlbwt(text, cVec, nVec, 1);
         rlbwt.set(std::move(cVec), std::move(nVec) );
 
