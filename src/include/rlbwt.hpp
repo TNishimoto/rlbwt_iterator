@@ -11,7 +11,6 @@
 //#include "common/print.hpp"
 #include "other_functions.hpp"
 #include "OnlineRlbwt/online_rlbwt.hpp"
-#include "forward_bwt.hpp"
 //using namespace std;
 
 namespace stool
@@ -236,9 +235,11 @@ public:
         INDEX diff = lposition - this->get_lpos(lindex);
         return std::pair<INDEX, INDEX>(lindex, diff);
     }
+    /*
     stool::rlbwt::ForwardBWT<CHAR, INDEX, CHARVEC,POWVEC> get_bwt(){
         return stool::rlbwt::ForwardBWT<CHAR, INDEX, CHARVEC,POWVEC>(this->char_vec, this->run_vec);
     }
+    */
 };
 
 class RLBWTFunctions
