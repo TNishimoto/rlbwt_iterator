@@ -11,6 +11,7 @@
 //#include "common/print.hpp"
 #include "other_functions.hpp"
 #include "OnlineRlbwt/online_rlbwt.hpp"
+#include "forward_bwt.hpp"
 //using namespace std;
 
 namespace stool
@@ -21,6 +22,10 @@ namespace rlbwt
 template <typename CHAR = char, typename INDEX = uint64_t, typename CHARVEC = std::vector<CHAR>, typename POWVEC = std::vector<INDEX>>
 class RLBWT
 {
+    
+
+
+    private:
     bool deleteFlag = false;
     const CHARVEC *char_vec = nullptr;
     const POWVEC *run_vec = nullptr;
@@ -230,6 +235,9 @@ public:
         INDEX lindex = this->get_lindex_containing_the_position(lposition);
         INDEX diff = lposition - this->get_lpos(lindex);
         return std::pair<INDEX, INDEX>(lindex, diff);
+    }
+    stool::rlbwt::ForwardBWT<CHAR, INDEX, CHARVEC,POWVEC> get_bwt(){
+        return stool::rlbwt::ForwardBWT<CHAR, INDEX, CHARVEC,POWVEC>(this->char_vec, this->run_vec);
     }
 };
 
