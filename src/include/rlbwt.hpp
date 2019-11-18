@@ -381,7 +381,7 @@ public:
     static void construct_from_string(RLBWT<CHAR, INDEX, std::vector<CHAR>, std::vector<INDEX>> &rlbwt, std::string &&text)
     {
 
-        std::vector<char> cVec;
+        std::vector<CHAR> cVec;
         std::vector<uint64_t> nVec;
         itmmti::online_rlbwt(text, cVec, nVec, 1);
         rlbwt.set(std::move(cVec), std::move(nVec) );

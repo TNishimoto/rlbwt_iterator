@@ -193,7 +193,7 @@ class SamplingLCP
     }
     void loop(std::vector<uint64_t> &zero_lcp_findexes)
     {
-        MultipleTextPositionIterator<char> findex_iterator(zero_lcp_findexes, _rlbwt, _findexes_lorder);
+        MultipleTextPositionIterator<CHAR> findex_iterator(zero_lcp_findexes, _rlbwt, _findexes_lorder);
 
         while (this->_undetermined_rle_lindexes_of_LCP.size() > 0)
         {
