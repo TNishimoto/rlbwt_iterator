@@ -537,36 +537,6 @@ public:
     return _succ_ssa_yorder;
   }
 
-  void print_info() const
-  {
-    std::cout << "_sorted_end_ssa: ";
-    std::vector<uint64_t> r;
-    for (auto it : *_sorted_end_ssa)
-    {
-      r.push_back(it);
-    }
-    stool::Printer::print(r);
-    std::cout << "_succ_ssa_yorder: ";
-
-    std::vector<uint64_t> r2;
-    for (auto it : *_succ_ssa_yorder)
-    {
-      r2.push_back(it);
-    }
-    stool::Printer::print(r2);
-
-    std::cout << "_succ_slcp_yorder: ";
-    if (_succ_slcp_yorder != NULL)
-    {
-      std::vector<uint64_t> r3;
-      for (auto it : *_succ_slcp_yorder)
-      {
-        r3.push_back(it);
-      }
-      stool::Printer::print(r3);
-    }
-    std::cout << std::endl;
-  }
 };
 
 } // namespace rlbwt
