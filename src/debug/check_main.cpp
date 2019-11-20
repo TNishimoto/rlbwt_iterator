@@ -5,6 +5,7 @@
 #include "../common/io.h"
 
 #include "../include/rlbwt_iterator.hpp"
+#include "../include/bwt.hpp"
 
 
 
@@ -210,104 +211,6 @@ bool test_lcp(RLBWT<CHAR, INDEX> &rlestr, vector<INDEX> &lcp)
     }
     return b;
 }
-
-bool test_lcp_interval(RLBWT<CHAR, INDEX> &rlestr, vector<LCPInterval<INDEX>> &intervals)
-{
-
-    std::cout << "\033[47m"
-              << "\033[31m"
-              << "\033[1m"
-              << "Test: LCP Intervals"
-              << "\033[0m";
-    rlbwt::PostorderSuffixTree<> w2;
-    w2.construct_from_rlbwt<>(&rlestr, false);
-    vector<LCPInterval<uint64_t>> intervals2 = w2.to_lcp_intervals();
-
-    if (intervals.size() <= 300 && SHOW)
-    {
-        std::cout << "\033[32m"
-                  << "\033[1m"
-                  << "Collect LCP intervals: " << std::endl;
-
-        for (auto it : intervals)
-        {
-            std::cout << it.to_string();
-        }
-        std::cout << std::endl;
-
-        std::cout << "\033[35m"
-                  << "\033[1m"
-                  << "Computed LCP intervals from RLBWT: " << std::endl;
-
-        for (auto it : intervals2)
-        {
-            std::cout << it.to_string();
-        }
-        std::cout << "\033[0m" << std::endl;
-    }
-
-    bool b = equalCheck(intervals, intervals2);
-    if (b)
-    {
-        std::cout << "\033[32m"
-                  << "\033[1m"
-                  << "OK! "
-                  << "\033[0m" << std::endl;
-    }
-    return b;
-}
-
-bool test_ms(RLBWT<CHAR, INDEX> &rlestr, vector<LCPInterval<INDEX>> &intervals)
-{
-    std::cout << "\033[47m"
-              << "\033[31m"
-              << "\033[1m"
-              << "Test: MS Intervals"
-              << "\033[0m";
-    rlbwt::PostorderMaximalSubstrings<> w2;
-    w2.construct_from_rlbwt(&rlestr, false);
-    vector<LCPInterval<uint64_t>> intervals2 = w2.to_ms_intervals();
-
-    if (intervals.size() <= 300 && SHOW)
-    {
-        std::cout << "\033[32m"
-                  << "\033[1m"
-                  << "Collect MS intervals: " << std::endl;
-
-        for (auto it : intervals)
-        {
-            std::cout << it.to_string();
-        }
-        std::cout << std::endl;
-
-        std::cout << "\033[35m"
-                  << "\033[1m"
-                  << "Computed MS intervals from RLBWT: " << std::endl;
-
-        for (auto it : intervals2)
-        {
-            std::cout << it.to_string();
-        }
-
-        std::cout << "\033[0m" << std::endl;
-    }
-    bool b = equalCheck(intervals, intervals2);
-    if (b)
-    {
-        std::cout << "\033[32m"
-                  << "\033[1m"
-                  << "OK! "
-                  << "\033[0m" << std::endl;
-    }
-
-    std::cout << "\033[36m";
-    std::cout << "=============Maximal Substring Test===============" << std::endl;
-    std::cout << "The number of maximal substrings: " << intervals.size() << std::endl;
-    std::cout << "==================================" << std::endl;
-    std::cout << "\033[39m" << std::endl;
-
-    return b;
-}
 bool test_load(string filepath, string& bwt){
 
     std::cout << "\033[47m"
@@ -422,13 +325,15 @@ int main(int argc, char *argv[])
 
     RLBWT<char>::check_text_for_rlbwt(text);
 
+    
     std::cout << "Constructing SA by naive soring..." << std::endl;
     vector<INDEX> sa = stool::rlbwt::SuffixArrayConstructor::naive_sa<INDEX>(text);
+    
     string bwt = stool::rlbwt::SuffixArrayConstructor::construct_bwt(text, sa);
     vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
     vector<INDEX> lcp = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
-    vector<LCPInterval<INDEX>> intervals = LCPInterval<INDEX>::createLCPIntervals(sa, lcp);
-    vector<LCPInterval<INDEX>> maximalSubstrings = PostorderMSIterator<>::naive_compute_maximal_substrings2(text);
+    //vector<LCPInterval<INDEX>> intervals = LCPInterval<INDEX>::createLCPIntervals(sa, lcp);
+    //vector<LCPInterval<INDEX>> maximalSubstrings = PostorderMSIterator<>::naive_compute_maximal_substrings2(text);
 
 
     test_isa(rlestr, isa);
@@ -436,9 +341,10 @@ int main(int argc, char *argv[])
 
     test_sa(rlestr,sa);
     test_lcp(rlestr, lcp);
-    test_lcp_interval(rlestr, intervals);
-    test_ms(rlestr, maximalSubstrings);
+    //test_lcp_interval(rlestr, intervals);
+    //test_ms(rlestr, maximalSubstrings);
     test_load(inputFile, bwt);
+    
 
     /*
     */

@@ -1,11 +1,11 @@
 #include <cassert>
 #include <chrono>
-#include "common/cmdline.h"
-#include "common/io.h"
-#include "include/rlbwt.hpp"
-#include "include/bwt.hpp"
+#include "../common/cmdline.h"
+#include "../common/io.h"
+#include "../include/rlbwt.hpp"
+#include "../include/bwt.hpp"
 //#include "src/constructor.hpp"
-#include "online_rlbwt.hpp"
+#include "OnlineRlbwt/online_rlbwt.hpp"
 
 using namespace std;
 using namespace stool;

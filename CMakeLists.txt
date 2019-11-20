@@ -32,15 +32,18 @@ set(MYMOD_SOURCE_DIR ${CMAKE_SOURCE_DIR}/module)
   add_subdirectory(${MYMOD_SOURCE_DIR}/OnlineRlbwt ${MYMOD_BINARY_DIR}/OnlineRlbwt)
 
 endif()
-include_directories(${MYMOD_SOURCE_DIR}/Basics)
-include_directories(${MYMOD_SOURCE_DIR}/BTree)
-include_directories(${MYMOD_SOURCE_DIR}/OnlineRlbwt)
+include_directories(${MYMOD_SOURCE_DIR})
+#include_directories(${MYMOD_SOURCE_DIR}/Basics)
+#include_directories(${MYMOD_SOURCE_DIR}/BTree)
+#include_directories(${MYMOD_SOURCE_DIR}/OnlineRlbwt)
 
 
 FILE(GLOB SOURCES src/common/*.cpp)
 
-#add_executable(compress.out src/compress_main.cpp ${SOURCES})
-#target_link_libraries(compress.out online_rlbwt Basics BTree)
+
+include_directories(module)
+add_executable(compress.out src/main/compress_main.cpp ${SOURCES})
+target_link_libraries(compress.out online_rlbwt Basics BTree)
 
 #add_executable(decompress.out src/decompress_main.cpp ${SOURCES})
 #target_link_libraries(decompress.out online_rlbwt Basics BTree)
@@ -57,8 +60,11 @@ FILE(GLOB SOURCES src/common/*.cpp)
 #add_executable(test.out src/debug/test_main.cpp ${INCLUDE_FILES})
 #target_link_libraries(test.out online_rlbwt Basics BTree)
 
-#add_executable(check.out src/debug/check_main.cpp)
-#target_link_libraries(check.out online_rlbwt Basics BTree)
+add_executable(check.out src/debug/check_main.cpp)
+target_link_libraries(check.out online_rlbwt Basics BTree)
+
+add_executable(data_viewer.out src/debug/data_viewer_main.cpp)
+target_link_libraries(data_viewer.out online_rlbwt Basics BTree)
 
 
 FILE(GLOB INCLUDE_FILES src/include/*.hpp)
