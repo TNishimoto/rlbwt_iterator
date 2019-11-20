@@ -1,11 +1,12 @@
 #include <cassert>
 #include <chrono>
-#include "../common/cmdline.h"
-#include "../common/io.h"
-#include "../include/rlbwt.hpp"
-#include "../include/bwt.hpp"
+//#include "../common/cmdline.h"
+//#include "../common/io.h"
 //#include "src/constructor.hpp"
+#include "stool/src/io.hpp"
+#include "stool/src/cmdline.h"
 #include "OnlineRlbwt/online_rlbwt.hpp"
+#include "../include/rlbwt_iterator.hpp"
 
 using namespace std;
 using namespace stool;
@@ -25,73 +26,52 @@ int main(int argc, char *argv[])
     string inputType = p.get<string>("input_type");
     string outputType = p.get<string>("output_type");
 
-    std::ifstream ifs(inputFile);
-    bool inputFileExist = ifs.is_open();
-    if (!inputFileExist)
-    {
-        std::cout << inputFile << " cannot open." << std::endl;
-        return -1;
-    }
+    uint64_t textSize = 0;
 
-    string text = "";
-    std::cout << "Loading : " << inputFile << std::endl;
-    stool::IO::load(inputFile, text);
-
-    std::cout << text << std::endl;
-
-    //if(isReverse)stool::StringFunctions::reverse(text);
-
-    //vector<LZFactor> factors;
+    outputType = outputType == "rlbwt" ? "rlbwt" : "bwt";
+    inputType = inputType == "text" ? "text" : "rlbwt";
+      
 
     auto start = std::chrono::system_clock::now();
     RLBWT<char> rlestr;
 
-    /*
-    vector<char> cVec;
-    vector<uint64_t> nVec;
-    itmmti::online_rlbwt_from_file(inputFile, cVec, nVec, 1);
-    Printer::print(cVec);
-    Printer::print(nVec);
-    */
-
     if (inputType == "text")
     {
-        text += (char)0;
-        if (outputType == "rlbwt")
-        {
-            if (outputFile.size() == 0)
-            {
-                outputFile = inputFile + ".rlbwt";
-            }
-            Constructor::construct_from_file<char, uint64_t>(rlestr, inputFile);
-
-            Printer::print(*rlestr.get_char_vec());
-            Printer::print(*rlestr.get_run_vec() );
-
-            rlestr.write(outputFile);
-        }
-        else
-        {
-            if (outputFile.size() == 0)
-            {
-                outputFile = inputFile + ".bwt";
-            }
-            string bwt = "";
-            bwt = itmmti::online_bwt(text);
-
-            stool::IO::write(outputFile, bwt);
-        }
+        Constructor::construct_from_file<char, uint64_t>(rlestr, inputFile);
     }
     else
+    {
+        string text = stool::load_string_from_file(inputFile, false);
+        Constructor::construct_from_bwt<char, uint64_t>(rlestr, text);
+    }
+    textSize = rlestr.str_size();
+
+    if (outputType == "rlbwt")
     {
         if (outputFile.size() == 0)
         {
             outputFile = inputFile + ".rlbwt";
         }
-
-        Constructor::construct_from_bwt<char, uint64_t>(rlestr, text);
         rlestr.write(outputFile);
     }
+    else
+    {
+        if (outputFile.size() == 0)
+        {
+            outputFile = inputFile + ".bwt";
+        }
+
+        using BWT_RLBWT = stool::rlbwt::ForwardBWT<char, uint64_t>;
+        BWT_RLBWT bwt_rlbwt(&rlestr);
+
+        std::vector<char> bwt;
+        for (auto it : bwt_rlbwt)
+        {
+            bwt.push_back(it);
+        }
+        stool::write_vector(outputFile, bwt, false);
+    }
+
     auto end = std::chrono::system_clock::now();
     double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
@@ -102,8 +82,8 @@ int main(int argc, char *argv[])
     std::cout << "Output : " << outputFile << std::endl;
     std::cout << "OutputType : " << outputType << std::endl;
 
-    std::cout << "The length of the input text : " << text.size() << std::endl;
-    double charperms = (double)text.size() / elapsed;
+    std::cout << "The length of the input text : " << textSize << std::endl;
+    double charperms = (double)textSize / elapsed;
     std::cout << "The number of runs : " << rlestr.rle_size() << std::endl;
     std::cout << "Excecution time : " << elapsed << "ms";
     std::cout << "[" << charperms << "chars/ms]" << std::endl;

@@ -1,8 +1,11 @@
 #include <cassert>
 #include <chrono>
-#include "../common/cmdline.h"
-#include "../common/print.hpp"
-#include "../common/io.h"
+//#include "../common/cmdline.h"
+//#include "../common/print.hpp"
+//#include "../common/io.h"
+
+#include "stool/src/io.hpp"
+#include "stool/src/cmdline.h"
 
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
@@ -218,12 +221,14 @@ bool test_load(string filepath, string& bwt){
               << "\033[1m"
               << "Test: load RLBWT"
               << "\033[0m" << std::endl;
-    string text = "";
-    stool::IO::load(filepath, text);
+    //string text = "";
+    //stool::IO::load(filepath, text);
  
+    string text = stool::load_string_from_file(filepath, false);
     
     RLBWT<CHAR, INDEX> rlestr2;
     Constructor::construct_from_string(rlestr2, text);
+
 
 
     //text.push_back((char)0);
@@ -298,17 +303,22 @@ int main(int argc, char *argv[])
     string inputFile = p.get<string>("input_file");
     string mode = p.get<string>("mode");
 
+/*
     std::ifstream ifs(inputFile);
+    
     bool inputFileExist = ifs.is_open();
     if (!inputFileExist)
     {
         std::cout << inputFile << " cannot open." << std::endl;
         return -1;
     }
+    */
 
-    string text = "";
-    std::cout << "Loading : " << inputFile << std::endl;
-    stool::IO::load(inputFile, text);
+    string text = stool::load_string_from_file(inputFile, false);
+
+    //string text = "";
+    //std::cout << "Loading : " << inputFile << std::endl;
+    //stool::IO::load(inputFile, text);
 
     RLBWT<CHAR, INDEX> rlestr;
     //Constructor::construct_from_bwt<CHAR, INDEX>(rlestr, bwt);

@@ -39,10 +39,11 @@ include_directories(${MYMOD_SOURCE_DIR})
 
 
 FILE(GLOB SOURCES src/common/*.cpp)
+FILE(GLOB STOOL_SOURCES module/stool/src/*.cpp)
 
 
 include_directories(module)
-add_executable(compress.out src/main/compress_main.cpp ${SOURCES})
+add_executable(compress.out ${STOOL_SOURCES} src/main/compress_main.cpp ${SOURCES})
 target_link_libraries(compress.out online_rlbwt Basics BTree)
 
 #add_executable(decompress.out src/decompress_main.cpp ${SOURCES})
@@ -60,10 +61,10 @@ target_link_libraries(compress.out online_rlbwt Basics BTree)
 #add_executable(test.out src/debug/test_main.cpp ${INCLUDE_FILES})
 #target_link_libraries(test.out online_rlbwt Basics BTree)
 
-add_executable(check.out src/debug/check_main.cpp)
+add_executable(check.out ${STOOL_SOURCES} src/debug/check_main.cpp)
 target_link_libraries(check.out online_rlbwt Basics BTree)
 
-add_executable(data_viewer.out src/debug/data_viewer_main.cpp)
+add_executable(data_viewer.out ${STOOL_SOURCES} src/debug/data_viewer_main.cpp)
 target_link_libraries(data_viewer.out online_rlbwt Basics BTree)
 
 

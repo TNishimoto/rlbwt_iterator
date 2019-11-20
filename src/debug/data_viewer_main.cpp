@@ -1,12 +1,13 @@
 #include <cassert>
 #include <chrono>
-#include "../common/cmdline.h"
-#include "../common/print.hpp"
-#include "../common/io.h"
+//#include "../common/cmdline.h"
+//#include "../common/print.hpp"
+//#include "../common/io.h"
 
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
-
+#include "stool/src/io.hpp"
+#include "stool/src/cmdline.h"
 
 
 using namespace std;
@@ -34,9 +35,9 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    string text = "";
+    //string text = "";
     std::cout << "Loading : " << inputFile << std::endl;
-    stool::IO::load(inputFile, text);
+    string text = stool::load_string_from_file(inputFile, false);
 
     RLBWT<CHAR, INDEX> rlestr;
     //Constructor::construct_from_bwt<CHAR, INDEX>(rlestr, bwt);
