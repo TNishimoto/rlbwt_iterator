@@ -11,6 +11,7 @@
 //#include "common/print.hpp"
 #include "other_functions.hpp"
 #include "OnlineRlbwt/online_rlbwt.hpp"
+#include "sd_vector.hpp"
 //using namespace std;
 
 namespace stool
@@ -386,6 +387,23 @@ public:
         Constructor::construct_from_bwt<CHAR, INDEX>(rlbwt, bwt);
         */
     }
+    template <typename CHAR = char, typename INDEX = uint64_t>
+    static void construct_from_string_with_sd_vector(RLBWT<CHAR, INDEX, std::vector<CHAR>, sdsl::sd_vector<> > &rlbwt, std::string &text)
+    {
+        std::vector<CHAR> cVec;
+        std::vector<INDEX> nVec;
+        itmmti::online_rlbwt(text, cVec, nVec, 1);
+
+        using RUNVEC = sdsl::sd_vector<>;
+        RUNVEC nVec2;
+        constructSDVector(nVec, nVec2, NULL, NULL);
+        rlbwt.set(std::move(cVec), std::move(nVec2) );
+        /*
+        string bwt = stool::rlbwt::SuffixArrayConstructor::construct_bwt(text);
+        Constructor::construct_from_bwt<CHAR, INDEX>(rlbwt, bwt);
+        */
+    }
+
     template <typename CHAR = char, typename INDEX = uint64_t>
     static void construct_from_string(RLBWT<CHAR, INDEX, std::vector<CHAR>, std::vector<INDEX>> &rlbwt, std::string &&text)
     {
