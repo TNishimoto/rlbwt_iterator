@@ -17,7 +17,7 @@ class RLEFArrayIterator
 {
   private:
     INDEX _rle_findex = 0;
-    const RLBWT<CHAR> &_rlbwt;
+    const RLBWT_STR &_rlbwt;
     std::vector<INDEX> &fl_mapper;
     INDEX _findex = 0;
 

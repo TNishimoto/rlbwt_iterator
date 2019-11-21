@@ -15,7 +15,7 @@ namespace rlbwt
 {
 
 template <typename T>
-void constructSDVector(std::vector<T> &sortedItems,sdsl::sd_vector<> &output, sdsl::sd_vector<>::rank_1_type *ranker, sdsl::sd_vector<>::select_1_type *selecter)
+void constructSDVector(std::vector<T> &sortedItems, sdsl::sd_vector<> &output, sdsl::sd_vector<>::rank_1_type *ranker, sdsl::sd_vector<>::select_1_type *selecter)
 {
     uint64_t max = 0;
     if (sortedItems.size() > 0)
@@ -43,6 +43,118 @@ void constructSDVector(std::vector<T> &sortedItems,sdsl::sd_vector<> &output, sd
         selecter->swap(_selecter);
     }
 }
+
+class SDVectorSeq
+{
+public:
+    class iterator
+    {
+    private:
+        uint64_t index = 0;
+        const sdsl::sd_vector<>::select_1_type *selecter;
+
+    public:
+        using value_type = uint64_t;
+        iterator(const sdsl::sd_vector<>::select_1_type *_selecter, uint64_t _index) : index(_index), selecter(_selecter)
+        {
+        }
+
+        iterator &operator++()
+        {
+            this->index++;
+            return *this;
+        }
+        uint64_t operator*()
+        {
+            return (*selecter)(this->index+1);
+        }
+        bool operator!=(const iterator &rhs)
+        {
+            return (index != rhs.index);
+        }
+        bool operator==(const iterator &rhs)
+        {
+            return (index == rhs.index);
+        }
+
+        bool operator<(const iterator &rhs)
+        {
+            return (index < rhs.index);
+        }
+        bool operator>(const iterator &rhs)
+        {
+            return (index > rhs.index);
+        }
+        bool operator<=(const iterator &rhs)
+        {
+            return (index <= rhs.index);
+        }
+        bool operator>=(const iterator &rhs)
+        {
+            return (index >= rhs.index);
+        }
+        uint64_t operator-(const iterator &rhs)
+        {
+            if (this->index < rhs.index)
+            {
+                return rhs.index - this->index;
+            }
+            else
+            {
+                return this->index - rhs.index;
+            }
+        }
+    };
+
+private:
+    sdsl::sd_vector<> item;
+    sdsl::sd_vector<>::select_1_type selecter;
+    uint64_t _size = 0;
+
+public:
+
+    SDVectorSeq()
+    {
+    }
+
+    SDVectorSeq(SDVectorSeq &&obj)
+    {
+
+
+        this->item.swap(obj.item);
+        sdsl::sd_vector<>::select_1_type _selecter(&item);
+        selecter.set_vector(&item);
+        selecter.swap(_selecter);
+        this->_size = obj._size;
+
+    }
+    void construct(std::vector<uint64_t> &sortedItems)
+    {
+        _size = sortedItems.size();
+        constructSDVector(sortedItems, item, NULL, &selecter);
+    }
+
+    uint64_t operator[](uint64_t n) const
+    {
+        uint64_t p = selecter(n+1);
+        return p;
+    }
+    uint64_t size() const
+    {
+        return _size;
+    }
+
+    iterator begin() const
+    {
+        auto p = iterator(&this->selecter, 0);
+        return p;
+    }
+    iterator end() const
+    {
+        auto p = iterator(&this->selecter, this->size());
+        return p;
+    }
+};
 
 } // namespace rlbwt
 } // namespace stool

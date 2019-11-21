@@ -105,8 +105,8 @@ bool test_text(RLBWT_TYPE &rlestr, string &text)
 }
 
 
-template <typename CHAR = char, typename INDEX = uint64_t, typename RLBWT_TYPE = RLBWT<CHAR, INDEX>>
-bool test_isa(RLBWT_TYPE &rlestr, vector<INDEX> &isa)
+template <typename CHAR = char, typename INDEX = uint64_t, typename RLBWT_TYPE = RLBWT<CHAR, INDEX>, typename ISA_RLBWT>
+bool test_isa(RLBWT_TYPE &rlestr, vector<INDEX> &isa, ISA_RLBWT &w)
 {
 
     std::cout << "\033[47m"
@@ -115,8 +115,9 @@ bool test_isa(RLBWT_TYPE &rlestr, vector<INDEX> &isa)
               << "Test: ISA"
               << "\033[0m" << std::endl;
 
-    BackwardISA<> w;
+    std::vector<uint64_t> p;
     w.construct_from_rlbwt(&rlestr, false);
+
     vector<INDEX> isa2 = w.to_isa();
 
     if (isa.size() <= 100 && SHOW)
@@ -284,11 +285,14 @@ void test(string &text){
         vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
         vector<INDEX> lcp = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
 
-        test_isa(rlestr, isa);
+        std::cout << "/" << sizeof(typename RLBWT<CHAR, INDEX>::char_vec_type) << std::endl;
+        BackwardISA<INDEX> w;
+        test_isa(rlestr, isa, w);
         test_text(rlestr, text);
 
         test_sa(rlestr, sa);
         test_lcp(rlestr, lcp);
+        text.pop_back();
 }
 
 
@@ -296,7 +300,7 @@ template <typename CHAR = char, typename INDEX = uint64_t>
 void testWithSDSL(string &text){
 
 
-        RLBWT<CHAR, INDEX, std::vector<CHAR>, sdsl::sd_vector<> > rlestr;
+        RLBWT<CHAR, INDEX, std::vector<CHAR>, SDVectorSeq > rlestr;
         Constructor::construct_from_string_with_sd_vector(rlestr, text);
 
         text.push_back((char)0);
@@ -317,11 +321,14 @@ void testWithSDSL(string &text){
         vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
         vector<INDEX> lcp = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
 
-        test_isa(rlestr, isa);
+        BackwardISA<INDEX, SDVectorSeq> w;
+
+        //test_isa(rlestr, isa, w);
         //test_text(rlestr, text);
 
         //test_sa(rlestr, sa);
         //test_lcp(rlestr, lcp);
+        text.pop_back();
 }
 
 int main(int argc, char *argv[])
@@ -342,6 +349,7 @@ using INDEX = uint64_t;
 
         string text = stool::load_string_from_file(inputFile, false);
         test(text);
+        std::cout << "SDSL" << std::endl;
         testWithSDSL(text);
         //test_load(inputFile, bwt);
 

@@ -17,7 +17,7 @@ namespace rlbwt
 /*
     This class is the generator for BackwardISAIterator. 
   */
-template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX>>
+template <typename INDEX = uint64_t, typename RUNVEC = std::vector<INDEX>, typename VEC = std::vector<INDEX> >
 class BackwardISA
 {
 /*
@@ -28,7 +28,7 @@ public:
 class iterator
 {
 private:
-  const VEC &_run_vec;
+  const RUNVEC &_run_vec;
   const VEC &_findexes_lorder;
   const VEC *_rle_lf_lorder = nullptr;
 
@@ -40,11 +40,11 @@ private:
 public:
   iterator() = default;
 
-  iterator(INDEX __rle_lposition, INDEX __diff, const VEC &__run_vec, const VEC &__findexes_lorder)
+  iterator(INDEX __rle_lposition, INDEX __diff, const RUNVEC &__run_vec, const VEC &__findexes_lorder)
       : _run_vec(__run_vec), _findexes_lorder(__findexes_lorder), _diff(__diff), _rle_lposition(__rle_lposition), _end_lposition(__rle_lposition)
   {
   }
-  iterator(const VEC &__run_vec, const VEC &__findexes_lorder) : _run_vec(__run_vec), _findexes_lorder(__findexes_lorder)
+  iterator(const RUNVEC &__run_vec, const VEC &__findexes_lorder) : _run_vec(__run_vec), _findexes_lorder(__findexes_lorder)
   {
   }
 
@@ -97,7 +97,7 @@ public:
     {
       INDEX findex = this->fpos();
       INDEX start_pos = (*this->_rle_lf_lorder)[this->_rle_lposition];
-      int64_t j = SortedVec<std::vector<INDEX>>::pred_by_linear_search(this->_run_vec, findex, start_pos);
+      int64_t j = SortedVec<RUNVEC >::pred_by_linear_search(this->_run_vec, findex, start_pos);
       assert(j != -1);
       _diff = findex - this->_run_vec[j];
       _rle_lposition = j;
@@ -143,7 +143,7 @@ public:
 
 private:
   //const RLBWT_STR *_rlbwt = nullptr;
-  const VEC *_run_vec = nullptr;
+  const RUNVEC *_run_vec = nullptr;
   const VEC *_findexes_lorder = nullptr;
   VEC *_rle_lf_lorder = nullptr;
   INDEX _rle_end_lposition;
@@ -173,7 +173,7 @@ public:
   }
   */
 
-  void set(const VEC *__run_vec, VEC &&__findexes_lorder, INDEX __end_rle_lposition)
+  void set(const RUNVEC *__run_vec, VEC &&__findexes_lorder, INDEX __end_rle_lposition)
   {
     this->_run_vec = __run_vec;
     this->_findexes_lorder = new VEC(std::move(__findexes_lorder));
@@ -181,7 +181,7 @@ public:
     //this->_end_character_position = 0;
     this->deleteFlag = true;
   }
-  void set(const VEC *__run_vec, VEC &&__findexes_lorder, VEC &&__rle_lf_lorder, INDEX __end_rle_lposition)
+  void set(const RUNVEC *__run_vec, VEC &&__findexes_lorder, VEC &&__rle_lf_lorder, INDEX __end_rle_lposition)
   {
     this->_run_vec = __run_vec;
     this->_findexes_lorder = new VEC(std::move(__findexes_lorder));
@@ -263,7 +263,7 @@ public:
   }
   INDEX str_size() const
   {
-    return RLBWTArrayFunctions::str_size<INDEX, VEC>(*this->_run_vec);
+    return RLBWTArrayFunctions::str_size<INDEX, RUNVEC>(*this->_run_vec);
   }
 
   template <typename CHAR = char, typename RLBWT_STR>
@@ -271,11 +271,11 @@ public:
   {
     if (faster)
     {
-      this->set(_rlbwt->get_run_vec(), RLBWTFunctions::construct_fpos_array<INDEX>(*_rlbwt), RLBWTFunctions2::construct_rle_lf_lorder<CHAR, INDEX>(*_rlbwt), _rlbwt->get_end_rle_lposition());
+      this->set(_rlbwt->get_run_vec(), RLBWTFunctions::construct_fpos_array<INDEX, RLBWT_STR>(*_rlbwt), RLBWTFunctions2::construct_rle_lf_lorder<CHAR, INDEX, RLBWT_STR>(*_rlbwt), _rlbwt->get_end_rle_lposition());
     }
     else
     {
-      this->set(_rlbwt->get_run_vec(), RLBWTFunctions::construct_fpos_array<INDEX>(*_rlbwt), _rlbwt->get_end_rle_lposition());
+      this->set(_rlbwt->get_run_vec(), RLBWTFunctions::construct_fpos_array<INDEX, RLBWT_STR>(*_rlbwt), _rlbwt->get_end_rle_lposition());
     }
   }
 };

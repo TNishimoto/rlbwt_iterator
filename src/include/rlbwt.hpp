@@ -31,6 +31,10 @@ class RLBWT
     const POWVEC *run_vec = nullptr;
 
 public:
+    typedef CHARVEC char_vec_type;
+    typedef POWVEC run_vec_type;
+    typedef INDEX index_type;
+    typedef CHAR char_type;
 
     RLBWT() : deleteFlag(false)
     {
@@ -86,6 +90,11 @@ public:
     {
         return this->run_vec;
     }
+    POWVEC* get_run_vec_no_const() const
+    {
+        return this->run_vec;
+    }
+
     const CHARVEC* get_char_vec() const
     {
         return this->char_vec;
@@ -126,7 +135,7 @@ public:
     }
     INDEX get_run(INDEX i) const
     {
-        return (*run_vec)[i + 1] - (*run_vec)[i];
+        return (*run_vec)[(i + 1)] - (*run_vec)[i];
     }
     INDEX get_lpos(INDEX i) const
     {
@@ -314,6 +323,7 @@ class RLBWTArrayFunctions{
         auto p = std::upper_bound(run_vec.begin(), run_vec.end(), lposition);
         INDEX pos = distance(run_vec.begin(), p) - 1;
         return pos;
+        
     }
 
     template <typename INDEX = uint64_t, typename VEC = std::vector<uint64_t>>
@@ -388,15 +398,16 @@ public:
         */
     }
     template <typename CHAR = char, typename INDEX = uint64_t>
-    static void construct_from_string_with_sd_vector(RLBWT<CHAR, INDEX, std::vector<CHAR>, sdsl::sd_vector<> > &rlbwt, std::string &text)
+    static void construct_from_string_with_sd_vector(RLBWT<CHAR, INDEX, std::vector<CHAR>, SDVectorSeq > &rlbwt, std::string &text)
     {
         std::vector<CHAR> cVec;
         std::vector<INDEX> nVec;
         itmmti::online_rlbwt(text, cVec, nVec, 1);
 
-        using RUNVEC = sdsl::sd_vector<>;
+        using RUNVEC = SDVectorSeq;
         RUNVEC nVec2;
-        constructSDVector(nVec, nVec2, NULL, NULL);
+        nVec2.construct(nVec);
+        //constructSDVector(nVec, nVec2, NULL, NULL);
         rlbwt.set(std::move(cVec), std::move(nVec2) );
         /*
         string bwt = stool::rlbwt::SuffixArrayConstructor::construct_bwt(text);
