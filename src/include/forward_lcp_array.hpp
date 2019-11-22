@@ -179,7 +179,7 @@ public:
     std::vector<INDEX> _last_psa = std::move(pairVec.second);
     INDEX _first_psa_value = _first_psa[0];
 
-    std::vector<INDEX> succ_slcp_yorder = SamplingLCP<CHAR>::construct_sampling_lcp_array(*_rlbwt, _last_psa);
+    std::vector<INDEX> succ_slcp_yorder = SamplingLCP<RLBWT_STR>::construct_sampling_lcp_array(*_rlbwt, _last_psa);
 
     auto _succ_ssa_yorder = SA::construct_succ_ssa_yorder(std::move(_first_psa), _last_psa);
     auto _sorted_end_ssa = SA::construct_sorted_end_ssa(std::move(_last_psa));

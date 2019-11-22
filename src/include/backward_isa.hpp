@@ -268,7 +268,7 @@ public:
     return RLBWTArrayFunctions::str_size<INDEX, RUNVEC>(*this->_run_vec);
   }
 
-  template <typename CHAR = char, typename RLBWT_STR>
+  template <typename RLBWT_STR>
   void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
   {
     if (faster)

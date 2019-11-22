@@ -13,10 +13,10 @@ namespace rlbwt
 /*
     This class is the generator for BackwardTextIterator. 
   */
-template <typename CHARVEC = std::vector<char>, typename VEC = std::vector<uint64_t>>
+template <typename CHARVEC = std::vector<char>, typename POWVEC = std::vector<uint64_t>, typename VEC = std::vector<uint64_t>>
 class BackwardText
 {
-  using ISA_IT = typename BackwardISA<VEC>::iterator;
+  using ISA_IT = typename BackwardISA<POWVEC, VEC>::iterator;
 
   /*
     This iterator enumerates the original input text in the back-to-front order of the text, 
@@ -93,18 +93,18 @@ public:
 private:
   //const RLBWT<CHAR, INDEX> &_rlbwt;
   const CHARVEC *_char_vec;
-  const BackwardISA<VEC> *_isa;
+  const BackwardISA<POWVEC, VEC> *_isa;
   bool deleteFlag = false;
 
 public:
   BackwardText()
   {
   }
-  BackwardText(CHARVEC *&__char_vec, const BackwardISA<VEC> *__isa) : _char_vec(__char_vec), _isa(__isa), deleteFlag(false)
+  BackwardText(CHARVEC *&__char_vec, const BackwardISA<POWVEC, VEC> *__isa) : _char_vec(__char_vec), _isa(__isa), deleteFlag(false)
   {
   }
 
-  BackwardText(CHARVEC *&__char_vec, BackwardISA<VEC> &&__isa) : _char_vec(__char_vec), _isa(new BackwardISA<VEC>(std::move(__isa))), deleteFlag(true)
+  BackwardText(CHARVEC *&__char_vec, BackwardISA<POWVEC, VEC> &&__isa) : _char_vec(__char_vec), _isa(new BackwardISA<VEC>(std::move(__isa))), deleteFlag(true)
   {
   }
 
@@ -122,10 +122,10 @@ public:
     this->deleteFlag = obj.deleteFlag;
     obj.deleteFlag = false;
   }
-  void set(const CHARVEC *__char_vec, BackwardISA<VEC> &&__isa)
+  void set(const CHARVEC *__char_vec, BackwardISA<POWVEC, VEC> &&__isa)
   {
     this->_char_vec = __char_vec;
-    this->_isa = new BackwardISA<VEC>(std::move(__isa));
+    this->_isa = new BackwardISA<POWVEC, VEC>(std::move(__isa));
     deleteFlag = true;
   }
 
@@ -173,10 +173,10 @@ public:
     assert(p == 0);
     return r;
   }
-  template <typename RLBWT_STR>
-  void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
+  //template <typename RLBWT_STR>
+  void construct_from_rlbwt(const RLBWT<CHARVEC, POWVEC> *_rlbwt, bool faster = false)
   {
-    BackwardISA<> isa;
+    BackwardISA<POWVEC> isa;
     isa.construct_from_rlbwt(_rlbwt, faster);
     this->set(_rlbwt->get_char_vec(), std::move(isa));
     //return BackwardText<CHAR, INDEX, BackwardISA<CHAR, INDEX, vector<INDEX>, RLBWT_STR>>(std::move(isa) );

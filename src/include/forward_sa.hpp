@@ -163,8 +163,8 @@ public:
       return (_tIndex != rhs._tIndex) || (_saIndex != rhs._saIndex);
     }
 
-    template <typename CHAR = char>
-    static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa_lorder(const RLBWT<> &rlbwt, typename BackwardISA<VEC>::iterator &&beginIt, typename BackwardISA<VEC>::iterator &&endIt)
+    template <typename RLBWT_STR, typename BackwardISAIterator>
+    static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa_lorder(const RLBWT_STR &rlbwt, BackwardISAIterator &&beginIt, BackwardISAIterator &&endIt)
     {
       //std::cout << "Constructing sampled suffix array" << std::flush;
 
@@ -511,7 +511,8 @@ public:
   template <typename RLBWT_STR>
   static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa(const RLBWT_STR *rlbwt)
   {
-    BackwardISA<std::vector<INDEX>> tpb;
+    using POWVEC = typename RLBWT_STR::run_vec_type;
+    BackwardISA<POWVEC, std::vector<INDEX>> tpb;
     tpb.construct_from_rlbwt(rlbwt);
     std::pair<std::vector<INDEX>, std::vector<INDEX>> r = iterator::construct_sampling_sa_lorder(*rlbwt, tpb.begin(), tpb.end());
 

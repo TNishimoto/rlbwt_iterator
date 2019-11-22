@@ -60,7 +60,7 @@ bool equalCheck(string &vec1, string &vec2)
 */
 
 
-template <typename CHAR = char, typename INDEX = uint64_t, typename RLBWT_TYPE = RLBWT<CHAR, INDEX>>
+template <typename RLBWT_TYPE>
 bool test_text(RLBWT_TYPE &rlestr, string &text)
 {
     std::cout << "\033[47m"
@@ -73,7 +73,7 @@ bool test_text(RLBWT_TYPE &rlestr, string &text)
     //Constructor::construct_from_bwt<CHAR, INDEX>(rlestr, bwt);
     //std::cout << bwt << std::endl;
     //rlestr.construct(bwt);
-    BackwardText<vector<char>, vector<uint64_t>> w;
+    BackwardText<typename RLBWT_TYPE::char_vec_type, typename RLBWT_TYPE::run_vec_type > w;
     w.construct_from_rlbwt(&rlestr, false);
     string text2 = w.to_string();
 
@@ -327,10 +327,10 @@ void testWithSDSL(string &text){
         //BackwardISA<INDEX, SDVectorSeq> w;
 
         test_isa(rlestr, isa);
-        //test_text(rlestr, text);
+        test_text(rlestr, text);
 
-        //test_sa(rlestr, sa);
-        //test_lcp(rlestr, lcp);
+        test_sa(rlestr, sa);
+        test_lcp(rlestr, lcp);
         text.pop_back();
 }
 

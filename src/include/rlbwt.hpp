@@ -239,7 +239,7 @@ public:
     INDEX get_lindex_containing_the_position(INDEX lposition) const
     {
         auto p = std::upper_bound(this->run_vec->begin(), this->run_vec->end(), lposition);
-        INDEX pos = distance(this->run_vec->begin(), p) - 1;
+        INDEX pos = std::distance(this->run_vec->begin(), p) - 1;
         return pos;
     }
     std::pair<INDEX, INDEX> to_rle_lindex(INDEX lposition) const

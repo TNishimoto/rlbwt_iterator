@@ -14,21 +14,22 @@ namespace stool
 namespace rlbwt
 {
 
-template <typename CHAR = char>
+template <typename RLBWT_STR>
 class MultipleTextPositionIterator
 {
   private:
+    using CHAR = typename RLBWT_STR::char_type;
     uint64_t _index = 0;
     uint64_t _distance = 0;
 
-    const RLBWT<> &_rlbwt;
+    const RLBWT_STR &_rlbwt;
     std::vector<uint64_t> &_findexes_lorder;
     std::vector<uint64_t> _findexes;
     //std::vector<uint64_t> _xvec;
 
   public:
     MultipleTextPositionIterator() = default;
-    MultipleTextPositionIterator(std::vector<uint64_t> &indexes, const RLBWT<> &__rlbwt, std::vector<uint64_t> &__findexes_lorder) : _rlbwt(__rlbwt), _findexes_lorder(__findexes_lorder)
+    MultipleTextPositionIterator(std::vector<uint64_t> &indexes, const RLBWT_STR &__rlbwt, std::vector<uint64_t> &__findexes_lorder) : _rlbwt(__rlbwt), _findexes_lorder(__findexes_lorder)
     {
         for (auto p : indexes)
         {
@@ -157,12 +158,13 @@ class InitialDataStructureForSamplingLCP{
 };
 */
 
-template <typename CHAR = char>
+template <typename RLBWT_STR>
 class SamplingLCP
 {
   private:
   public:
-    const RLBWT<> &_rlbwt;
+    using CHAR = typename RLBWT_STR::char_type;
+    const RLBWT_STR &_rlbwt;
     std::vector<uint64_t> _findexes_lorder;
     std::vector<uint64_t> _undetermined_rle_lindexes_of_LCP;
     std::vector<uint64_t> _previous_lindex_mapper_on_F;
@@ -171,7 +173,7 @@ class SamplingLCP
     std::vector<bool> _checker;
     uint64_t current_lcp = 0;
 
-    SamplingLCP(const RLBWT<> &__rlbwt) : _rlbwt(__rlbwt)
+    SamplingLCP(const RLBWT_STR &__rlbwt) : _rlbwt(__rlbwt)
     {
 
         this->_findexes_lorder = RLBWTFunctions::construct_fpos_array(__rlbwt);
@@ -193,7 +195,7 @@ class SamplingLCP
     }
     void loop(std::vector<uint64_t> &zero_lcp_findexes)
     {
-        MultipleTextPositionIterator<CHAR> findex_iterator(zero_lcp_findexes, _rlbwt, _findexes_lorder);
+        MultipleTextPositionIterator<RLBWT_STR> findex_iterator(zero_lcp_findexes, _rlbwt, _findexes_lorder);
 
         while (this->_undetermined_rle_lindexes_of_LCP.size() > 0)
         {
@@ -203,7 +205,7 @@ class SamplingLCP
             {
                 //_d_lcp_vec[*it] = it._distance;
                 auto current_rle_findex = *findex_iterator;
-                uint64_t lcp_interval_special_position = SamplingLCP<CHAR>::getSpecialDistance(current_rle_findex.first, current_rle_findex.second);
+                uint64_t lcp_interval_special_position = SamplingLCP<RLBWT_STR>::getSpecialDistance(current_rle_findex.first, current_rle_findex.second);
                 if (!this->_checker[lcp_interval_special_position])
                 {
                     lcp_interval_special_positions.push_back(lcp_interval_special_position);
@@ -238,8 +240,8 @@ class SamplingLCP
  
         for (auto &rle_lindex_it : this->_undetermined_rle_lindexes_of_LCP)
         {
-            uint64_t left = SamplingLCP<CHAR>::getSpecialDistance(_previous_lindex_mapper_on_F[rle_lindex_it], 1);
-            uint64_t right = SamplingLCP<CHAR>::getSpecialDistance(rle_lindex_it, 0);
+            uint64_t left = SamplingLCP<RLBWT_STR>::getSpecialDistance(_previous_lindex_mapper_on_F[rle_lindex_it], 1);
+            uint64_t right = SamplingLCP<RLBWT_STR>::getSpecialDistance(rle_lindex_it, 0);
 
 
             auto pointer = std::upper_bound(x_lcp_interval_special_positions.begin(), x_lcp_interval_special_positions.end(), left);
@@ -263,16 +265,16 @@ class SamplingLCP
         return b;
     }
 
-    static void construct_initial_data(const RLBWT<> &_rlbwt, std::vector<uint64_t> &output_zero_lcp_findexes, std::vector<uint64_t> &output_non_zero_lcp_rle_lindexes, std::vector<uint64_t> &output_previous_rle_lindex_mapper_on_F, std::vector<uint64_t> &output_sampling_lcp_array_on_RLEL)
+    static void construct_initial_data(const RLBWT_STR &_rlbwt, std::vector<uint64_t> &output_zero_lcp_findexes, std::vector<uint64_t> &output_non_zero_lcp_rle_lindexes, std::vector<uint64_t> &output_previous_rle_lindex_mapper_on_F, std::vector<uint64_t> &output_sampling_lcp_array_on_RLEL)
     {
-        RLEFArray<RLBWT<>> generator(_rlbwt);
+        RLEFArray<RLBWT_STR > generator(_rlbwt);
         
         output_previous_rle_lindex_mapper_on_F.resize(_rlbwt.rle_size());
 
         uint64_t prev_c = std::numeric_limits<uint64_t>::max();
         uint64_t prev_rle_lindex_on_F = std::numeric_limits<uint64_t>::max();
 
-        for (typename RLEFArray<RLBWT<>>::iterator it = generator.begin(); it != generator.end(); ++it)
+        for (typename RLEFArray<RLBWT_STR >::iterator it = generator.begin(); it != generator.end(); ++it)
         {
 
             uint64_t rle_findex = it.rle_findex();
@@ -296,18 +298,18 @@ class SamplingLCP
         }
 
     }
-    static std::vector<uint64_t> construct_sampling_lcp_array_lorder(const RLBWT<> &__rlbwt)
+    static std::vector<uint64_t> construct_sampling_lcp_array_lorder(const RLBWT_STR &__rlbwt)
     {
         SamplingLCP slcp(__rlbwt);
         return slcp._sampling_lcp_array_on_L;
     }
 
-    static std::vector<uint64_t> construct_sampling_lcp_array(const RLBWT<> &__rlbwt, std::vector<uint64_t> &__sampling_end_sa)
+    static std::vector<uint64_t> construct_sampling_lcp_array(const RLBWT_STR &__rlbwt, std::vector<uint64_t> &__sampling_end_sa)
     {
         std::vector<uint64_t> r = construct_sampling_lcp_array_lorder(__rlbwt);
         return to_succ_sampling_lcp_array_yorder(std::move(r), __rlbwt, __sampling_end_sa);
     }
-    static std::vector<uint64_t> to_succ_sampling_lcp_array_yorder(std::vector<uint64_t> &&slcp_lorder, const RLBWT<> &__rlbwt, std::vector<uint64_t> &__sampling_end_sa)
+    static std::vector<uint64_t> to_succ_sampling_lcp_array_yorder(std::vector<uint64_t> &&slcp_lorder, const RLBWT_STR &__rlbwt, std::vector<uint64_t> &__sampling_end_sa)
     {
         std::vector<uint64_t> lf = RLBWTFunctions::construct_rle_lf_mapper(__rlbwt);
         std::vector<uint64_t> slcp_forder = stool::rlbwt::permutate(std::move(slcp_lorder), lf);
