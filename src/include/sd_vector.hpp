@@ -14,21 +14,6 @@ namespace stool
 namespace rlbwt
 {
 
-struct pTest
-{
-public:
-    using value_type = int;
-};
-template <typename T>
-struct SIterator
-{
-    using value_type = T;
-    using difference_type = ptrdiff_t;
-    using pointer = int *;
-    using reference = int &;
-    using iterator_category = std::input_iterator_tag;
-};
-
 template <typename T>
 void constructSDVector(std::vector<T> &sortedItems, sdsl::sd_vector<> &output, sdsl::sd_vector<>::rank_1_type *ranker, sdsl::sd_vector<>::select_1_type *selecter)
 {

@@ -73,6 +73,9 @@ target_link_libraries(check.out online_rlbwt Basics BTree sdsl)
 add_executable(data_viewer.out ${STOOL_SOURCES} src/debug/data_viewer_main.cpp)
 target_link_libraries(data_viewer.out online_rlbwt Basics BTree sdsl)
 
+add_executable(elias_fano_test.out ${STOOL_SOURCES} src/debug/elias_fano_test_main.cpp)
+target_link_libraries(elias_fano_test.out sdsl)
+
 
 FILE(GLOB INCLUDE_FILES src/include/*.hpp)
 install (FILES ${INCLUDE_FILES} DESTINATION include/rlbwt_iterator)
