@@ -481,7 +481,7 @@ public:
         std::vector<INDEX> run_vec = construct_run_vec(pows);
         inp.close();
 
-        RLBWT<CHAR, INDEX> rlestr;
+        RLBWT<std::vector<CHAR>, std::vector<INDEX> > rlestr;
         rlestr.set(std::move(char_vec), std::move(run_vec));
         rlestr.check_rlbwt();
         return rlestr;
