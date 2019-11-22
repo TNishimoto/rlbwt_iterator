@@ -255,18 +255,20 @@ public:
 class RLBWTFunctions
 {
 public:
-    template <typename INDEX = uint64_t, typename RLBWT_STR>
-    static INDEX lf(const RLBWT_STR &rlbwt, INDEX pos, std::vector<INDEX> &fpos_vec)
+    template <typename RLBWT_STR>
+    static typename RLBWT_STR::index_type lf(const RLBWT_STR &rlbwt, typename RLBWT_STR::index_type pos, std::vector<typename RLBWT_STR::index_type> &fpos_vec)
     {
+        using INDEX = typename RLBWT_STR::index_type;
         INDEX lindex = rlbwt.get_lindex_containing_the_position(pos);
         INDEX diff = pos - rlbwt.get_lpos(lindex);
         INDEX succ_sa_index = fpos_vec[lindex] + diff;
         return succ_sa_index;
     }
-    template <typename INDEX = uint64_t, typename RLBWT_STR>
-    static std::vector<INDEX> construct_fpos_array(const RLBWT_STR &rlbwt)
+    template <typename RLBWT_STR>
+    static std::vector<typename RLBWT_STR::index_type> construct_fpos_array(const RLBWT_STR &rlbwt)
     {
-        std::vector<INDEX> fvec = construct_rle_fl_mapper<INDEX>(rlbwt);
+        using INDEX = typename RLBWT_STR::index_type;
+        std::vector<INDEX> fvec = construct_rle_fl_mapper(rlbwt);
         std::vector<INDEX> output;
         output.resize(fvec.size(), 0);
         INDEX fsum = 0;
@@ -277,9 +279,10 @@ public:
         }
         return output;
     }
-    template <typename INDEX = uint64_t, typename RLBWT_STR>
-    static std::vector<INDEX> construct_rle_fl_mapper(const RLBWT_STR &rlbwt)
+    template <typename RLBWT_STR>
+    static std::vector<typename RLBWT_STR::index_type> construct_rle_fl_mapper(const RLBWT_STR &rlbwt)
     {
+        using INDEX = typename RLBWT_STR::index_type;
         std::vector<INDEX> indexes;
         indexes.resize(rlbwt.rle_size());
         for (INDEX i = 0; i < rlbwt.rle_size(); i++)
@@ -301,10 +304,10 @@ public:
         return indexes;
     }
 
-    template <typename INDEX = uint64_t, typename RLBWT_STR>
-    static std::vector<INDEX> construct_rle_lf_mapper(const RLBWT_STR &rlbwt)
+    template <typename RLBWT_STR>
+    static std::vector<typename RLBWT_STR::index_type> construct_rle_lf_mapper(const RLBWT_STR &rlbwt)
     {
-        std::vector<INDEX> indexes = construct_rle_fl_mapper<INDEX>(rlbwt);
+        std::vector<typename RLBWT_STR::index_type> indexes = construct_rle_fl_mapper(rlbwt);
         return stool::rlbwt::change_inv(std::move(indexes));
     }
 };
@@ -321,7 +324,7 @@ class RLBWTArrayFunctions{
     static INDEX get_lindex_containing_the_position(const VEC &run_vec, INDEX lposition)
     {
         auto p = std::upper_bound(run_vec.begin(), run_vec.end(), lposition);
-        INDEX pos = distance(run_vec.begin(), p) - 1;
+        INDEX pos = std::distance(run_vec.begin(), p) - 1;
         return pos;
         
     }

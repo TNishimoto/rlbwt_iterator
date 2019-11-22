@@ -516,7 +516,7 @@ public:
 
     tpb.clear();
 
-    std::vector<INDEX> mapper = RLBWTFunctions::construct_rle_lf_mapper<INDEX>(*rlbwt);
+    std::vector<INDEX> mapper = RLBWTFunctions::construct_rle_lf_mapper(*rlbwt);
     r.first = stool::rlbwt::permutate(std::move(r.first), mapper);
     r.second = stool::rlbwt::permutate(std::move(r.second), mapper);
 

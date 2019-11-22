@@ -271,11 +271,11 @@ public:
   {
     if (faster)
     {
-      this->set(_rlbwt->get_run_vec(), RLBWTFunctions::construct_fpos_array<INDEX, RLBWT_STR>(*_rlbwt), RLBWTFunctions2::construct_rle_lf_lorder<CHAR, INDEX, RLBWT_STR>(*_rlbwt), _rlbwt->get_end_rle_lposition());
+      this->set(_rlbwt->get_run_vec(), RLBWTFunctions::construct_fpos_array(*_rlbwt), RLBWTFunctions2::construct_rle_lf_lorder<RLBWT_STR>(*_rlbwt), _rlbwt->get_end_rle_lposition());
     }
     else
     {
-      this->set(_rlbwt->get_run_vec(), RLBWTFunctions::construct_fpos_array<INDEX, RLBWT_STR>(*_rlbwt), _rlbwt->get_end_rle_lposition());
+      this->set(_rlbwt->get_run_vec(), RLBWTFunctions::construct_fpos_array(*_rlbwt), _rlbwt->get_end_rle_lposition());
     }
   }
 };

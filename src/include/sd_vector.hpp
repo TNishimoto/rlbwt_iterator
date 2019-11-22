@@ -14,6 +14,21 @@ namespace stool
 namespace rlbwt
 {
 
+struct pTest
+{
+public:
+    using value_type = int;
+};
+template <typename T>
+struct SIterator
+{
+    using value_type = T;
+    using difference_type = ptrdiff_t;
+    using pointer = int *;
+    using reference = int &;
+    using iterator_category = std::input_iterator_tag;
+};
+
 template <typename T>
 void constructSDVector(std::vector<T> &sortedItems, sdsl::sd_vector<> &output, sdsl::sd_vector<>::rank_1_type *ranker, sdsl::sd_vector<>::select_1_type *selecter)
 {
@@ -54,7 +69,14 @@ public:
         const sdsl::sd_vector<>::select_1_type *selecter;
 
     public:
-        using value_type = uint64_t;
+
+        using difference_type = uint64_t;
+        using value_type =uint64_t;
+        using pointer = uint64_t*;
+        using reference = uint64_t&;
+        using iterator_category = std::random_access_iterator_tag;
+        //using value_type = uint64_t;
+
         iterator(const sdsl::sd_vector<>::select_1_type *_selecter, uint64_t _index) : index(_index), selecter(_selecter)
         {
         }
@@ -66,7 +88,7 @@ public:
         }
         uint64_t operator*()
         {
-            return (*selecter)(this->index+1);
+            return (*selecter)(this->index + 1);
         }
         bool operator!=(const iterator &rhs)
         {
@@ -76,6 +98,13 @@ public:
         {
             return (index == rhs.index);
         }
+
+        iterator &operator+=(int64_t p)
+        {
+            this->index += p;
+            return *this;
+        }
+
 
         bool operator<(const iterator &rhs)
         {
@@ -112,14 +141,12 @@ private:
     uint64_t _size = 0;
 
 public:
-
     SDVectorSeq()
     {
     }
 
     SDVectorSeq(SDVectorSeq &&obj)
     {
-
 
         this->item.swap(obj.item);
         sdsl::sd_vector<>::select_1_type _selecter(&item);
@@ -136,7 +163,7 @@ public:
 
     uint64_t operator[](uint64_t n) const
     {
-        uint64_t p = selecter(n+1);
+        uint64_t p = selecter(n + 1);
         return p;
     }
     uint64_t size() const

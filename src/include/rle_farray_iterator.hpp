@@ -12,10 +12,12 @@ namespace rlbwt
 {
 
 
-template <typename CHAR, typename INDEX, typename RLBWT_STR>
+template <typename RLBWT_STR>
 class RLEFArrayIterator
 {
   private:
+    using CHAR = typename RLBWT_STR::char_type;
+    using INDEX = typename RLBWT_STR::index_type;
     INDEX _rle_findex = 0;
     const RLBWT_STR &_rlbwt;
     std::vector<INDEX> &fl_mapper;
@@ -76,38 +78,43 @@ class RLEFArrayIterator
     }
 };
 
-template <typename CHAR, typename INDEX, typename RLBWT_STR>
+template <typename RLBWT_STR>
 class RLEFArrayGenerator
 {
   private:
+    using CHAR = typename RLBWT_STR::char_type;
+    using INDEX = typename RLBWT_STR::index_type;
+
     const RLBWT_STR &_rlbwt;
     std::vector<INDEX> _fl_mapper;
 
   public:
     RLEFArrayGenerator(const RLBWT_STR &__rlbwt): _rlbwt(__rlbwt)
     {
-        this->_fl_mapper = RLBWTFunctions::construct_rle_fl_mapper<INDEX>(_rlbwt);
+        this->_fl_mapper = RLBWTFunctions::construct_rle_fl_mapper(_rlbwt);
     }
-    RLEFArrayIterator<CHAR,INDEX, RLBWT_STR> begin()
+    RLEFArrayIterator<RLBWT_STR> begin()
     {
-        return RLEFArrayIterator<CHAR,INDEX, RLBWT_STR>(0, _rlbwt, _fl_mapper);
+        return RLEFArrayIterator<RLBWT_STR>(0, _rlbwt, _fl_mapper);
     }
-    RLEFArrayIterator<CHAR,INDEX, RLBWT_STR> end()
+    RLEFArrayIterator<RLBWT_STR> end()
     {
-        return RLEFArrayIterator<CHAR,INDEX, RLBWT_STR>(std::numeric_limits<INDEX>::max(), _rlbwt, _fl_mapper);
+        return RLEFArrayIterator<RLBWT_STR>(std::numeric_limits<INDEX>::max(), _rlbwt, _fl_mapper);
     }
 };
 
 
 class RLBWTFunctions2{
     public:
-    template <typename CHAR = char, typename INDEX = uint64_t, typename RLBWT_STR>
+    template <typename RLBWT_STR>
     static std::vector<uint64_t> construct_rle_lf_lorder(const RLBWT_STR &__rlbwt){
-        RLEFArrayGenerator<CHAR, INDEX, RLBWT_STR> generator(__rlbwt);
+    using CHAR = typename RLBWT_STR::char_type;
+    using INDEX = typename RLBWT_STR::index_type;
+        RLEFArrayGenerator<RLBWT_STR> generator(__rlbwt);
         std::vector<uint64_t> rle_lf_lorder;
         rle_lf_lorder.resize(__rlbwt.rle_size(), std::numeric_limits<uint64_t>::max());
         INDEX k=0;
-        for(RLEFArrayIterator<CHAR, INDEX, RLBWT_STR> it = generator.begin(), end = generator.end(); it != end;++it){
+        for(RLEFArrayIterator<RLBWT_STR> it = generator.begin(), end = generator.end(); it != end;++it){
             INDEX findex = *it;
             while(findex >= __rlbwt.get_lpos(k) ){
                 k++;

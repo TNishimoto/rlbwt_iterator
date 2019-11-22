@@ -105,8 +105,8 @@ bool test_text(RLBWT_TYPE &rlestr, string &text)
 }
 
 
-template <typename CHAR = char, typename INDEX = uint64_t, typename RLBWT_TYPE = RLBWT<CHAR, INDEX>, typename ISA_RLBWT>
-bool test_isa(RLBWT_TYPE &rlestr, vector<INDEX> &isa, ISA_RLBWT &w)
+template <typename CHAR = char, typename INDEX = uint64_t, typename RLBWT_TYPE = RLBWT<CHAR, INDEX>>
+bool test_isa(RLBWT_TYPE &rlestr, vector<INDEX> &isa)
 {
 
     std::cout << "\033[47m"
@@ -114,6 +114,9 @@ bool test_isa(RLBWT_TYPE &rlestr, vector<INDEX> &isa, ISA_RLBWT &w)
               << "\033[1m"
               << "Test: ISA"
               << "\033[0m" << std::endl;
+
+    
+    BackwardISA<INDEX, typename RLBWT_TYPE::run_vec_type> w;
 
     std::vector<uint64_t> p;
     w.construct_from_rlbwt(&rlestr, false);
@@ -285,9 +288,9 @@ void test(string &text){
         vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
         vector<INDEX> lcp = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
 
-        std::cout << "/" << sizeof(typename RLBWT<CHAR, INDEX>::char_vec_type) << std::endl;
-        BackwardISA<INDEX> w;
-        test_isa(rlestr, isa, w);
+        //std::cout << "/" << sizeof(typename RLBWT<CHAR, INDEX>::char_vec_type) << std::endl;
+        //BackwardISA<INDEX> w;
+        test_isa(rlestr, isa);
         test_text(rlestr, text);
 
         test_sa(rlestr, sa);
@@ -321,9 +324,9 @@ void testWithSDSL(string &text){
         vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
         vector<INDEX> lcp = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
 
-        BackwardISA<INDEX, SDVectorSeq> w;
+        //BackwardISA<INDEX, SDVectorSeq> w;
 
-        //test_isa(rlestr, isa, w);
+        test_isa(rlestr, isa);
         //test_text(rlestr, text);
 
         //test_sa(rlestr, sa);

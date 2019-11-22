@@ -174,7 +174,7 @@ class SamplingLCP
     SamplingLCP(const RLBWT<CHAR> &__rlbwt) : _rlbwt(__rlbwt)
     {
 
-        this->_findexes_lorder = RLBWTFunctions::construct_fpos_array<uint64_t>(__rlbwt);
+        this->_findexes_lorder = RLBWTFunctions::construct_fpos_array(__rlbwt);
         _sampling_lcp_array_on_L.resize(_rlbwt.rle_size(), std::numeric_limits<uint64_t>::max());
         std::vector<uint64_t> zero_lcp_findexes; 
 
@@ -265,14 +265,14 @@ class SamplingLCP
 
     static void construct_initial_data(const RLBWT<CHAR> &_rlbwt, std::vector<uint64_t> &output_zero_lcp_findexes, std::vector<uint64_t> &output_non_zero_lcp_rle_lindexes, std::vector<uint64_t> &output_previous_rle_lindex_mapper_on_F, std::vector<uint64_t> &output_sampling_lcp_array_on_RLEL)
     {
-        RLEFArrayGenerator<CHAR, uint64_t, RLBWT<CHAR>> generator(_rlbwt);
+        RLEFArrayGenerator<RLBWT<CHAR>> generator(_rlbwt);
         
         output_previous_rle_lindex_mapper_on_F.resize(_rlbwt.rle_size());
 
         uint64_t prev_c = std::numeric_limits<uint64_t>::max();
         uint64_t prev_rle_lindex_on_F = std::numeric_limits<uint64_t>::max();
 
-        for (RLEFArrayIterator<CHAR, uint64_t, RLBWT<CHAR>> it = generator.begin(); it != generator.end(); ++it)
+        for (RLEFArrayIterator<RLBWT<CHAR>> it = generator.begin(); it != generator.end(); ++it)
         {
 
             uint64_t rle_findex = it.rle_findex();
@@ -309,7 +309,7 @@ class SamplingLCP
     }
     static std::vector<uint64_t> to_succ_sampling_lcp_array_yorder(std::vector<uint64_t> &&slcp_lorder, const RLBWT<CHAR> &__rlbwt, std::vector<uint64_t> &__sampling_end_sa)
     {
-        std::vector<uint64_t> lf = RLBWTFunctions::construct_rle_lf_mapper<uint64_t>(__rlbwt);
+        std::vector<uint64_t> lf = RLBWTFunctions::construct_rle_lf_mapper(__rlbwt);
         std::vector<uint64_t> slcp_forder = stool::rlbwt::permutate(std::move(slcp_lorder), lf);
         lf.resize(0);
         lf.shrink_to_fit();
