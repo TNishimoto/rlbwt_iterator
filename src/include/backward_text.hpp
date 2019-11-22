@@ -10,51 +10,51 @@ namespace stool
 namespace rlbwt
 {
 
-
-
-
 /*
     This class is the generator for BackwardTextIterator. 
   */
-template <typename CHAR = char, typename INDEX = uint64_t, typename CHARVEC = std::vector<CHAR>, typename VEC = std::vector<INDEX> >
+template <typename CHARVEC = std::vector<char>, typename VEC = std::vector<uint64_t>>
 class BackwardText
 {
-  using ISA_IT = typename BackwardISA<INDEX, VEC>::iterator;
+  using ISA_IT = typename BackwardISA<VEC>::iterator;
 
-    /*
+  /*
     This iterator enumerates the original input text in the back-to-front order of the text, 
     i.e., the i-th value is T[|T|-i], where T is the original input text.
   */
- public:
-class iterator
-{
-private:
-  const CHARVEC &_char_vec;
-  ISA_IT _iterator;
-
 public:
-  iterator() = default;
-  explicit iterator(const CHARVEC &__char_vec, ISA_IT &__iter) : _char_vec(__char_vec), _iterator(__iter)
+    using CHAR = typename CHARVEC::value_type;
+    using INDEX  = typename VEC::value_type;
+
+  class iterator
   {
-  }
-  iterator &operator++()
-  {
-    ++_iterator;
-    return *this;
-  }
-  CHAR operator*() const
-  {
-    return this->_char_vec[this->_iterator.get_rle_lposition()];
-  }
-  bool operator!=(const iterator &rhs) const
-  {
-    return _iterator != rhs._iterator;
-  }
-  bool is_end() const
-  {
-    return _iterator.is_end();
-  }
-  /*
+  private:
+    const CHARVEC &_char_vec;
+    ISA_IT _iterator;
+
+  public:
+    iterator() = default;
+    explicit iterator(const CHARVEC &__char_vec, ISA_IT &__iter) : _char_vec(__char_vec), _iterator(__iter)
+    {
+    }
+    iterator &operator++()
+    {
+      ++_iterator;
+      return *this;
+    }
+    CHAR operator*() const
+    {
+      return this->_char_vec[this->_iterator.get_rle_lposition()];
+    }
+    bool operator!=(const iterator &rhs) const
+    {
+      return _iterator != rhs._iterator;
+    }
+    bool is_end() const
+    {
+      return _iterator.is_end();
+    }
+    /*
   static string decompress(RLBWT<char> &rlbwt, iterator &&begIt, iterator &&endIt, bool removeEndCharacter)
   {
 
@@ -88,28 +88,30 @@ public:
     return s;
   }
   */
-};
-  private:
+  };
+
+private:
   //const RLBWT<CHAR, INDEX> &_rlbwt;
   const CHARVEC *_char_vec;
-  const BackwardISA<INDEX, VEC> *_isa;
+  const BackwardISA<VEC> *_isa;
   bool deleteFlag = false;
 
 public:
   BackwardText()
   {
   }
-  BackwardText(CHARVEC *&__char_vec,const BackwardISA<INDEX, VEC> *__isa) : _char_vec(__char_vec), _isa(__isa), deleteFlag(false)
+  BackwardText(CHARVEC *&__char_vec, const BackwardISA<VEC> *__isa) : _char_vec(__char_vec), _isa(__isa), deleteFlag(false)
   {
   }
-  
-  BackwardText(CHARVEC *&__char_vec, BackwardISA<INDEX, VEC> &&__isa) : _char_vec(__char_vec), _isa(new BackwardISA<INDEX, VEC>(std::move(__isa))),deleteFlag(true)
+
+  BackwardText(CHARVEC *&__char_vec, BackwardISA<VEC> &&__isa) : _char_vec(__char_vec), _isa(new BackwardISA<VEC>(std::move(__isa))), deleteFlag(true)
   {
   }
 
   BackwardText(const BackwardText &obj)
   {
-    if(obj._isa != nullptr){
+    if (obj._isa != nullptr)
+    {
       throw std::logic_error("BackwardText instances cannot call the copy constructor.");
     }
   }
@@ -117,17 +119,15 @@ public:
   {
     this->_isa = obj._isa;
     this->_char_vec = obj._char_vec;
-    this->deleteFlag  = obj.deleteFlag;    
+    this->deleteFlag = obj.deleteFlag;
     obj.deleteFlag = false;
-
   }
-  void set(const CHARVEC *__char_vec, BackwardISA<INDEX, VEC> &&__isa){
+  void set(const CHARVEC *__char_vec, BackwardISA<VEC> &&__isa)
+  {
     this->_char_vec = __char_vec;
-    this->_isa = new BackwardISA<INDEX, VEC>(std::move(__isa));
+    this->_isa = new BackwardISA<VEC>(std::move(__isa));
     deleteFlag = true;
   }
-
-  
 
   ~BackwardText()
   {
@@ -137,7 +137,7 @@ public:
   iterator begin() const
   {
     auto it = this->_isa->begin();
-    return iterator(*this->_char_vec,it);
+    return iterator(*this->_char_vec, it);
   }
   iterator end() const
   {
@@ -168,19 +168,19 @@ public:
     uint64_t p = size;
     for (CHAR c : *this)
     {
-      r[--p] = c;      
+      r[--p] = c;
     }
     assert(p == 0);
     return r;
   }
-    template <typename RLBWT_STR>
-    void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
-    {
-        BackwardISA<INDEX> isa;
-        isa.construct_from_rlbwt(_rlbwt, faster);
-        this->set(_rlbwt->get_char_vec(), std::move(isa));
-        //return BackwardText<CHAR, INDEX, BackwardISA<CHAR, INDEX, vector<INDEX>, RLBWT_STR>>(std::move(isa) );
-    }
+  template <typename RLBWT_STR>
+  void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
+  {
+    BackwardISA<> isa;
+    isa.construct_from_rlbwt(_rlbwt, faster);
+    this->set(_rlbwt->get_char_vec(), std::move(isa));
+    //return BackwardText<CHAR, INDEX, BackwardISA<CHAR, INDEX, vector<INDEX>, RLBWT_STR>>(std::move(isa) );
+  }
 };
 
 } // namespace rlbwt

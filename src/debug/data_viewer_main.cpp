@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     std::cout << "Loading : " << inputFile << std::endl;
     string text = stool::load_string_from_file(inputFile, false);
 
-    RLBWT<CHAR, INDEX> rlestr;
+    RLBWT<> rlestr;
     //Constructor::construct_from_bwt<CHAR, INDEX>(rlestr, bwt);
     Constructor::construct_from_string<CHAR, INDEX>(rlestr, text);
 
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         std::cout << text << std::endl;
     }
 
-    RLBWT<char>::check_text_for_rlbwt(text);
+    RLBWT<>::check_text_for_rlbwt(text);
 
     ForwardSA<> fsa;
     fsa.construct_from_rlbwt(&rlestr, false);

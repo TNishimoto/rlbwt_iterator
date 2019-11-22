@@ -33,16 +33,16 @@ int main(int argc, char *argv[])
       
 
     auto start = std::chrono::system_clock::now();
-    RLBWT<char> rlestr;
+    RLBWT<> rlestr;
 
     if (inputType == "text")
     {
-        Constructor::construct_from_file<char, uint64_t>(rlestr, inputFile);
+        Constructor::construct_from_file(rlestr, inputFile);
     }
     else
     {
         string text = stool::load_string_from_file(inputFile, false);
-        Constructor::construct_from_bwt<char, uint64_t>(rlestr, text);
+        Constructor::construct_from_bwt(rlestr, text);
     }
     textSize = rlestr.str_size();
 
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
             outputFile = inputFile + ".bwt";
         }
 
-        using BWT_RLBWT = stool::rlbwt::ForwardBWT<char, uint64_t>;
+        using BWT_RLBWT = stool::rlbwt::ForwardBWT<>;
         BWT_RLBWT bwt_rlbwt(&rlestr);
 
         std::vector<char> bwt;

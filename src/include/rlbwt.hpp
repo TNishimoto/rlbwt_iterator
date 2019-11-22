@@ -19,7 +19,8 @@ namespace stool
 namespace rlbwt
 {
 
-template <typename CHAR = char, typename INDEX = uint64_t, typename CHARVEC = std::vector<CHAR>, typename POWVEC = std::vector<INDEX>>
+//template <typename CHAR = char, typename INDEX = uint64_t, typename CHARVEC = std::vector<CHAR>, typename POWVEC = std::vector<INDEX>>
+template <typename CHARVEC = std::vector<char>, typename POWVEC = std::vector<uint64_t>>
 class RLBWT
 {
     
@@ -33,8 +34,10 @@ class RLBWT
 public:
     typedef CHARVEC char_vec_type;
     typedef POWVEC run_vec_type;
-    typedef INDEX index_type;
-    typedef CHAR char_type;
+    using index_type = typename POWVEC::value_type;
+    using char_type  = typename CHARVEC::value_type;
+    using CHAR = char_type;
+    using INDEX = index_type;
 
     RLBWT() : deleteFlag(false)
     {
@@ -341,7 +344,7 @@ class Constructor
 
 public:
     template <typename CHAR = char, typename INDEX = uint64_t>
-    static void construct_from_bwt(RLBWT<CHAR, INDEX, std::vector<CHAR>, std::vector<INDEX>> &_rlbwt, std::string &text)
+    static void construct_from_bwt(RLBWT<std::vector<CHAR>, std::vector<INDEX>> &_rlbwt, std::string &text)
     {
         std::vector<INDEX> _pows;
         std::vector<CHAR> _char_vec;
@@ -380,16 +383,18 @@ public:
             //return RLBWT<CHAR, INDEX, std::vector<CHAR>, std::vector<INDEX>>(_char_vec, _run_vec);
         }
     }
-    template <typename CHAR = char, typename INDEX = uint64_t>
-    static void construct_from_file(RLBWT<CHAR, INDEX, std::vector<CHAR>, std::vector<INDEX>> &rlbwt, std::string filepath)
+    template <typename RLBWT_STR>
+    static void construct_from_file(RLBWT_STR &rlbwt, std::string filepath)
     {
+        using INDEX = typename RLBWT_STR::index_type;
+        using CHAR = typename RLBWT_STR::char_type;
         std::vector<CHAR> cVec;
         std::vector<INDEX> nVec;
         itmmti::online_rlbwt_from_file(filepath, cVec, nVec, 1);
         rlbwt.set(std::move(cVec), std::move(nVec) );
     }
     template <typename CHAR = char, typename INDEX = uint64_t>
-    static void construct_from_string(RLBWT<CHAR, INDEX, std::vector<CHAR>, std::vector<INDEX>> &rlbwt, std::string &text)
+    static void construct_from_string(RLBWT<std::vector<CHAR>, std::vector<INDEX>> &rlbwt, std::string &text)
     {
         std::vector<CHAR> cVec;
         std::vector<INDEX> nVec;
@@ -401,7 +406,7 @@ public:
         */
     }
     template <typename CHAR = char, typename INDEX = uint64_t>
-    static void construct_from_string_with_sd_vector(RLBWT<CHAR, INDEX, std::vector<CHAR>, SDVectorSeq > &rlbwt, std::string &text)
+    static void construct_from_string_with_sd_vector(RLBWT<std::vector<CHAR>, SDVectorSeq > &rlbwt, std::string &text)
     {
         std::vector<CHAR> cVec;
         std::vector<INDEX> nVec;
@@ -418,9 +423,12 @@ public:
         */
     }
 
-    template <typename CHAR = char, typename INDEX = uint64_t>
-    static void construct_from_string(RLBWT<CHAR, INDEX, std::vector<CHAR>, std::vector<INDEX>> &rlbwt, std::string &&text)
+    template <typename RLBWT_STR>
+    static void construct_from_string(RLBWT_STR &rlbwt, std::string &&text)
     {
+
+        using INDEX = typename RLBWT_STR::index_type;
+        using CHAR = typename RLBWT_STR::char_type;
 
         std::vector<CHAR> cVec;
         std::vector<INDEX> nVec;
@@ -445,7 +453,7 @@ public:
         return r;
     }
     template <typename CHAR = char, typename INDEX = uint64_t>
-    static RLBWT<CHAR, INDEX, std::vector<CHAR>, std::vector<INDEX>> load_RLBWT_from_file(std::string filename)
+    static RLBWT<std::vector<CHAR>, std::vector<INDEX>> load_RLBWT_from_file(std::string filename)
     {
         std::ifstream inp;
         std::vector<CHAR> char_vec;

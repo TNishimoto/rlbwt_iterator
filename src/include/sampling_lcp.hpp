@@ -7,7 +7,7 @@
 #include "rlbwt.hpp"
 #include "backward_text.hpp"
 //#include "forward_sa.hpp"
-#include "rle_farray_iterator.hpp"
+#include "rle_farray.hpp"
 
 namespace stool
 {
@@ -21,14 +21,14 @@ class MultipleTextPositionIterator
     uint64_t _index = 0;
     uint64_t _distance = 0;
 
-    const RLBWT<CHAR> &_rlbwt;
+    const RLBWT<> &_rlbwt;
     std::vector<uint64_t> &_findexes_lorder;
     std::vector<uint64_t> _findexes;
     //std::vector<uint64_t> _xvec;
 
   public:
     MultipleTextPositionIterator() = default;
-    MultipleTextPositionIterator(std::vector<uint64_t> &indexes, const RLBWT<CHAR> &__rlbwt, std::vector<uint64_t> &__findexes_lorder) : _rlbwt(__rlbwt), _findexes_lorder(__findexes_lorder)
+    MultipleTextPositionIterator(std::vector<uint64_t> &indexes, const RLBWT<> &__rlbwt, std::vector<uint64_t> &__findexes_lorder) : _rlbwt(__rlbwt), _findexes_lorder(__findexes_lorder)
     {
         for (auto p : indexes)
         {
@@ -162,7 +162,7 @@ class SamplingLCP
 {
   private:
   public:
-    const RLBWT<CHAR> &_rlbwt;
+    const RLBWT<> &_rlbwt;
     std::vector<uint64_t> _findexes_lorder;
     std::vector<uint64_t> _undetermined_rle_lindexes_of_LCP;
     std::vector<uint64_t> _previous_lindex_mapper_on_F;
@@ -171,7 +171,7 @@ class SamplingLCP
     std::vector<bool> _checker;
     uint64_t current_lcp = 0;
 
-    SamplingLCP(const RLBWT<CHAR> &__rlbwt) : _rlbwt(__rlbwt)
+    SamplingLCP(const RLBWT<> &__rlbwt) : _rlbwt(__rlbwt)
     {
 
         this->_findexes_lorder = RLBWTFunctions::construct_fpos_array(__rlbwt);
@@ -263,16 +263,16 @@ class SamplingLCP
         return b;
     }
 
-    static void construct_initial_data(const RLBWT<CHAR> &_rlbwt, std::vector<uint64_t> &output_zero_lcp_findexes, std::vector<uint64_t> &output_non_zero_lcp_rle_lindexes, std::vector<uint64_t> &output_previous_rle_lindex_mapper_on_F, std::vector<uint64_t> &output_sampling_lcp_array_on_RLEL)
+    static void construct_initial_data(const RLBWT<> &_rlbwt, std::vector<uint64_t> &output_zero_lcp_findexes, std::vector<uint64_t> &output_non_zero_lcp_rle_lindexes, std::vector<uint64_t> &output_previous_rle_lindex_mapper_on_F, std::vector<uint64_t> &output_sampling_lcp_array_on_RLEL)
     {
-        RLEFArrayGenerator<RLBWT<CHAR>> generator(_rlbwt);
+        RLEFArray<RLBWT<>> generator(_rlbwt);
         
         output_previous_rle_lindex_mapper_on_F.resize(_rlbwt.rle_size());
 
         uint64_t prev_c = std::numeric_limits<uint64_t>::max();
         uint64_t prev_rle_lindex_on_F = std::numeric_limits<uint64_t>::max();
 
-        for (RLEFArrayIterator<RLBWT<CHAR>> it = generator.begin(); it != generator.end(); ++it)
+        for (typename RLEFArray<RLBWT<>>::iterator it = generator.begin(); it != generator.end(); ++it)
         {
 
             uint64_t rle_findex = it.rle_findex();
@@ -296,18 +296,18 @@ class SamplingLCP
         }
 
     }
-    static std::vector<uint64_t> construct_sampling_lcp_array_lorder(const RLBWT<CHAR> &__rlbwt)
+    static std::vector<uint64_t> construct_sampling_lcp_array_lorder(const RLBWT<> &__rlbwt)
     {
         SamplingLCP slcp(__rlbwt);
         return slcp._sampling_lcp_array_on_L;
     }
 
-    static std::vector<uint64_t> construct_sampling_lcp_array(const RLBWT<CHAR> &__rlbwt, std::vector<uint64_t> &__sampling_end_sa)
+    static std::vector<uint64_t> construct_sampling_lcp_array(const RLBWT<> &__rlbwt, std::vector<uint64_t> &__sampling_end_sa)
     {
         std::vector<uint64_t> r = construct_sampling_lcp_array_lorder(__rlbwt);
         return to_succ_sampling_lcp_array_yorder(std::move(r), __rlbwt, __sampling_end_sa);
     }
-    static std::vector<uint64_t> to_succ_sampling_lcp_array_yorder(std::vector<uint64_t> &&slcp_lorder, const RLBWT<CHAR> &__rlbwt, std::vector<uint64_t> &__sampling_end_sa)
+    static std::vector<uint64_t> to_succ_sampling_lcp_array_yorder(std::vector<uint64_t> &&slcp_lorder, const RLBWT<> &__rlbwt, std::vector<uint64_t> &__sampling_end_sa)
     {
         std::vector<uint64_t> lf = RLBWTFunctions::construct_rle_lf_mapper(__rlbwt);
         std::vector<uint64_t> slcp_forder = stool::rlbwt::permutate(std::move(slcp_lorder), lf);

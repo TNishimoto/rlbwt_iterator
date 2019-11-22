@@ -6,7 +6,7 @@
 #include <unordered_set>
 //#include "lfitem.hpp"
 #include "other_functions.hpp"
-#include "rle_farray_iterator.hpp"
+#include "rle_farray.hpp"
 
 namespace stool
 {
@@ -17,7 +17,7 @@ namespace rlbwt
 /*
     This class is the generator for BackwardISAIterator. 
   */
-template <typename INDEX = uint64_t, typename RUNVEC = std::vector<INDEX>, typename VEC = std::vector<INDEX> >
+template <typename RUNVEC = std::vector<uint64_t>, typename VEC = std::vector<typename RUNVEC::value_type> >
 class BackwardISA
 {
 /*
@@ -25,6 +25,8 @@ class BackwardISA
     i.e., the i-th value is ISA[|T|-i], where T is the input text and ISA is the inverse suffix array of T.
   */
 public:
+  using INDEX = typename RUNVEC::value_type;
+
 class iterator
 {
 private:

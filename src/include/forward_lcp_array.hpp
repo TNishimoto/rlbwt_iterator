@@ -14,12 +14,13 @@ namespace stool
 namespace rlbwt
 {
 
-template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX>>
+template <typename VEC = std::vector<uint64_t>>
 class ForwardLCPArray
 {
-  using SA_ITERATOR = typename ForwardSA<INDEX, VEC>::iterator;
+  using SA_ITERATOR = typename ForwardSA<VEC>::iterator;
 
 public:
+  using INDEX = typename VEC::value_type;
   /*
     This iterator enumerates the LCP array of the original input text, 
     i.e., the i-th value is LCP[i], where LCP is the LCP array of the original input text.
@@ -67,9 +68,10 @@ public:
       return b;
     }
 
-    template <typename CHAR = char>
-    static std::vector<INDEX> construct_sampling_lcp_array(RLBWT<CHAR> &rlbwt, typename BackwardText<CHAR, INDEX>::iterator &&beginIt, typename BackwardText<CHAR, INDEX>::iterator &&endIt)
+    template <typename RLBWT_STR>
+    static std::vector<INDEX> construct_sampling_lcp_array(RLBWT_STR &rlbwt, typename BackwardText<typename RLBWT_STR::char_type, INDEX>::iterator &&beginIt, typename BackwardText<typename RLBWT_STR::char_type, INDEX>::iterator &&endIt)
     {
+      using CHAR = typename RLBWT_STR::char_type;
       std::vector<INDEX> lcp_vec = construct_lcp_array(rlbwt, std::forward<typename BackwardText<CHAR, INDEX>::iterator>(beginIt), std::forward<typename BackwardText<CHAR, INDEX>::iterator>(endIt));
 
       std::vector<INDEX> mapper = rlbwt.construct_rle_fl_mapper();
@@ -96,8 +98,8 @@ public:
   }
   */
   };
-  using SA = ForwardSA<INDEX, VEC>;
-  const ForwardSA<INDEX, VEC> *_sa = nullptr;
+  using SA = ForwardSA<VEC>;
+  const ForwardSA<VEC> *_sa = nullptr;
   bool deleteFlag = false;
 
 public:
@@ -121,12 +123,12 @@ public:
       throw std::logic_error("ForwardLCPArray instances cannot call the copy constructor.");
     }
   }
-  void set(ForwardSA<INDEX, VEC> &&__sa)
+  void set(ForwardSA<VEC> &&__sa)
   {
-    this->_sa = new ForwardSA<INDEX, VEC>(std::move(__sa));
+    this->_sa = new ForwardSA<VEC>(std::move(__sa));
     this->deleteFlag = true;
   }
-  void set(const ForwardSA<INDEX, VEC> *__sa)
+  void set(const ForwardSA<VEC> *__sa)
   {
     this->_sa = __sa;
     this->deleteFlag = false;
@@ -162,13 +164,14 @@ public:
   {
     return this->_sa->copy_slcp_array();
   }
-  const ForwardSA<INDEX,VEC>* get_ForwardSA() const {
+  const ForwardSA<VEC>* get_ForwardSA() const {
     return this->_sa;
   }
 
-  template <typename CHAR, typename CHARVEC, typename POWVEC>
-  void construct_from_rlbwt(const RLBWT<CHAR, INDEX, CHARVEC, POWVEC> *_rlbwt, bool faster = false)
+  template <typename RLBWT_STR>
+  void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
   {
+    using CHAR = typename RLBWT_STR::char_type;
 
     //INDEX _str_size = _rlbwt->str_size();
     std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = SA::construct_sampling_sa(_rlbwt);
@@ -181,7 +184,7 @@ public:
     auto _succ_ssa_yorder = SA::construct_succ_ssa_yorder(std::move(_first_psa), _last_psa);
     auto _sorted_end_ssa = SA::construct_sorted_end_ssa(std::move(_last_psa));
 
-    auto _sa = ForwardSA<INDEX, std::vector<INDEX>>(std::move(_sorted_end_ssa), std::move(_succ_ssa_yorder), std::move(succ_slcp_yorder), _first_psa_value, _rlbwt->str_size());
+    auto _sa = ForwardSA<std::vector<INDEX>>(std::move(_sorted_end_ssa), std::move(_succ_ssa_yorder), std::move(succ_slcp_yorder), _first_psa_value, _rlbwt->str_size());
 
     if (faster)
     {

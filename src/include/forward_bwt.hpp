@@ -18,9 +18,13 @@ namespace stool
 namespace rlbwt
 {
 
-template <typename CHAR = char, typename INDEX = uint64_t, typename CHARVEC = std::vector<CHAR>, typename POWVEC = std::vector<INDEX>>
+//template <typename CHAR = char, typename INDEX = uint64_t, typename CHARVEC = std::vector<char>, typename POWVEC = std::vector<uint64_t >>
+template <typename CHARVEC = std::vector<char>, typename POWVEC = std::vector<uint64_t> >
 class ForwardBWT
 {
+    using CHAR = typename CHARVEC::value_type;
+    using INDEX = typename POWVEC::value_type;
+
 public:
     class iterator
     {
@@ -70,7 +74,7 @@ const CHARVEC *_char_vec = nullptr;
 const POWVEC *_run_vec = nullptr;
 
 public:
-ForwardBWT(const RLBWT<CHAR,INDEX,CHARVEC,POWVEC> *__rlbwt) : _char_vec(__rlbwt->get_char_vec() ) , _run_vec(__rlbwt->get_run_vec() )
+ForwardBWT(const RLBWT<CHARVEC,POWVEC> *__rlbwt) : _char_vec(__rlbwt->get_char_vec() ) , _run_vec(__rlbwt->get_run_vec() )
 {
 }
 /*

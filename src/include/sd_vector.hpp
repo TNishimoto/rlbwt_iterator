@@ -141,6 +141,7 @@ private:
     uint64_t _size = 0;
 
 public:
+    using value_type = uint64_t;
     SDVectorSeq()
     {
     }

@@ -20,7 +20,7 @@ class DataStructuresForSA
 };
 */
 
-template <typename INDEX = uint64_t, typename VEC = std::vector<INDEX>>
+template <typename VEC = std::vector<uint64_t>>
 class ForwardSA
 {
 public:
@@ -28,6 +28,7 @@ public:
     This iterator enumerates the suffix array of the original input text, 
     i.e., the i-th value is SA[i], where SA is the suffix array of the original input text.
   */
+  using INDEX = typename VEC::value_type;
   class iterator
   {
   private:
@@ -163,7 +164,7 @@ public:
     }
 
     template <typename CHAR = char>
-    static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa_lorder(const RLBWT<CHAR> &rlbwt, typename BackwardISA<INDEX, VEC>::iterator &&beginIt, typename BackwardISA<INDEX, VEC>::iterator &&endIt)
+    static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa_lorder(const RLBWT<> &rlbwt, typename BackwardISA<VEC>::iterator &&beginIt, typename BackwardISA<VEC>::iterator &&endIt)
     {
       //std::cout << "Constructing sampled suffix array" << std::flush;
 
@@ -301,7 +302,7 @@ public:
       }
       return sum;
     }
-    static std::vector<INDEX> decompress(RLBWT<char> &rlbwt, iterator &&begIt, iterator &&endIt)
+    static std::vector<INDEX> decompress(RLBWT<std::vector<char>> &rlbwt, iterator &&begIt, iterator &&endIt)
     {
       std::vector<INDEX> sa;
 
@@ -483,15 +484,15 @@ public:
   template <typename RLBWT_STR>
   void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
   {
-    std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = ForwardSA<INDEX, VEC>::construct_sampling_sa<RLBWT_STR>(_rlbwt);
+    std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = ForwardSA<VEC>::construct_sampling_sa<RLBWT_STR>(_rlbwt);
     //__rlbwt.clear();
 
     std::vector<INDEX> _first_psa = std::move(pairVec.first);
     std::vector<INDEX> _last_psa = std::move(pairVec.second);
     INDEX _first_psa_value = _first_psa[0];
 
-    auto _succ_ssa_yorder = ForwardSA<INDEX, VEC>::construct_succ_ssa_yorder(std::move(_first_psa), _last_psa);
-    auto _sorted_end_ssa = ForwardSA<INDEX, VEC>::construct_sorted_end_ssa(std::move(_last_psa));
+    auto _succ_ssa_yorder = ForwardSA<VEC>::construct_succ_ssa_yorder(std::move(_first_psa), _last_psa);
+    auto _sorted_end_ssa = ForwardSA<VEC>::construct_sorted_end_ssa(std::move(_last_psa));
 
     if (faster)
     {
@@ -510,7 +511,7 @@ public:
   template <typename RLBWT_STR>
   static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa(const RLBWT_STR *rlbwt)
   {
-    BackwardISA<INDEX, std::vector<INDEX>> tpb;
+    BackwardISA<std::vector<INDEX>> tpb;
     tpb.construct_from_rlbwt(rlbwt);
     std::pair<std::vector<INDEX>, std::vector<INDEX>> r = iterator::construct_sampling_sa_lorder(*rlbwt, tpb.begin(), tpb.end());
 

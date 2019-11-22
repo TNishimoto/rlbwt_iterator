@@ -73,7 +73,7 @@ bool test_text(RLBWT_TYPE &rlestr, string &text)
     //Constructor::construct_from_bwt<CHAR, INDEX>(rlestr, bwt);
     //std::cout << bwt << std::endl;
     //rlestr.construct(bwt);
-    BackwardText<char, uint64_t, vector<char>, vector<uint64_t>> w;
+    BackwardText<vector<char>, vector<uint64_t>> w;
     w.construct_from_rlbwt(&rlestr, false);
     string text2 = w.to_string();
 
@@ -116,7 +116,7 @@ bool test_isa(RLBWT_TYPE &rlestr, vector<INDEX> &isa)
               << "\033[0m" << std::endl;
 
     
-    BackwardISA<INDEX, typename RLBWT_TYPE::run_vec_type> w;
+    BackwardISA<typename RLBWT_TYPE::run_vec_type> w;
 
     std::vector<uint64_t> p;
     w.construct_from_rlbwt(&rlestr, false);
@@ -149,8 +149,8 @@ bool test_isa(RLBWT_TYPE &rlestr, vector<INDEX> &isa)
 }
 
 
-template <typename CHAR = char, typename INDEX = uint64_t>
-bool test_sa(RLBWT<CHAR, INDEX> &rlestr, vector<INDEX> &sa)
+template <typename CHARVEC, typename POWVEC>
+bool test_sa(RLBWT<CHARVEC, POWVEC> &rlestr, vector<typename POWVEC::value_type> &sa)
 {
     std::cout << "\033[47m"
               << "\033[31m"
@@ -187,8 +187,8 @@ bool test_sa(RLBWT<CHAR, INDEX> &rlestr, vector<INDEX> &sa)
 }
 
 
-template <typename CHAR = char, typename INDEX = uint64_t>
-bool test_lcp(RLBWT<CHAR, INDEX> &rlestr, vector<INDEX> &lcp)
+template <typename RLBWT_STR>
+bool test_lcp(RLBWT_STR &rlestr, vector<uint64_t> &lcp)
 {
     std::cout << "\033[47m"
               << "\033[31m"
@@ -267,7 +267,7 @@ bool test_load(string filepath, string &bwt)
 template <typename CHAR = char, typename INDEX = uint64_t>
 void test(string &text){
 
-        RLBWT<CHAR, INDEX> rlestr;
+        RLBWT<> rlestr;
         Constructor::construct_from_string<CHAR, INDEX>(rlestr, text);
 
         text.push_back((char)0);
@@ -279,7 +279,7 @@ void test(string &text){
             std::cout << text << std::endl;
         }
 
-        RLBWT<char>::check_text_for_rlbwt(text);
+        RLBWT<>::check_text_for_rlbwt(text);
 
         std::cout << "Constructing SA by naive soring..." << std::endl;
         vector<INDEX> sa = stool::rlbwt::SuffixArrayConstructor::naive_sa<INDEX>(text);
@@ -303,7 +303,7 @@ template <typename CHAR = char, typename INDEX = uint64_t>
 void testWithSDSL(string &text){
 
 
-        RLBWT<CHAR, INDEX, std::vector<CHAR>, SDVectorSeq > rlestr;
+        RLBWT<std::vector<CHAR>, SDVectorSeq > rlestr;
         Constructor::construct_from_string_with_sd_vector(rlestr, text);
 
         text.push_back((char)0);
@@ -315,7 +315,7 @@ void testWithSDSL(string &text){
             std::cout << text << std::endl;
         }
 
-        RLBWT<char>::check_text_for_rlbwt(text);
+        RLBWT<>::check_text_for_rlbwt(text);
 
         std::cout << "Constructing SA by naive soring..." << std::endl;
         vector<INDEX> sa = stool::rlbwt::SuffixArrayConstructor::naive_sa<INDEX>(text);
