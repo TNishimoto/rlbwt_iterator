@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
     RLBWT<> rlestr;
     //Constructor::construct_from_bwt<CHAR, INDEX>(rlestr, bwt);
-    Constructor::construct_from_string<CHAR, INDEX>(rlestr, text);
+    Constructor::construct_from_string(rlestr, text);
 
     text.push_back((char)0);
 

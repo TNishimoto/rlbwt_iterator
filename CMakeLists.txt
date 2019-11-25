@@ -69,6 +69,9 @@ target_link_libraries(compress.out online_rlbwt Basics BTree sdsl)
 add_executable(check.out ${STOOL_SOURCES} src/debug/check_main.cpp)
 target_link_libraries(check.out online_rlbwt Basics BTree sdsl)
 
+add_executable(time.out ${STOOL_SOURCES} src/debug/time_main.cpp)
+target_link_libraries(time.out online_rlbwt Basics BTree sdsl)
+
 
 add_executable(data_viewer.out ${STOOL_SOURCES} src/debug/data_viewer_main.cpp)
 target_link_libraries(data_viewer.out online_rlbwt Basics BTree sdsl)

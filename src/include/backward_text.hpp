@@ -122,6 +122,12 @@ public:
     this->deleteFlag = obj.deleteFlag;
     obj.deleteFlag = false;
   }
+  void clear(){
+    if (deleteFlag){
+      delete _isa;
+      deleteFlag = false;
+    }
+  }
   void set(const CHARVEC *__char_vec, BackwardISA<POWVEC, VEC> &&__isa)
   {
     this->_char_vec = __char_vec;
@@ -131,8 +137,7 @@ public:
 
   ~BackwardText()
   {
-    if (deleteFlag)
-      delete _isa;
+    this->clear();
   }
   iterator begin() const
   {

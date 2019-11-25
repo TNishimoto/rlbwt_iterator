@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <sdsl/bit_vectors.hpp>
+#include "stool/src/value_array.hpp"
 
 namespace stool
 {
@@ -216,7 +217,7 @@ public:
             (*seq)[i] = this->access(i);
         }
 
-        this->check(*seq);
+        //this->check(*seq);
     }
 
     uint64_t access(uint64_t i) const
@@ -251,7 +252,7 @@ public:
 
         return r;
     }
-    uint64_t size(){
+    uint64_t size() const{
         return this->_size;
     }
 

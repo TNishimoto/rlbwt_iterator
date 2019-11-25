@@ -414,7 +414,11 @@ public:
   ~ForwardSA()
   {
     //std::cout << "call destructor Forward ISA!" << std::endl;
+    this->clear();
+  }
 
+  void clear()
+  {
     if (deleteFlag)
     {
 
@@ -426,6 +430,8 @@ public:
         delete _succ_slcp_yorder;
       if (_cache != nullptr)
         delete _cache;
+
+      deleteFlag = false;
     }
   }
   /*
@@ -569,7 +575,6 @@ public:
     }
     std::cout << std::endl;
   }
-
 };
 
 } // namespace rlbwt

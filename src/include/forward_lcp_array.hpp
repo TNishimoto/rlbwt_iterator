@@ -136,8 +136,15 @@ public:
 
   ~ForwardLCPArray()
   {
-    if (deleteFlag)
+    this->clear();
+  }
+
+  void clear()
+  {
+    if (deleteFlag){
       delete _sa;
+      deleteFlag = false;
+    }
   }
   iterator begin() const
   {

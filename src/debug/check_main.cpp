@@ -11,6 +11,7 @@
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
 #include <sdsl/bit_vectors.hpp>
+#include "../include/elias_fano_vector.hpp"
 
 
 using namespace std;
@@ -268,7 +269,7 @@ template <typename CHAR = char, typename INDEX = uint64_t>
 void test(string &text){
 
         RLBWT<> rlestr;
-        Constructor::construct_from_string<CHAR, INDEX>(rlestr, text);
+        Constructor::construct_from_string(rlestr, text);
 
         text.push_back((char)0);
 
@@ -304,7 +305,64 @@ void testWithSDSL(string &text){
 
 
         RLBWT<std::vector<CHAR>, SDVectorSeq > rlestr;
-        Constructor::construct_from_string_with_sd_vector(rlestr, text);
+
+
+        std::vector<CHAR> cVec;
+        std::vector<INDEX> nVec;
+        Constructor::construct_vectors_for_rlbwt(text, cVec, nVec);
+
+
+        using RUNVEC = SDVectorSeq;
+        RUNVEC nVec2;
+        nVec2.construct(nVec);
+        rlestr.set(std::move(cVec), std::move(nVec2) );
+
+
+        text.push_back((char)0);
+
+        std::cout << "Text length = " << text.size() << std::endl;
+        if (text.size() <= 100)
+        {
+            std::cout << "Text: ";
+            std::cout << text << std::endl;
+        }
+
+        RLBWT<>::check_text_for_rlbwt(text);
+
+        std::cout << "Constructing SA by naive soring..." << std::endl;
+        vector<INDEX> sa = stool::rlbwt::SuffixArrayConstructor::naive_sa<INDEX>(text);
+
+        string bwt = stool::rlbwt::SuffixArrayConstructor::construct_bwt(text, sa);
+        vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
+        vector<INDEX> lcp = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
+
+        //BackwardISA<INDEX, SDVectorSeq> w;
+
+        test_isa(rlestr, isa);
+        test_text(rlestr, text);
+
+        test_sa(rlestr, sa);
+        test_lcp(rlestr, lcp);
+        text.pop_back();
+}
+
+template <typename CHAR = char, typename INDEX = uint64_t>
+void testWithEliasFano(string &text){
+
+
+        RLBWT<std::vector<CHAR>, stool::EliasFanoVector > rlestr;
+
+        std::vector<CHAR> cVec;
+        std::vector<INDEX> nVec;
+        Constructor::construct_vectors_for_rlbwt(text, cVec, nVec);
+
+
+        using RUNVEC = stool::EliasFanoVector;
+        RUNVEC nVec2;
+        nVec2.construct(&nVec);
+        rlestr.set(std::move(cVec), std::move(nVec2) );
+
+        //Constructor::construct_from_string_with_efv(rlestr, text);
 
         text.push_back((char)0);
 
@@ -354,6 +412,9 @@ using INDEX = uint64_t;
         test(text);
         std::cout << "SDSL" << std::endl;
         testWithSDSL(text);
+        std::cout << "with EliasFano" << std::endl;
+        testWithEliasFano(text);
+
         //test_load(inputFile, bwt);
 
     }else{

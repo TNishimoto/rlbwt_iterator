@@ -214,13 +214,7 @@ public:
   ~BackwardISA()
   {
     //std::cout << "call destructor Backward ISA!" << std::endl;
-
-    if (deleteFlag)
-    {
-      delete this->_findexes_lorder;
-      if (_rle_lf_lorder != nullptr)
-        delete this->_rle_lf_lorder;
-    }
+    this->clear();
   }
   void clear()
   {

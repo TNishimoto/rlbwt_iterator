@@ -12,6 +12,7 @@
 #include "other_functions.hpp"
 #include "OnlineRlbwt/online_rlbwt.hpp"
 #include "sd_vector.hpp"
+#include "elias_fano_vector.hpp"
 //using namespace std;
 
 namespace stool
@@ -23,10 +24,8 @@ namespace rlbwt
 template <typename CHARVEC = std::vector<char>, typename POWVEC = std::vector<uint64_t>>
 class RLBWT
 {
-    
 
-
-    private:
+private:
     bool deleteFlag = false;
     const CHARVEC *char_vec = nullptr;
     const POWVEC *run_vec = nullptr;
@@ -35,7 +34,7 @@ public:
     typedef CHARVEC char_vec_type;
     typedef POWVEC run_vec_type;
     using index_type = typename POWVEC::value_type;
-    using char_type  = typename CHARVEC::value_type;
+    using char_type = typename CHARVEC::value_type;
     using CHAR = char_type;
     using INDEX = index_type;
 
@@ -43,7 +42,7 @@ public:
     {
     }
 
-    RLBWT(std::vector<CHAR> *&__char_vec, std::vector<INDEX> *&__run_vec) : char_vec(__char_vec), run_vec(__run_vec),deleteFlag(false)
+    RLBWT(std::vector<CHAR> *&__char_vec, std::vector<INDEX> *&__run_vec) : char_vec(__char_vec), run_vec(__run_vec), deleteFlag(false)
     {
     }
     RLBWT(std::vector<CHAR> &&__char_vec, std::vector<INDEX> &&__run_vec) : char_vec(new CHARVEC(std::move(__char_vec))), run_vec(new POWVEC(std::move(__run_vec))), deleteFlag(true)
@@ -73,32 +72,31 @@ public:
         obj.deleteFlag = false;
         std::cout << "RLBWT MOVE!" << std::endl;
     }
-    
+
     void set(const CHARVEC *__char_vec, const POWVEC *__run_vec)
     {
         this->char_vec = __char_vec;
         this->run_vec = __run_vec;
         deleteFlag = false;
     }
-    
+
     void set(CHARVEC &&__char_vec, POWVEC &&__run_vec)
     {
-            this->char_vec = new CHARVEC(std::move(__char_vec));
-            this->run_vec = new POWVEC(std::move(__run_vec) );
-            deleteFlag = true;
+        this->char_vec = new CHARVEC(std::move(__char_vec));
+        this->run_vec = new POWVEC(std::move(__run_vec));
+        deleteFlag = true;
     }
 
-
-    const POWVEC* get_run_vec() const
+    const POWVEC *get_run_vec() const
     {
         return this->run_vec;
     }
-    POWVEC* get_run_vec_no_const() const
+    POWVEC *get_run_vec_no_const() const
     {
         return this->run_vec;
     }
 
-    const CHARVEC* get_char_vec() const
+    const CHARVEC *get_char_vec() const
     {
         return this->char_vec;
     }
@@ -203,25 +201,26 @@ public:
 
             msg += "^";
             msg += std::to_string(this->get_run(i));
-            if(i + 1 < this->rle_size()) msg += ", ";
+            if (i + 1 < this->rle_size())
+                msg += ", ";
         }
-        std::cout << "RLBWT: " << msg << std::endl; 
+        std::cout << "RLBWT: " << msg << std::endl;
         std::cout << "This instance has two vectors: char_vec and run_vec." << std::endl;
         std::cout << "The first array stores " << std::endl;
-        for(auto c : *this->char_vec){
+        for (auto c : *this->char_vec)
+        {
             std::cout << c << " ";
         }
         std::cout << std::endl;
-        //stool::Printer::print(*this->char_vec);        
+        //stool::Printer::print(*this->char_vec);
         std::cout << "The second array stores " << std::endl;
-        for(auto c : *this->run_vec){
+        for (auto c : *this->run_vec)
+        {
             std::cout << c << " ";
         }
         std::cout << std::endl;
 
-        //stool::Printer::print(*this->run_vec);        
-
-
+        //stool::Printer::print(*this->run_vec);
     }
 
     INDEX get_end_rle_lposition() const
@@ -314,8 +313,9 @@ public:
         return stool::rlbwt::change_inv(std::move(indexes));
     }
 };
-class RLBWTArrayFunctions{
-    public:
+class RLBWTArrayFunctions
+{
+public:
     /*
     template <typename INDEX = uint64_t, typename VEC = std::vector<uint64_t>>
     static uint64_t get_lpos(){
@@ -329,7 +329,6 @@ class RLBWTArrayFunctions{
         auto p = std::upper_bound(run_vec.begin(), run_vec.end(), lposition);
         INDEX pos = std::distance(run_vec.begin(), p) - 1;
         return pos;
-        
     }
 
     template <typename INDEX = uint64_t, typename VEC = std::vector<uint64_t>>
@@ -391,36 +390,27 @@ public:
         std::vector<CHAR> cVec;
         std::vector<INDEX> nVec;
         itmmti::online_rlbwt_from_file(filepath, cVec, nVec, 1);
-        rlbwt.set(std::move(cVec), std::move(nVec) );
+        rlbwt.set(std::move(cVec), std::move(nVec));
     }
-    template <typename CHAR = char, typename INDEX = uint64_t>
-    static void construct_from_string(RLBWT<std::vector<CHAR>, std::vector<INDEX>> &rlbwt, std::string &text)
+    template <typename RLBWT_STR>
+    static void construct_from_string(RLBWT_STR &rlbwt, std::string &text)
     {
-        std::vector<CHAR> cVec;
-        std::vector<INDEX> nVec;
-        itmmti::online_rlbwt(text, cVec, nVec, 1);
-        rlbwt.set(std::move(cVec), std::move(nVec) );
-        /*
-        string bwt = stool::rlbwt::SuffixArrayConstructor::construct_bwt(text);
-        Constructor::construct_from_bwt<CHAR, INDEX>(rlbwt, bwt);
-        */
-    }
-    template <typename CHAR = char, typename INDEX = uint64_t>
-    static void construct_from_string_with_sd_vector(RLBWT<std::vector<CHAR>, SDVectorSeq > &rlbwt, std::string &text)
-    {
+        using CHAR = typename RLBWT_STR::char_type;
+        using INDEX = typename RLBWT_STR::index_type;
+        using RUNVEC = typename RLBWT_STR::run_vec_type;
+
         std::vector<CHAR> cVec;
         std::vector<INDEX> nVec;
         itmmti::online_rlbwt(text, cVec, nVec, 1);
 
-        using RUNVEC = SDVectorSeq;
-        RUNVEC nVec2;
-        nVec2.construct(nVec);
-        //constructSDVector(nVec, nVec2, NULL, NULL);
-        rlbwt.set(std::move(cVec), std::move(nVec2) );
-        /*
-        string bwt = stool::rlbwt::SuffixArrayConstructor::construct_bwt(text);
-        Constructor::construct_from_bwt<CHAR, INDEX>(rlbwt, bwt);
-        */
+        rlbwt.set(std::move(cVec), std::move(nVec));
+
+    }
+
+    template <typename CHAR = char, typename INDEX = uint64_t>
+    static void construct_vectors_for_rlbwt(std::string &text, std::vector<CHAR> &output_char_vec, std::vector<INDEX> &output_run_vec)
+    {
+        itmmti::online_rlbwt(text, output_char_vec, output_run_vec, 1);
     }
 
     template <typename RLBWT_STR>
@@ -433,7 +423,7 @@ public:
         std::vector<CHAR> cVec;
         std::vector<INDEX> nVec;
         itmmti::online_rlbwt(text, cVec, nVec, 1);
-        rlbwt.set(std::move(cVec), std::move(nVec) );
+        rlbwt.set(std::move(cVec), std::move(nVec));
 
         //string bwt = stool::rlbwt::SuffixArrayConstructor::construct_bwt(text);
         //Constructor::construct_from_bwt<CHAR, INDEX>(rlbwt, bwt);
@@ -481,13 +471,12 @@ public:
         std::vector<INDEX> run_vec = construct_run_vec(pows);
         inp.close();
 
-        RLBWT<std::vector<CHAR>, std::vector<INDEX> > rlestr;
+        RLBWT<std::vector<CHAR>, std::vector<INDEX>> rlestr;
         rlestr.set(std::move(char_vec), std::move(run_vec));
         rlestr.check_rlbwt();
         return rlestr;
     }
 };
-
 
 } // namespace rlbwt
 } // namespace stool
