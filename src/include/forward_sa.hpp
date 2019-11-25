@@ -7,6 +7,7 @@
 #include "rlbwt.hpp"
 #include "backward_text.hpp"
 #include "stool/src/print.hpp"
+#include "rlbwt_functions.hpp"
 
 namespace stool
 {

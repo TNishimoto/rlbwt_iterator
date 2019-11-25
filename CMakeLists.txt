@@ -43,13 +43,11 @@ LINK_DIRECTORIES(~/lib)
 include_directories(~/include)
 
 
-FILE(GLOB SOURCES src/common/*.cpp)
+FILE(GLOB SOURCES src/common/*.cpp src/include/*.cpp)
 FILE(GLOB STOOL_SOURCES module/stool/src/*.cpp)
 
-
 include_directories(module)
-add_executable(compress.out ${STOOL_SOURCES} src/main/compress_main.cpp ${SOURCES})
-target_link_libraries(compress.out online_rlbwt Basics BTree sdsl)
+
 
 #add_executable(decompress.out src/decompress_main.cpp ${SOURCES})
 #target_link_libraries(decompress.out online_rlbwt Basics BTree)
@@ -66,18 +64,20 @@ target_link_libraries(compress.out online_rlbwt Basics BTree sdsl)
 #add_executable(test.out src/debug/test_main.cpp ${INCLUDE_FILES})
 #target_link_libraries(test.out online_rlbwt Basics BTree)
 
-add_executable(check.out ${STOOL_SOURCES} src/debug/check_main.cpp)
-target_link_libraries(check.out online_rlbwt Basics BTree sdsl)
+#add_executable(compress.out ${SOURCES} ${STOOL_SOURCES} src/main/compress_main.cpp ${SOURCES})
+#target_link_libraries(compress.out online_rlbwt Basics BTree sdsl)
 
-add_executable(time.out ${STOOL_SOURCES} src/debug/time_main.cpp)
+#add_executable(check.out ${SOURCES} ${STOOL_SOURCES} src/debug/check_main.cpp)
+#target_link_libraries(check.out online_rlbwt Basics BTree sdsl)
+
+add_executable(time.out ${SOURCES} ${STOOL_SOURCES} src/debug/time_main.cpp)
 target_link_libraries(time.out online_rlbwt Basics BTree sdsl)
 
+#add_executable(data_viewer.out ${SOURCES} ${STOOL_SOURCES} src/debug/data_viewer_main.cpp)
+#target_link_libraries(data_viewer.out online_rlbwt Basics BTree sdsl)
 
-add_executable(data_viewer.out ${STOOL_SOURCES} src/debug/data_viewer_main.cpp)
-target_link_libraries(data_viewer.out online_rlbwt Basics BTree sdsl)
-
-add_executable(elias_fano_test.out ${STOOL_SOURCES} src/debug/elias_fano_test_main.cpp)
-target_link_libraries(elias_fano_test.out sdsl)
+#add_executable(elias_fano_test.out ${SOURCES} ${STOOL_SOURCES} src/debug/elias_fano_test_main.cpp)
+#target_link_libraries(elias_fano_test.out sdsl)
 
 
 FILE(GLOB INCLUDE_FILES src/include/*.hpp)

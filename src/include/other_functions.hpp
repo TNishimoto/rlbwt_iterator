@@ -114,18 +114,20 @@ std::vector<uint64_t> change_inv(std::vector<uint64_t> &&items)
     return tmp;
 }
 */
-std::vector<uint64_t> change_inv(std::vector<uint64_t> &&items)
+
+template <typename T>
+std::vector<uint64_t> change_inv(std::vector<T> &&items)
 {
     std::vector<bool> checker;
     uint64_t size = items.size();
     checker.resize(size, false);
 
-    uint64_t current_i = std::numeric_limits<uint64_t>::max();
-    uint64_t current_value = std::numeric_limits<uint64_t>::max();
+    uint64_t current_i = std::numeric_limits<T>::max();
+    uint64_t current_value = std::numeric_limits<T>::max();
     uint64_t i = 0;
     while (i < size)
     {
-        if (current_i == std::numeric_limits<uint64_t>::max())
+        if (current_i == std::numeric_limits<T>::max())
         {
             if (checker[i])
             {
@@ -142,7 +144,7 @@ std::vector<uint64_t> change_inv(std::vector<uint64_t> &&items)
             items[current_value] = current_i;
             checker[current_i] = true;
             if(checker[tmp_i]){
-                current_i = std::numeric_limits<uint64_t>::max();
+                current_i = std::numeric_limits<T>::max();
             }else{
                 current_i = tmp_i;
                 current_value = tmp_value;
@@ -153,8 +155,8 @@ std::vector<uint64_t> change_inv(std::vector<uint64_t> &&items)
     return std::move(items);
 }
 
-uint64_t total_cache_miss_counter1 = 0;
-uint64_t total_cache_miss_counter2 = 0;
+//uint64_t total_cache_miss_counter1 = 0;
+//uint64_t total_cache_miss_counter2 = 0;
 template <typename VecType>
 class SortedVec
 {
@@ -167,9 +169,9 @@ class SortedVec
             {
                 return i - 1;
             }
-#ifdef DEBUG
-            ++total_cache_miss_counter1;
-#endif
+//#ifdef DEBUG
+//            ++total_cache_miss_counter1;
+//#endif
         }
         return -1;
     }
@@ -181,9 +183,9 @@ class SortedVec
             {
                 return i + 1;
             }
-#ifdef DEBUG
-            ++total_cache_miss_counter2;
-#endif
+//#ifdef DEBUG
+//            ++total_cache_miss_counter2;
+//#endif
         }
         return 0;
     }

@@ -89,6 +89,31 @@ TestResult test1(RLBWT_TYPE &rlestr, DATA &data, std::string name)
     return TestResult(time1, time2, hash);
 }
 
+    TestResult backward_text_result;
+    TestResult backward_isa_result;
+    TestResult forward_sa_result;
+    TestResult forward_lcp_result;
+
+
+template <typename RLBWT_TYPE>
+TestResult test(RLBWT_TYPE &rlestr, std::string filename, std::string name){
+
+        string text = stool::load_string_from_file(filename, false);
+            Constructor::construct_from_string(rlestr, text);
+
+            BackwardText<typename RLBWT_TYPE::char_vec_type, typename RLBWT_TYPE::run_vec_type> w1;
+            backward_text_result = test1(rlestr, w1, "backward text");
+
+            BackwardISA<typename RLBWT_TYPE::run_vec_type> w2;
+            backward_isa_result = test1(rlestr, w2, "backward isa");
+
+            ForwardSA<> w3;
+            forward_sa_result= test1(rlestr, w3, "forward sa");
+
+            ForwardLCPArray<> w4;
+            forward_lcp_result = test1(rlestr, w4, "forward lcp");
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -104,35 +129,18 @@ int main(int argc, char *argv[])
     string mode = p.get<string>("mode");
     string type = p.get<string>("type");
 
-    TestResult backward_text_result;
-    TestResult backward_isa_result;
-    TestResult forward_sa_result;
-    TestResult forward_lcp_result;
 
     if (mode == "input")
     {
         if (inputFile == "")
             throw std::runtime_error("Please input filename");
 
-        string text = stool::load_string_from_file(inputFile, false);
 
         if (type == "vector")
         {
             using RLBWT_TYPE = RLBWT<>;
             RLBWT_TYPE rlestr;
-            Constructor::construct_from_string(rlestr, text);
-
-            BackwardText<typename RLBWT_TYPE::char_vec_type, typename RLBWT_TYPE::run_vec_type> w1;
-            backward_text_result = test1(rlestr, w1, "backward text");
-
-            BackwardISA<typename RLBWT_TYPE::run_vec_type> w2;
-            backward_isa_result = test1(rlestr, w2, "backward isa");
-
-            ForwardSA<> w3;
-            forward_sa_result= test1(rlestr, w3, "forward sa");
-
-            ForwardLCPArray<> w4;
-            forward_lcp_result = test1(rlestr, w4, "forward lcp");
+            test(rlestr, inputFile, "vector");
         }
         else if (type == "sdsl")
         {
@@ -140,54 +148,14 @@ int main(int argc, char *argv[])
             RLBWT_TYPE rlestr;
             //Constructor::construct_from_string(rlestr, text);
 
-            std::vector<CHAR> cVec;
-            std::vector<INDEX> nVec;
-            Constructor::construct_vectors_for_rlbwt(text, cVec, nVec);
-
-            using RUNVEC = SDVectorSeq;
-            RUNVEC nVec2;
-            nVec2.construct(nVec);
-            rlestr.set(std::move(cVec), std::move(nVec2));
-
-            BackwardText<typename RLBWT_TYPE::char_vec_type, typename RLBWT_TYPE::run_vec_type> w1;
-            backward_text_result = test1(rlestr, w1, "backward text");
-
-            BackwardISA<typename RLBWT_TYPE::run_vec_type> w2;
-            backward_isa_result = test1(rlestr, w2, "backward isa");
-
-            ForwardSA<> w3;
-            forward_sa_result= test1(rlestr, w3, "forward sa");
-
-            ForwardLCPArray<> w4;
-            forward_lcp_result = test1(rlestr, w4, "forward lcp");
+            test(rlestr, inputFile,"sdsl");
         }
         else
         {
             type = "elias-fano";
             using RLBWT_TYPE = RLBWT<std::vector<CHAR>, stool::EliasFanoVector>;
             RLBWT_TYPE rlestr;
-            //Constructor::construct_from_string(rlestr, text);
-
-            std::vector<CHAR> cVec;
-            std::vector<INDEX> nVec;
-            Constructor::construct_vectors_for_rlbwt(text, cVec, nVec);
-
-            using RUNVEC = stool::EliasFanoVector;
-            RUNVEC nVec2;
-            nVec2.construct(&nVec);
-            rlestr.set(std::move(cVec), std::move(nVec2));
-
-            BackwardText<typename RLBWT_TYPE::char_vec_type, typename RLBWT_TYPE::run_vec_type> w1;
-            backward_text_result = test1(rlestr, w1, "backward text");
-
-            BackwardISA<typename RLBWT_TYPE::run_vec_type> w2;
-            backward_isa_result = test1(rlestr, w2, "backward isa");
-
-            ForwardSA<> w3;
-            forward_sa_result= test1(rlestr, w3, "forward sa");
-
-            ForwardLCPArray<> w4;
-            forward_lcp_result = test1(rlestr, w4, "forward lcp");
+            test(rlestr, inputFile,"elias");
         }
 
         std::cout << "\033[31m";

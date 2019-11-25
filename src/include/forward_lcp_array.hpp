@@ -8,6 +8,7 @@
 #include "backward_text.hpp"
 #include "forward_sa.hpp"
 #include "sampling_lcp.hpp"
+#include "rlbwt_functions.hpp"
 
 namespace stool
 {

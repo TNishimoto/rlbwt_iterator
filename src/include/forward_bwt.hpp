@@ -11,6 +11,7 @@
 //#include "common/print.hpp"
 #include "other_functions.hpp"
 #include "OnlineRlbwt/online_rlbwt.hpp"
+#include "rlbwt_functions.hpp"
 //using namespace std;
 
 namespace stool

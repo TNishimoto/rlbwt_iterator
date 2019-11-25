@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <unordered_set>
 #include "backward_isa.hpp"
+#include "rlbwt_functions.hpp"
 namespace stool
 {
 namespace rlbwt

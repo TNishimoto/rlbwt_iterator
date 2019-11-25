@@ -7,6 +7,7 @@
 //#include "lfitem.hpp"
 #include "other_functions.hpp"
 #include "rle_farray.hpp"
+#include "rlbwt_functions.hpp"
 
 namespace stool
 {

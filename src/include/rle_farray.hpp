@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <unordered_set>
 #include "rlbwt.hpp"
+#include "rlbwt_functions.hpp"
+#include "rlbwt_functions.hpp"
 
 namespace stool
 {
