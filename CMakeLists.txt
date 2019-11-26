@@ -49,6 +49,9 @@ FILE(GLOB STOOL_SOURCES module/stool/src/*.cpp)
 include_directories(module)
 
 
+add_library(fn STATIC ${SOURCES} ${STOOL_SOURCES})
+target_link_libraries(fn online_rlbwt Basics BTree sdsl)
+
 #add_executable(decompress.out src/decompress_main.cpp ${SOURCES})
 #target_link_libraries(decompress.out online_rlbwt Basics BTree)
 
@@ -64,20 +67,20 @@ include_directories(module)
 #add_executable(test.out src/debug/test_main.cpp ${INCLUDE_FILES})
 #target_link_libraries(test.out online_rlbwt Basics BTree)
 
-#add_executable(compress.out ${SOURCES} ${STOOL_SOURCES} src/main/compress_main.cpp ${SOURCES})
-#target_link_libraries(compress.out online_rlbwt Basics BTree sdsl)
+add_executable(compress.out src/main/compress_main.cpp)
+target_link_libraries(compress.out fn)
 
-#add_executable(check.out ${SOURCES} ${STOOL_SOURCES} src/debug/check_main.cpp)
-#target_link_libraries(check.out online_rlbwt Basics BTree sdsl)
+add_executable(check.out src/debug/check_main.cpp)
+target_link_libraries(check.out fn)
 
-add_executable(time.out ${SOURCES} ${STOOL_SOURCES} src/debug/time_main.cpp)
-target_link_libraries(time.out online_rlbwt Basics BTree sdsl)
+add_executable(time.out src/debug/time_main.cpp)
+target_link_libraries(time.out fn)
 
-#add_executable(data_viewer.out ${SOURCES} ${STOOL_SOURCES} src/debug/data_viewer_main.cpp)
-#target_link_libraries(data_viewer.out online_rlbwt Basics BTree sdsl)
+add_executable(data_viewer.out src/debug/data_viewer_main.cpp)
+target_link_libraries(data_viewer.out fn)
 
-#add_executable(elias_fano_test.out ${SOURCES} ${STOOL_SOURCES} src/debug/elias_fano_test_main.cpp)
-#target_link_libraries(elias_fano_test.out sdsl)
+add_executable(elias_fano_test.out src/debug/elias_fano_test_main.cpp)
+target_link_libraries(elias_fano_test.out fn)
 
 
 FILE(GLOB INCLUDE_FILES src/include/*.hpp)

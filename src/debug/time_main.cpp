@@ -45,15 +45,17 @@ std::pair<uint64_t, uint64_t> test_text(RLBWT_TYPE &rlestr)
 }
 */
 
-struct TestResult{
+struct TestResult
+{
     uint64_t preprocess_time;
     uint64_t iterate_time;
     uint64_t hash;
 
-    TestResult(){
-
+    TestResult()
+    {
     }
-    TestResult(uint64_t _preprocess_time, uint64_t _iterate_time, uint64_t _hash){
+    TestResult(uint64_t _preprocess_time, uint64_t _iterate_time, uint64_t _hash)
+    {
         this->preprocess_time = _preprocess_time;
         this->iterate_time = _iterate_time;
         this->hash = _hash;
@@ -89,31 +91,30 @@ TestResult test1(RLBWT_TYPE &rlestr, DATA &data, std::string name)
     return TestResult(time1, time2, hash);
 }
 
-    TestResult backward_text_result;
-    TestResult backward_isa_result;
-    TestResult forward_sa_result;
-    TestResult forward_lcp_result;
-
+TestResult backward_text_result;
+TestResult backward_isa_result;
+TestResult forward_sa_result;
+TestResult forward_lcp_result;
 
 template <typename RLBWT_TYPE>
-TestResult test(RLBWT_TYPE &rlestr, std::string filename, std::string name){
+TestResult test(RLBWT_TYPE &rlestr, std::string filename, std::string name)
+{
 
-        string text = stool::load_string_from_file(filename, false);
-            Constructor::construct_from_string(rlestr, text);
+    string text = stool::load_string_from_file(filename, false);
+    Constructor::construct_from_string(rlestr, text);
 
-            BackwardText<typename RLBWT_TYPE::char_vec_type, typename RLBWT_TYPE::run_vec_type> w1;
-            backward_text_result = test1(rlestr, w1, "backward text");
+    BackwardText<typename RLBWT_TYPE::char_vec_type, typename RLBWT_TYPE::run_vec_type> w1;
+    backward_text_result = test1(rlestr, w1, "backward text");
 
-            BackwardISA<typename RLBWT_TYPE::run_vec_type> w2;
-            backward_isa_result = test1(rlestr, w2, "backward isa");
+    BackwardISA<typename RLBWT_TYPE::run_vec_type> w2;
+    backward_isa_result = test1(rlestr, w2, "backward isa");
 
-            ForwardSA<> w3;
-            forward_sa_result= test1(rlestr, w3, "forward sa");
+    ForwardSA<> w3;
+    forward_sa_result = test1(rlestr, w3, "forward sa");
 
-            ForwardLCPArray<> w4;
-            forward_lcp_result = test1(rlestr, w4, "forward lcp");
+    ForwardLCPArray<> w4;
+    forward_lcp_result = test1(rlestr, w4, "forward lcp");
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -129,12 +130,10 @@ int main(int argc, char *argv[])
     string mode = p.get<string>("mode");
     string type = p.get<string>("type");
 
-
     if (mode == "input")
     {
         if (inputFile == "")
             throw std::runtime_error("Please input filename");
-
 
         if (type == "vector")
         {
@@ -148,14 +147,14 @@ int main(int argc, char *argv[])
             RLBWT_TYPE rlestr;
             //Constructor::construct_from_string(rlestr, text);
 
-            test(rlestr, inputFile,"sdsl");
+            test(rlestr, inputFile, "sdsl");
         }
         else
         {
             type = "elias-fano";
             using RLBWT_TYPE = RLBWT<std::vector<CHAR>, stool::EliasFanoVector>;
             RLBWT_TYPE rlestr;
-            test(rlestr, inputFile,"elias");
+            test(rlestr, inputFile, "elias");
         }
 
         std::cout << "\033[31m";
@@ -173,7 +172,6 @@ int main(int argc, char *argv[])
 
         std::cout << "Forward LCP[preprocess] \t\t\t\t : " << forward_lcp_result.preprocess_time << "[ms]" << std::endl;
         std::cout << "Forward LCP[iterate] \t\t\t\t\t : " << forward_lcp_result.iterate_time << "[ms]" << std::endl;
-
 
         std::cout << "_______________________________________________________" << std::endl;
         std::cout << "\033[39m" << std::endl;

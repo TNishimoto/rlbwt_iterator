@@ -19,213 +19,31 @@ using namespace stool;
 using namespace stool::rlbwt;
 
 bool SHOW = false;
-/*
-template <typename T>
-bool equalCheck(const vector<T> &vec1, const vector<T> &vec2)
-{
-    if (vec1.size() != vec2.size())
-    {
-        string s = string("String sizes are different!") + ", collect = " + std::to_string(vec1.size()) + ", test = " + std::to_string(vec2.size());
 
-        throw std::logic_error(s);
-    }
-    for (uint64_t i = 0; i < vec1.size(); i++)
-    {
-        if (vec1[i] != vec2[i])
-        {
-            string msg = "collect_vec[" + std::to_string(i) + "] != test_vec[" + std::to_string(i) + "]";
-
-            throw std::logic_error("Values are different! " + msg);
-        }
-    }
-    return true;
-}
-
-bool equalCheck(string &vec1, string &vec2)
-{
-    if (vec1.size() != vec2.size())
-    {
-        string s = string("String sizes are different!") + ", collect = " + std::to_string(vec1.size()) + ", test = " + std::to_string(vec2.size());
-        throw std::logic_error(s);
-    }
-
-    for (uint64_t i = 0; i < vec1.size(); i++)
-    {
-        if (vec1[i] != vec2[i])
-        {
-            throw std::logic_error("Values are different!");
-        }
-    }
-    return true;
-}
-*/
-
-
-template <typename RLBWT_TYPE>
-bool test_text(RLBWT_TYPE &rlestr, string &text)
+template <typename DATA>
+void test1(DATA &data, DATA &correct_data, std::string name)
 {
     std::cout << "\033[47m"
               << "\033[31m"
               << "\033[1m"
-              << "Test: Text"
-              << "\033[0m" << std::endl;
-    //string bwt = stool::rlbwt::SuffixArrayConstructor::construct_bwt(text);
-    //RLBWT<char, uint64_t> rlestr;
-    //Constructor::construct_from_bwt<CHAR, INDEX>(rlestr, bwt);
-    //std::cout << bwt << std::endl;
-    //rlestr.construct(bwt);
-    BackwardText<typename RLBWT_TYPE::char_vec_type, typename RLBWT_TYPE::run_vec_type > w;
-    w.construct_from_rlbwt(&rlestr, false);
-    string text2 = w.to_string();
-
-    if (text.size() <= 100 && SHOW)
-    {
-        std::cout << std::endl;
-        std::cout << "\033[32m"
-                  << "\033[1m"
-                  << "Collect Text: "
-                  << std::endl;
-        std::cout << text << std::endl;
-        std::cout << "\033[35m"
-                  << "\033[1m"
-                  << "Computed Text from RLBWT: "
-                  << std::endl;
-        std::cout << text2 << std::endl;
-    }
-
-    bool b = stool::equal_check(text, text2);
-
-    if (b)
-    {
-        std::cout << "\033[32m"
-                  << "\033[1m"
-                  << "OK! "
-                  << "\033[0m" << std::endl;
-    }
-    return b;
-}
-
-
-template <typename CHAR = char, typename INDEX = uint64_t, typename RLBWT_TYPE = RLBWT<CHAR, INDEX>>
-bool test_isa(RLBWT_TYPE &rlestr, vector<INDEX> &isa)
-{
-
-    std::cout << "\033[47m"
-              << "\033[31m"
-              << "\033[1m"
-              << "Test: ISA"
+              << "Test: " << name
               << "\033[0m" << std::endl;
 
-    
-    BackwardISA<typename RLBWT_TYPE::run_vec_type> w;
+    //BackwardISA<typename RLBWT_TYPE::run_vec_type> w;
+        //Printer::print(data);
+        //Printer::print(correct_data);
 
-    std::vector<uint64_t> p;
-    w.construct_from_rlbwt(&rlestr, false);
-
-    vector<INDEX> isa2 = w.to_isa();
-
-    if (isa.size() <= 100 && SHOW)
-    {
-        std::cout << std::endl;
-        std::cout << "\033[32m"
-                  << "\033[1m"
-                  << "Collect ISA: "
-                  << std::endl;
-        stool::Printer::print(isa);
-        std::cout << "\033[35m"
-                  << "\033[1m"
-                  << "Computed ISA from RLBWT: "
-                  << std::endl;
-        stool::Printer::print(isa2);
-    }
-    bool b = stool::equal_check(isa, isa2);
+    bool b = stool::equal_check(correct_data, data);
     if (b)
     {
         std::cout << "\033[32m"
                   << "\033[1m"
                   << "OK! "
                   << "\033[0m" << std::endl;
+    }else{
+
     }
-    return true;
 }
-
-
-template <typename CHARVEC, typename POWVEC>
-bool test_sa(RLBWT<CHARVEC, POWVEC> &rlestr, vector<typename POWVEC::value_type> &sa)
-{
-    std::cout << "\033[47m"
-              << "\033[31m"
-              << "\033[1m"
-              << "Test: SA"
-              << "\033[0m";
-    ForwardSA<> w2;
-    w2.construct_from_rlbwt(&rlestr, false);
-    vector<uint64_t> sa2 = w2.to_sa();
-
-    if (sa.size() <= 100 && SHOW)
-    {
-        std::cout << std::endl;
-        std::cout << "\033[32m"
-                  << "\033[1m"
-                  << "Collect SA: "
-                  << std::endl;
-        stool::Printer::print(sa);
-        std::cout << "\033[35m"
-                  << "\033[1m"
-                  << "Computed SA from RLBWT: " << std::endl;
-        stool::Printer::print(sa2);
-    }
-
-    bool b = stool::equal_check(sa, sa2);
-    if (b)
-    {
-        std::cout << "\033[32m"
-                  << "\033[1m"
-                  << "OK! "
-                  << "\033[0m" << std::endl;
-    }
-    return b;
-}
-
-
-template <typename RLBWT_STR>
-bool test_lcp(RLBWT_STR &rlestr, vector<uint64_t> &lcp)
-{
-    std::cout << "\033[47m"
-              << "\033[31m"
-              << "\033[1m"
-              << "Test: LCP Array"
-              << "\033[0m";
-
-    ForwardLCPArray<> w2;
-    w2.construct_from_rlbwt(&rlestr, false);
-    vector<uint64_t> lcp2 = w2.to_lcp_array();
-
-    if (lcp.size() <= 100 && SHOW)
-    {
-        std::cout << std::endl;
-        std::cout << "\033[32m"
-                  << "\033[1m"
-                  << "Collect LCP array: " << std::endl;
-        stool::Printer::print(lcp);
-        std::cout << "\033[35m"
-                  << "\033[1m"
-                  << "Computed LCP array from RLBWT: " << std::endl;
-        stool::Printer::print(lcp2);
-        std::cout << "\033[0m" << std::endl;
-    }
-
-    bool b = stool::equal_check(lcp, lcp2);
-    if (b)
-    {
-        std::cout << "\033[32m"
-                  << "\033[1m"
-                  << "OK! "
-                  << "\033[0m" << std::endl;
-    }
-    return b;
-}
-
 
 template <typename CHAR = char, typename INDEX = uint64_t>
 bool test_load(string filepath, string &bwt)
@@ -264,11 +82,11 @@ bool test_load(string filepath, string &bwt)
 }
 
 
+template <typename RLBWT_TYPE>
+void test(RLBWT_TYPE &rlestr, string &text, string name){
+        using INDEX = typename RLBWT_TYPE::index_type;
+        std::cout << "Test: " << name << std::endl;
 
-template <typename CHAR = char, typename INDEX = uint64_t>
-void test(string &text){
-
-        RLBWT<> rlestr;
         Constructor::construct_from_string(rlestr, text);
 
         text.push_back((char)0);
@@ -289,106 +107,41 @@ void test(string &text){
         vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
         vector<INDEX> lcp = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
 
-        //std::cout << "/" << sizeof(typename RLBWT<CHAR, INDEX>::char_vec_type) << std::endl;
-        //BackwardISA<INDEX> w;
-        test_isa(rlestr, isa);
-        test_text(rlestr, text);
 
-        test_sa(rlestr, sa);
-        test_lcp(rlestr, lcp);
-        text.pop_back();
-}
+        //BackwardText<typename RLBWT_TYPE::char_vec_type, typename RLBWT_TYPE::run_vec_type> w1;
 
 
-template <typename CHAR = char, typename INDEX = uint64_t>
-void testWithSDSL(string &text){
+        BackwardText<typename RLBWT_TYPE::char_vec_type, typename RLBWT_TYPE::run_vec_type> w1;
+        w1.construct_from_rlbwt(&rlestr, false);
+        std::string test_text;
+        test_text.resize(text.size(), 0);
+        uint64_t p1 = text.size()-1;
+        for(auto it : w1) test_text[p1--] = it;
+        test1(test_text, text, "Text");
+
+        //backward_text_result = test1(rlestr, w1, "backward text");
+
+        vector<INDEX> test_isa;
+        test_isa.resize(isa.size(), 0);
+        uint64_t p2 = isa.size()-1;
+        BackwardISA<typename RLBWT_TYPE::run_vec_type> w2;
+        w2.construct_from_rlbwt(&rlestr, false);
+        for(auto it : w2) test_isa[p2--] = it;
+        test1(test_isa, isa, "ISA");
 
 
-        RLBWT<std::vector<CHAR>, SDVectorSeq > rlestr;
+        vector<INDEX> test_sa;
+        ForwardSA<> w3;
+        w3.construct_from_rlbwt(&rlestr, false);
+        for(auto it : w3) test_sa.push_back(it);
+        test1(test_sa, sa, "SA");
 
+        vector<INDEX> test_lcp;
+        ForwardLCPArray<> w4;
+        w4.construct_from_rlbwt(&rlestr, false);
+        for(auto it : w4) test_lcp.push_back(it);
+        test1(test_lcp, lcp, "LCP");
 
-        std::vector<CHAR> cVec;
-        std::vector<INDEX> nVec;
-        Constructor::construct_vectors_for_rlbwt(text, cVec, nVec);
-
-
-        using RUNVEC = SDVectorSeq;
-        RUNVEC nVec2;
-        nVec2.construct(nVec);
-        rlestr.set(std::move(cVec), std::move(nVec2) );
-
-
-        text.push_back((char)0);
-
-        std::cout << "Text length = " << text.size() << std::endl;
-        if (text.size() <= 100)
-        {
-            std::cout << "Text: ";
-            std::cout << text << std::endl;
-        }
-
-        RLBWT<>::check_text_for_rlbwt(text);
-
-        std::cout << "Constructing SA by naive soring..." << std::endl;
-        vector<INDEX> sa = stool::rlbwt::SuffixArrayConstructor::naive_sa<INDEX>(text);
-
-        string bwt = stool::rlbwt::SuffixArrayConstructor::construct_bwt(text, sa);
-        vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
-        vector<INDEX> lcp = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
-
-        //BackwardISA<INDEX, SDVectorSeq> w;
-
-        test_isa(rlestr, isa);
-        test_text(rlestr, text);
-
-        test_sa(rlestr, sa);
-        test_lcp(rlestr, lcp);
-        text.pop_back();
-}
-
-template <typename CHAR = char, typename INDEX = uint64_t>
-void testWithEliasFano(string &text){
-
-
-        RLBWT<std::vector<CHAR>, stool::EliasFanoVector > rlestr;
-
-        std::vector<CHAR> cVec;
-        std::vector<INDEX> nVec;
-        Constructor::construct_vectors_for_rlbwt(text, cVec, nVec);
-
-
-        using RUNVEC = stool::EliasFanoVector;
-        RUNVEC nVec2;
-        nVec2.construct(&nVec);
-        rlestr.set(std::move(cVec), std::move(nVec2) );
-
-        //Constructor::construct_from_string_with_efv(rlestr, text);
-
-        text.push_back((char)0);
-
-        std::cout << "Text length = " << text.size() << std::endl;
-        if (text.size() <= 100)
-        {
-            std::cout << "Text: ";
-            std::cout << text << std::endl;
-        }
-
-        RLBWT<>::check_text_for_rlbwt(text);
-
-        std::cout << "Constructing SA by naive soring..." << std::endl;
-        vector<INDEX> sa = stool::rlbwt::SuffixArrayConstructor::naive_sa<INDEX>(text);
-
-        string bwt = stool::rlbwt::SuffixArrayConstructor::construct_bwt(text, sa);
-        vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
-        vector<INDEX> lcp = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
-
-        //BackwardISA<INDEX, SDVectorSeq> w;
-
-        test_isa(rlestr, isa);
-        test_text(rlestr, text);
-
-        test_sa(rlestr, sa);
-        test_lcp(rlestr, lcp);
         text.pop_back();
 }
 
@@ -409,11 +162,25 @@ using INDEX = uint64_t;
         if(inputFile == "") throw std::runtime_error("Please input filename");
 
         string text = stool::load_string_from_file(inputFile, false);
-        test(text);
-        std::cout << "SDSL" << std::endl;
-        testWithSDSL(text);
-        std::cout << "with EliasFano" << std::endl;
-        testWithEliasFano(text);
+
+
+        using RLBWT_TYPE = RLBWT<>;
+        RLBWT_TYPE rlestr;
+        test(rlestr, text, "Vector");
+
+        using RLBWT_TYPE1 = RLBWT<std::vector<CHAR>, SDVectorSeq>;
+        RLBWT_TYPE1 rlestr1;
+        test(rlestr1, text, "SDSL");
+
+
+        using RLBWT_TYPE2 = RLBWT<std::vector<CHAR>, stool::EliasFanoVector>;
+        RLBWT_TYPE2 rlestr2;
+        test(rlestr2, text, "ELIAS");
+
+        //std::cout << "SDSL" << std::endl;
+        //testWithSDSL(text);
+        //std::cout << "with EliasFano" << std::endl;
+        //testWithEliasFano(text);
 
         //test_load(inputFile, bwt);
 
@@ -424,7 +191,11 @@ using INDEX = uint64_t;
             std::vector<char> text_vec = stool::create_deterministic_integers<char>(len, alphabetSize + 97, 97, i);
             string text;
             for(auto it : text_vec) text.push_back(it);
-            test(text);
+
+            using RLBWT_TYPE = RLBWT<>;
+            RLBWT_TYPE rlestr;
+            test(rlestr, text, "Vector");
+            //test(text);
 
         }
     }
