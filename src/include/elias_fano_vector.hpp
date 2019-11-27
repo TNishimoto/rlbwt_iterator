@@ -176,6 +176,7 @@ private:
     }
 public:
     using value_type = uint64_t;
+  using const_iterator = iterator;
 
     EliasFanoVector()
     {

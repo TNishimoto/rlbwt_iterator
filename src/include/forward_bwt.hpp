@@ -75,6 +75,7 @@ const CHARVEC *_char_vec = nullptr;
 const POWVEC *_run_vec = nullptr;
 
 public:
+  using const_iterator = iterator;
 ForwardBWT(const RLBWT<CHARVEC,POWVEC> *__rlbwt) : _char_vec(__rlbwt->get_char_vec() ) , _run_vec(__rlbwt->get_run_vec() )
 {
 }

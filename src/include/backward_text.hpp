@@ -98,6 +98,7 @@ private:
   bool deleteFlag = false;
 
 public:
+  using const_iterator = iterator;
   BackwardText()
   {
   }

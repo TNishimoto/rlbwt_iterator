@@ -104,6 +104,8 @@ public:
   bool deleteFlag = false;
 
 public:
+  using const_iterator = iterator;
+
   ForwardLCPArray()
   {
   }
@@ -156,6 +158,9 @@ public:
   {
     auto it = this->_sa->end();
     return iterator(it);
+  }
+  INDEX size() const{
+    return this->_sa->size();
   }
   std::vector<INDEX> to_lcp_array() const
   {
