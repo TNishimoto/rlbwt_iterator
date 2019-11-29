@@ -1,11 +1,13 @@
 #include <cassert>
 #include <chrono>
-#include "../common/cmdline.h"
-#include "../common/print.hpp"
-#include "../common/io.h"
+//#include "../common/cmdline.h"
+//#include "../common/print.hpp"
+//#include "../common/io.h"
 
 #include "../include/rlbwt_iterator.hpp"
-
+#include "../include/bwt.hpp"
+#include "stool/src/io.hpp"
+#include "stool/src/cmdline.h"
 
 
 using namespace std;
@@ -14,9 +16,6 @@ using namespace stool::rlbwt;
 
 using CHAR = char;
 using INDEX = uint64_t;
-bool SHOW = false;
-
-
 
 int main(int argc, char *argv[])
 {
@@ -36,60 +35,29 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    string text = "";
+    //string text = "";
     std::cout << "Loading : " << inputFile << std::endl;
-    stool::IO::load(inputFile, text);
+    string text = stool::load_string_from_file(inputFile, false);
 
-    RLBWT<CHAR, INDEX> rlestr;
+    RLBWT<> rlestr;
     //Constructor::construct_from_bwt<CHAR, INDEX>(rlestr, bwt);
-    Constructor::construct_from_string<CHAR, INDEX>(rlestr, text);
+    Constructor::construct_from_string(rlestr, text);
 
     text.push_back((char)0);
-    /*
+
     std::cout << "Text length = " << text.size() << std::endl;
     if (text.size() <= 100)
     {
         std::cout << "Text: ";
         std::cout << text << std::endl;
     }
-    */
 
-    RLBWT<char>::check_text_for_rlbwt(text);
-    vector<uint64_t> slcp = SamplingLCP<>::construct_sampling_lcp_array_lorder(rlestr);
+    RLBWT<>::check_text_for_rlbwt(text);
 
-    std::cout << "text length: " << text.size() << std::endl;
-    std::cout << "rle length: " << rlestr.rle_size() << std::endl;
+    ForwardLCPArray<> fsa;
+    fsa.construct_from_rlbwt(&rlestr, false);
 
+    fsa.print_info();
+        
 
-    /*
-    vector<INDEX> sa = stool::rlbwt::SuffixArrayConstructor::naive_sa<INDEX>(text);
-    std::cout << "sa" << std::endl;
-    Printer::print(sa);
-
-    std::string bwt = stool::rlbwt::SuffixArrayConstructor::naive_bwt(text);
-    std::cout << bwt << std::endl;
-
-    std::vector<uint64_t> rlbwt_runs;
-    std::vector<char> rlbwt_chars;
-    stool::rlbwt::SuffixArrayConstructor::naive_rlbwt(text, rlbwt_chars, rlbwt_runs);
-
-    Printer::print_chars(rlbwt_chars);
-    Printer::print(rlbwt_runs);
-    */
-    /*
-    ForwardLCPArray<> w2;
-    w2.construct_from_rlbwt(&rlestr, false);
-    vector<uint64_t> lcp2 = w2.to_lcp_array();
-    stool::Printer::print(lcp2);
-    */
-
-    /*
-    */
-
-    /*
-    test_sampling_lcp(text);
-    test_sa2(text);
-
-    test_ms(text);
-    */
 }

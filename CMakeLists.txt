@@ -58,8 +58,6 @@ target_link_libraries(fn online_rlbwt Basics BTree sdsl)
 #add_executable(iterator.out src/iterator_main.cpp ${SOURCES})
 #target_link_libraries(iterator.out online_rlbwt Basics BTree)
 
-#add_executable(slcp.out src/slcp_main.cpp ${SOURCES})
-#target_link_libraries(slcp.out online_rlbwt Basics BTree)
 
 #add_executable(slcp.out src/debug/slcp_main.cpp ${INCLUDE_FILES})
 #target_link_libraries(slcp.out online_rlbwt Basics BTree)
@@ -67,8 +65,13 @@ target_link_libraries(fn online_rlbwt Basics BTree sdsl)
 #add_executable(test.out src/debug/test_main.cpp ${INCLUDE_FILES})
 #target_link_libraries(test.out online_rlbwt Basics BTree)
 
+
 add_executable(compress.out src/main/compress_main.cpp)
 target_link_libraries(compress.out fn)
+
+add_executable(slcp.out src/debug/slcp_main.cpp)
+target_link_libraries(slcp.out fn)
+
 
 add_executable(check.out src/debug/check_main.cpp)
 target_link_libraries(check.out fn)
@@ -81,6 +84,9 @@ target_link_libraries(data_viewer.out fn)
 
 add_executable(elias_fano_test.out src/debug/elias_fano_test_main.cpp)
 target_link_libraries(elias_fano_test.out fn)
+
+add_executable(cartesian_tree_test.out src/debug/cartesian_tree_test_main.cpp)
+target_link_libraries(cartesian_tree_test.out fn)
 
 
 FILE(GLOB INCLUDE_FILES src/include/*.hpp)

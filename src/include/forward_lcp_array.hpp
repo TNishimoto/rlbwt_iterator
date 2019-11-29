@@ -208,6 +208,10 @@ public:
       this->set(std::move(_sa));
     }
   }
+  void print_info() const
+  {
+    this->_sa->print_info();
+  }
 };
 
 } // namespace rlbwt
