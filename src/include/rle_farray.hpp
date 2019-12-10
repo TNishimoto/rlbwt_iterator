@@ -77,7 +77,7 @@ public:
             return this->_findex;
         }
         bool operator!=(const iterator &rhs) const
-        {
+        {            
             return (_rle_findex != rhs._rle_findex);
         }
     };

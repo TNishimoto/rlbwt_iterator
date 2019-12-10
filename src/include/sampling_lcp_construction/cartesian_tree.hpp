@@ -59,6 +59,14 @@ public:
         }
         return min_index;
     }
+
+    template <typename T>
+    static std::vector<T> stab(std::vector<T> &values, std::vector<T> &left, std::vector<T> &right, T root, T query_index, T query_value){
+        std::vector<T> r;
+        uint64_t top_index = root;
+        //while(top_index > query_index;)
+        return r;
+    }
 };
 
 } // namespace rlbwt

@@ -555,7 +555,7 @@ public:
     {
       r.push_back(it);
     }
-    stool::Printer::print(r);
+    if(r.size() < 1000)stool::Printer::print(r);
     std::cout << "_succ_ssa_yorder: ";
 
     std::vector<uint64_t> r2;
@@ -563,17 +563,21 @@ public:
     {
       r2.push_back(it);
     }
-    stool::Printer::print(r2);
+    if(r2.size() < 1000)stool::Printer::print(r2);
 
     std::cout << "_succ_slcp_yorder: ";
     if (_succ_slcp_yorder != NULL)
     {
       std::vector<uint64_t> r3;
+      uint64_t sum = 0;
       for (auto it : *_succ_slcp_yorder)
       {
         r3.push_back(it);
+        sum += it;
       }
-      stool::Printer::print(r3);
+      if(r3.size() < 1000)stool::Printer::print(r3);
+      std::cout << "SUM LCP:" << sum << std::endl;
+
     }
     std::cout << std::endl;
   }

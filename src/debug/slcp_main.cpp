@@ -6,8 +6,11 @@
 
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
+#include "../include/sampling_lcp_construction/sampling_lcp2.hpp"
+
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
+#include "stool/src/debug.hpp"
 
 
 using namespace std;
@@ -54,10 +57,32 @@ int main(int argc, char *argv[])
 
     RLBWT<>::check_text_for_rlbwt(text);
 
+    /*
     ForwardLCPArray<> fsa;
     fsa.construct_from_rlbwt(&rlestr, false);
 
     fsa.print_info();
-        
+    */
+
+    std::vector<uint64_t> correct_slcp = stool::rlbwt::SamplingLCP<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
+
+
+    std::vector<uint64_t> slcp = stool::rlbwt::SamplingLCP2<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
+    //stool::Printer::print(slcp);
+
+
+    std::vector<uint64_t> lf = RLBWTFunctions::construct_rle_lf_mapper(rlestr);
+    std::vector<uint64_t> slcp_forder = stool::rlbwt::permutate(std::move(slcp), lf);
+    std::vector<uint64_t> correct_slcp_forder = stool::rlbwt::permutate(std::move(correct_slcp), lf);
+
+
+    bool b1 = stool::equal_check(correct_slcp_forder, slcp_forder );
+    if(b1){
+        std::cout << "OK!" << std::endl;
+    }
+    if(correct_slcp_forder.size() < 100){
+        stool::Printer::print(correct_slcp_forder);
+        stool::Printer::print(slcp_forder);
+    }
 
 }
