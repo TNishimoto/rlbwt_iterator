@@ -52,11 +52,12 @@ public:
 };
 
 
+template <typename INTERVAL_SUM, typename INTERVAL_SINGLE>
 struct SuccinctIntervalTreePointer
 {
-    uint64_t line_rank;
+    INTERVAL_SUM line_rank;
     //uint64_t mid_point;
-    uint8_t height;
+    INTERVAL_SINGLE height;
 
     string to_string() const
     {
@@ -76,11 +77,12 @@ template <typename INTERVAL_SUM, typename INTERVAL_SINGLE>
 class SuccinctIntervalTree
 {
 public:
+    using POINTER = SuccinctIntervalTreePointer<INTERVAL_SUM, INTERVAL_SINGLE>;
     class iterator
     {
         //std::stack<SuccinctIntervalTreePointer> st;
-        uint64_t height;
-        uint64_t line_rank;
+        INTERVAL_SINGLE height;
+        INTERVAL_SUM line_rank;
         const SuccinctIntervalTree *tree;
 
     public:
@@ -90,7 +92,7 @@ public:
         {
             if (is_start)
             {
-                SuccinctIntervalTreePointer root = tree->get_root();
+                POINTER root = tree->get_root();
                 this->height = root.height;
                 this->line_rank = root.line_rank;
             }
@@ -105,9 +107,9 @@ public:
         {
             return this->height == 0 && this->line_rank == 0;
         }
-        SuccinctIntervalTreePointer operator*() const
+        POINTER operator*() const
         {
-            SuccinctIntervalTreePointer p;
+            POINTER p;
             p.height = this->height;
             p.line_rank = this->line_rank;
             return p;
@@ -124,12 +126,12 @@ public:
             /*
             if (st.size() > 0)
             {
-                SuccinctIntervalTreePointer top = st.top();
+                POINTER top = st.top();
                 st.pop();
                 if (top.height > 1)
                 {
-                    SuccinctIntervalTreePointer right = tree->get_right_child(top);
-                    SuccinctIntervalTreePointer left = tree->get_left_child(top);
+                    POINTER right = tree->get_right_child(top);
+                    POINTER left = tree->get_left_child(top);
                     st.push(right);
                     st.push(left);
                 }
@@ -163,7 +165,8 @@ public:
     std::vector<uint64_t> right_ordered_intervals_vec;
     std::vector<INTERVAL_SINGLE> current_left_offset_vec;
     std::vector<INTERVAL_SINGLE> current_right_offset_vec;
-    std::vector<uint64_t> intervals_size_vec;
+    
+    stool::EliasFanoVector intervals_size_sequence;
     std::vector<bool> reported_checker;
 
     uint64_t get_tree_size(uint64_t height) const
@@ -188,7 +191,7 @@ public:
     }
     uint64_t get_item_count(uint64_t rank) const
     {
-        return intervals_size_vec[rank];
+        return intervals_size_sequence[rank+1] - intervals_size_sequence[rank];
     }
     std::pair<uint64_t, uint64_t> get_item(uint64_t item_number) const {
         return (*this->items)[item_number];
@@ -203,12 +206,15 @@ public:
     }
     uint64_t get_interval_starting_position(uint64_t rank) const
     {
+        return intervals_size_sequence[rank];
+        /*
         uint64_t x = 0;
         for (uint64_t i = 0; i < rank; i++)
         {
             x += intervals_size_vec[i];
         }
         return x;
+        */
     }
 
     uint64_t get_mid_point(uint64_t line_rank, uint64_t height) const
@@ -225,11 +231,11 @@ public:
         }
     }
 
-    SuccinctIntervalTreePointer get_left_child(SuccinctIntervalTreePointer &top) const
+    POINTER get_left_child(POINTER &top) const
     {
         if (top.height != 0)
         {
-            SuccinctIntervalTreePointer left;
+            POINTER left;
             left.line_rank = (top.line_rank) * 2;
             left.height = top.height - 1;
             /*
@@ -244,14 +250,14 @@ public:
         }
         else
         {
-            throw std::logic_error("SuccinctIntervalTreePointer.height is 0");
+            throw std::logic_error("POINTER.height is 0");
         }
     }
-    SuccinctIntervalTreePointer get_right_child(SuccinctIntervalTreePointer &top) const
+    POINTER get_right_child(POINTER &top) const
     {
         if (top.height != 0)
         {
-            SuccinctIntervalTreePointer right;
+            POINTER right;
             right.line_rank = ((top.line_rank) * 2) + 1;
             right.height = top.height - 1;
             /*
@@ -266,16 +272,16 @@ public:
         }
         else
         {
-            throw std::logic_error("SuccinctIntervalTreePointer.height is 0");
+            throw std::logic_error("POINTER.height is 0");
         }
     }
 
     //uint64_t get_left_tree_size(uint64_t height){
     //    return this->tree_size_vec[height-1];
     //}
-    SuccinctIntervalTreePointer get_root() const
+    POINTER get_root() const
     {
-        SuccinctIntervalTreePointer sitp;
+        POINTER sitp;
         sitp.line_rank = 0;
         sitp.height = this->depth;
         return sitp;
@@ -347,7 +353,8 @@ public:
             std::cout << "[" << it.first << ".." << it.second << "]" << std::endl;
         }
         */
-
+       std::vector<INTERVAL_SUM> intervals_size_vec;
+       intervals_size_vec.push_back(0);
 
         for (uint64_t h = this->depth; h > 0; --h)
         {
@@ -389,9 +396,12 @@ public:
                 {
                     right_ordered_intervals_vec.push_back(it);
                 }
-                intervals_size_vec.push_back(tmp_intervals.size());
+                intervals_size_vec.push_back(intervals_size_vec[intervals_size_vec.size()-1] + tmp_intervals.size());
             }
         }
+
+        this->intervals_size_sequence.construct(&intervals_size_vec);
+
         for (uint64_t i = 0; i < checker.size(); i++)
         {
             if (!checker[i])
@@ -402,7 +412,7 @@ public:
     std::vector<uint64_t> report_and_remove(uint64_t x)
     {
         std::vector<uint64_t> r;
-        SuccinctIntervalTreePointer p = this->get_root();
+        POINTER p = this->get_root();
         while (true)
         {
             bool b = report_and_remove(x, p, r);
@@ -420,7 +430,7 @@ public:
         }
         return r;
     }
-    bool report_and_remove(const uint64_t x, const SuccinctIntervalTreePointer &p, std::vector<uint64_t> &output)
+    bool report_and_remove(const uint64_t x, const POINTER &p, std::vector<uint64_t> &output)
     {
 
         uint64_t mid_point = this->get_mid_point(p.line_rank, p.height);
@@ -429,7 +439,7 @@ public:
         int64_t stop = (int64_t)(start + this->get_item_count(rank)) -1;
         int64_t k;
 
-         //std::cout << "search: mid = " << mid_point << "/" << x <<  p.to_string() << "start: = " << start << ", stop = " << stop << std::endl;   
+        // std::cout << "search: mid = " << mid_point << "/" << x <<  p.to_string() << "start: = " << start << ", stop = " << stop << std::endl;   
         if (x < mid_point)
         {
             uint64_t t = start + this->current_left_offset_vec[rank];
@@ -439,9 +449,10 @@ public:
                 ITEM current_item = this->get_item(item_number);
                 if(!reported_checker[item_number]){
                     //std::cout << "check[" << current_item.first << ", " << current_item.second << "]" << std::endl;
+                    assert(current_item.first <= mid_point && mid_point <= current_item.second);
                     if(current_item.first <= x){
                         output.push_back(item_number);
-                        //std::cout << "report[" << current_item.first << ", " << current_item.second << "]" << std::endl; 
+                        //std::cout << "reportX[" << current_item.first << ", " << current_item.second << "]" << std::endl; 
                         this->current_left_offset_vec[rank]++;
                         reported_checker[item_number] = true;
                     }else{
@@ -462,9 +473,10 @@ public:
                 ITEM current_item = this->get_item(item_number);
                 if(!reported_checker[item_number]){
                     //std::cout << "check[" << current_item.first << ", " << current_item.second << "]" << std::endl;
+                    assert(current_item.first <= mid_point && mid_point <= current_item.second);
                     if(x <= current_item.second){
                         output.push_back(item_number);                        
-                        //std::cout << "report[" << current_item.first << ", " << current_item.second << "]" << std::endl; 
+                        //std::cout << "reportY[" << current_item.first << ", " << current_item.second << "]" << std::endl; 
                         reported_checker[item_number] = true;
                         this->current_right_offset_vec[rank]++;
                     }else{
@@ -491,11 +503,11 @@ public:
         s += ", mid = ";
         s += std::to_string(this->get_mid_point(line_rank, height));
         s += ", i_size = ";
-        s += std::to_string(intervals_size_vec[rank]);
+        s += std::to_string(this->get_item_count(rank));
         s += "]";
 
         uint64_t pos = get_interval_starting_position(rank);
-        uint64_t size = intervals_size_vec[rank];
+        uint64_t size = this->get_item_count(rank);
         for (uint64_t x = pos; x < pos + size; x++)
         {
             s += "[";

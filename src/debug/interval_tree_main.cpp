@@ -36,6 +36,10 @@ bool check(uint64_t x, SuccinctIntervalTree<uint64_t, uint8_t> &tree, NaiveInter
             return lhs.first < rhs.first;
         });
         /*
+        
+    */
+
+    if(r1.size() != r2.size()){
         std::cout << "succicnt report is .." << std::endl;
         for(auto it : r1){
             std::cout << "[" << it.first << ".." << it.second << "]" << std::endl;
@@ -45,13 +49,19 @@ bool check(uint64_t x, SuccinctIntervalTree<uint64_t, uint8_t> &tree, NaiveInter
         for(auto it : r2){
             std::cout << "[" << it.first << ".." << it.second << "]" << std::endl;
     }
-    */
-
-    if(r1.size() != r2.size()){
         throw std::logic_error("size error");
     }
     for(uint64_t i=0;i<r1.size();i++){
         if(r1[i].first != r2[i].first || r1[i].second != r2[i].second){
+std::cout << "succicnt report is .." << std::endl;
+        for(auto it : r1){
+            std::cout << "[" << it.first << ".." << it.second << "]" << std::endl;
+    }
+        std::cout << "naive report is .." << std::endl;
+
+        for(auto it : r2){
+            std::cout << "[" << it.first << ".." << it.second << "]" << std::endl;
+    }
         throw std::logic_error("content error");
         }
     }
@@ -61,8 +71,8 @@ bool check(uint64_t x, SuccinctIntervalTree<uint64_t, uint8_t> &tree, NaiveInter
 
 int main(int argc, char *argv[])
 {
-    uint64_t len = 1000;
-    std::string randStr = stool::CreateRandomString(len, 12);
+    uint64_t len = 500;
+    std::string randStr = stool::CreateRandomString(len, 4);
     std::vector<std::pair<uint64_t, uint64_t>> p = SuccinctIntervalTreeDebug::to_intervals(randStr);
     
 
