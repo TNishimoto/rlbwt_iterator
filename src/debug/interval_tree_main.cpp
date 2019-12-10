@@ -20,7 +20,7 @@ using namespace stool::rlbwt;
 using namespace sdsl;
 
 
-bool check(uint64_t x, SuccinctIntervalTree<uint64_t, uint8_t> &tree, NaiveIntervalTree &nit){
+bool check(uint64_t x, SuccinctIntervalTree<uint64_t, uint8_t, std::vector<uint64_t>, std::vector<uint64_t>> &tree, NaiveIntervalTree &nit){
     //std::cout << "check x = " << x << std::endl;
     auto r = tree.report_and_remove(x);  
     std::vector<std::pair<uint64_t, uint64_t>> r1;
@@ -74,12 +74,20 @@ int main(int argc, char *argv[])
     uint64_t len = 500;
     std::string randStr = stool::CreateRandomString(len, 4);
     std::vector<std::pair<uint64_t, uint64_t>> p = SuccinctIntervalTreeDebug::to_intervals(randStr);
-    
+    for(auto it : p){
+            std::cout << "[" << it.first << ".." << it.second << "]" << std::flush;
 
+    }
+    std::vector<uint64_t> leftArr;
+    std::vector<uint64_t> rightArr;
+    for(auto it : p){
+        leftArr.push_back(it.first);
+        rightArr.push_back(it.second);
+    }
     
-    SuccinctIntervalTree<uint64_t, uint8_t> tree;
+    SuccinctIntervalTree<uint64_t, uint8_t, std::vector<uint64_t>, std::vector<uint64_t>> tree;
     tree.initialize(len );
-    tree.construct(p);
+    tree.construct(&leftArr, &rightArr, p.size());
     NaiveIntervalTree nit;
     nit.construct(p);
     //auto root = tree.get_root();

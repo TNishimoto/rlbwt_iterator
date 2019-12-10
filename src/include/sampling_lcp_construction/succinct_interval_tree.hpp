@@ -73,7 +73,7 @@ struct SuccinctIntervalTreePointer
     }
 };
 
-template <typename INTERVAL_SUM, typename INTERVAL_SINGLE>
+template <typename INTERVAL_SUM, typename INTERVAL_SINGLE, typename LEFT_ARRAY, typename RIGHT_ARRAY>
 class SuccinctIntervalTree
 {
 public:
@@ -152,11 +152,15 @@ public:
         }
     };
 
-    using ITEM = std::pair<uint64_t, uint64_t>;
+    using ITEM = std::pair<INTERVAL_SUM, INTERVAL_SUM>;
+    LEFT_ARRAY *left_array;
+    RIGHT_ARRAY *right_array;
+
     //using INTERVAL_SIZE_TYPE = uint8_t;
-    std::vector<ITEM> *items;
+    //std::vector<ITEM> *items;
 
     uint64_t depth;
+    uint64_t item_count=0;
     std::vector<uint64_t> tree_size_vec;
     std::vector<uint64_t> leave_size_vec;
     std::vector<uint64_t> depth_first_node_rank_vec;
@@ -194,10 +198,11 @@ public:
         return intervals_size_sequence[rank+1] - intervals_size_sequence[rank];
     }
     std::pair<uint64_t, uint64_t> get_item(uint64_t item_number) const {
-        return (*this->items)[item_number];
+        return std::pair<INTERVAL_SUM, INTERVAL_SUM>((*left_array)[item_number], (*right_array)[item_number]);
+        //(*this->items)[item_number];
     }
     uint64_t get_size() const {
-        return this->items->size();
+        return this->item_count;
     }
 
     uint64_t get_line_size(uint64_t height) const
@@ -321,8 +326,6 @@ public:
             x *= 2;
             r += depth_node_num_vec[y];
         }
-        stool::Printer::print(depth_first_node_rank_vec);
-        stool::Printer::print(depth_node_num_vec);
     }
     iterator begin() const
     {
@@ -333,12 +336,22 @@ public:
         return iterator(this, false);
     }
 
-    void construct(std::vector<ITEM> &_items)
+    void construct(LEFT_ARRAY *_left_array, RIGHT_ARRAY *_right_array, uint64_t _size)
     {
+        this->left_array = _left_array;
+        this->right_array = _right_array;
+        this->item_count = _size;
+
+        std::vector<INTERVAL_SUM> _items;
+        _items.resize(_size, 0);
+        for(uint64_t i=0;i<_size;i++){
+            _items[i] = i;
+        }
+
+
         std::sort(_items.begin(), _items.end(), [&](auto const &lhs, auto const &rhs) {
-            return lhs.first < rhs.first;
+            return (*this->left_array)[lhs] < (*this->left_array)[rhs];
         });
-        this->items = &_items;
 
         //this->items.swap(_items);
         uint64_t n = this->get_size();
@@ -368,7 +381,7 @@ public:
                 std::vector<uint64_t> tmp_intervals;
                 while (w < n)
                 {
-                    ITEM current_item = this->get_item(w);
+                    ITEM current_item = this->get_item(_items[w]);
                     if(current_item.first > mid_point){
                         break;
                     }
@@ -376,7 +389,7 @@ public:
                     {
                         if (current_item.first <= mid_point && mid_point <= current_item.second)
                         {
-                            tmp_intervals.push_back(w);
+                            tmp_intervals.push_back(_items[w]);
                             checker[w] = true;
                         }
                     }
@@ -405,7 +418,7 @@ public:
         for (uint64_t i = 0; i < checker.size(); i++)
         {
             if (!checker[i])
-                throw - 1;
+                throw std::logic_error("checker error!");
         }
         std::cout << std::endl;
     }
