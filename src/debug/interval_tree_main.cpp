@@ -87,7 +87,9 @@ int main(int argc, char *argv[])
     
     SuccinctIntervalTree<uint64_t, uint8_t, std::vector<uint64_t>, std::vector<uint64_t>> tree;
     tree.initialize(len );
-    tree.construct(&leftArr, &rightArr, p.size());
+    std::vector<bool> flag_vec;
+    flag_vec.resize(p.size(), true);
+    tree.construct(&leftArr, &rightArr, p.size(), flag_vec);
     NaiveIntervalTree nit;
     nit.construct(p);
     //auto root = tree.get_root();

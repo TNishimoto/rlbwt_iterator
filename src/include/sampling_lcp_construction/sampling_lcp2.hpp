@@ -13,6 +13,30 @@ namespace rlbwt
 {
 
 
+class RLBWTLeftIntervals{
+    public:
+    std::vector<uint64_t> *previous_c_index_vector;
+    RLBWTLeftIntervals(std::vector<uint64_t> *_previous_c_index_vector) : previous_c_index_vector(_previous_c_index_vector) {
+
+    }
+    uint64_t operator[](uint64_t i) const
+    {        
+        uint64_t x = (*previous_c_index_vector)[i];
+        return ((x+1) * 2);
+    }
+};
+
+class RLBWTRightIntervals{
+    public:
+    RLBWTRightIntervals() {
+
+    }
+    uint64_t operator[](uint64_t i) const
+    {
+        return i * 2;
+    }
+};
+
 template <typename RLBWT_STR>
 class SamplingLCP2
 {
@@ -32,6 +56,13 @@ public:
     }
     static std::vector<uint64_t> loop(const RLBWT_STR &_rlbwt, std::vector<uint64_t> &previous_c_index_vector)
     {
+        RLBWTLeftIntervals left_intervals(&previous_c_index_vector);
+        RLBWTRightIntervals right_intervals;
+        std::vector<bool> interval_flag_vec;
+        interval_flag_vec.resize(previous_c_index_vector.size(), false);
+        SuccinctIntervalTree<uint64_t, uint8_t, RLBWTLeftIntervals, RLBWTRightIntervals> intervalTree;
+        intervalTree.initialize(getSpecialDistance(previous_c_index_vector.size(), 1));
+
         std::vector<bool> _checker;
         _checker.resize(_rlbwt.rle_size() * 2, false);
 
@@ -45,6 +76,7 @@ public:
         NaiveIntervalTree nit;
         //std::cout << "PCI:" << std::flush;
         //Printer::print(previous_c_index_vector);
+        uint64_t interval_count = 0;
         for (uint64_t i = 0; i < previous_c_index_vector.size(); i++)
         {
             if (previous_c_index_vector[i] == UINT64_MAX)
@@ -55,18 +87,22 @@ public:
             else
             {
                 uint64_t prev_index = previous_c_index_vector[i] + 1;
-                //uint64_t prev_run = this->_rlbwt.get_run(prev_index);
+                interval_flag_vec[i] = true;
+                interval_count++;
                 uint64_t _i = getSpecialDistance(prev_index, 0);
                 uint64_t _j = getSpecialDistance(i, 0);
-                //std::cout << "Interval:[" << _i << ", " << _j << "]" << "(" << i << ")" << prev_index << std::endl;
+                std::cout << "add:" << i << "@"<< _i << ", " << _j << std::endl;
                 nit.add(_i, _j);
             }
         }
+        intervalTree.construct(&left_intervals, &right_intervals, interval_count, interval_flag_vec);
+
         //Printer::print(zero_lcp_findexes);
 
         MultipleTextPositionIterator<RLBWT_STR> findex_iterator(zero_lcp_findexes, _rlbwt, _findexes_lorder);
 
-        while (nit.items.size() > 0)
+        uint64_t nokori_counter = interval_count;
+        while (nokori_counter > 0)
         {
             std::vector<uint64_t> reportedIndexes;
             //std::cout << "nit size:" << nit.items.size() << std::endl;
@@ -76,14 +112,34 @@ public:
                 uint64_t pos = getSpecialDistance(current_rle_findex.first, current_rle_findex.second);
                 if (!_checker[pos])
                 {
-                    auto r = nit.report_and_remove(pos);
+                    //auto r = nit.report_and_remove(pos);
                     //std::cout << "report by " << pos << ", result is " << r.size() << std::endl;
-
+                    
+                    auto r = intervalTree.report_and_remove(pos);
+                    //std::cout << "report by " << pos << ", : " << std::flush;
                     for (auto rep : r)
                     {
-                        uint64_t index = rep.second / 2;
-                        reportedIndexes.push_back(index);
+                        nokori_counter--;
+                        //std::cout << rep <<  "[" << left_intervals[rep] << "," << right_intervals[rep] << "]"<< ", "<< std::flush;
+                        reportedIndexes.push_back(rep);
                     }
+                    //std::cout  << std::endl;
+                    
+
+                    auto r2 = nit.report_and_remove(pos);
+                    assert(r.size() == r2.size() );
+
+                    std::cout << "report : " << std::flush;
+                    for (auto rep : r2)
+                    {
+                        uint64_t index = rep.second / 2;
+                        std::cout << index << ", "<< std::flush;
+                        //reportedIndexes.push_back(index);
+                    }
+                    std::cout  << std::endl;
+                    
+                    
+
                     _checker[pos] = true;
                 }
 

@@ -336,7 +336,7 @@ public:
         return iterator(this, false);
     }
 
-    void construct(LEFT_ARRAY *_left_array, RIGHT_ARRAY *_right_array, uint64_t _size)
+    void construct(LEFT_ARRAY *_left_array, RIGHT_ARRAY *_right_array, uint64_t _size, std::vector<bool> &item_flag_vec)
     {
         this->left_array = _left_array;
         this->right_array = _right_array;
@@ -344,8 +344,12 @@ public:
 
         std::vector<INTERVAL_SUM> _items;
         _items.resize(_size, 0);
-        for(uint64_t i=0;i<_size;i++){
-            _items[i] = i;
+        uint64_t pp = 0;
+        for(uint64_t i=0;i<item_flag_vec.size();i++){
+            if(item_flag_vec[i]){
+                //std::cout << "cadd" << i << std::endl;
+                _items[pp++] = i;
+            }
         }
 
 
