@@ -5,53 +5,13 @@
 #include <algorithm>
 #include <unordered_set>
 #include "../sampling_lcp.hpp"
+#include "./succinct_interval_tree.hpp"
 
 namespace stool
 {
 namespace rlbwt
 {
 
-class NaiveIntervalTree
-{
-public:
-    using ITEM = std::pair<uint64_t, uint64_t>;
-    std::vector<ITEM> items;
-
-    void construct(std::vector<ITEM> &_items)
-    {
-    }
-    void add(uint64_t i, uint64_t j)
-    {
-        this->items.push_back(ITEM(i, j));
-    }
-    std::vector<ITEM> reportAndRemove(uint64_t x)
-    {
-        std::vector<ITEM> r;
-        std::vector<ITEM> r2;
-
-        for (auto &p : this->items)
-        {
-            if (p.first <= x && x <= p.second)
-            {
-                r.push_back(p);
-            }
-            else
-            {
-                r2.push_back(p);
-            }
-        }
-        this->items.swap(r2);
-        return r;
-    }
-
-    std::vector<ITEM> report(uint64_t x)
-    {
-        std::vector<ITEM> r;
-    }
-    void remove(uint64_t x)
-    {
-    }
-};
 
 template <typename RLBWT_STR>
 class SamplingLCP2
@@ -116,7 +76,7 @@ public:
                 uint64_t pos = getSpecialDistance(current_rle_findex.first, current_rle_findex.second);
                 if (!_checker[pos])
                 {
-                    auto r = nit.reportAndRemove(pos);
+                    auto r = nit.report_and_remove(pos);
                     //std::cout << "report by " << pos << ", result is " << r.size() << std::endl;
 
                     for (auto rep : r)

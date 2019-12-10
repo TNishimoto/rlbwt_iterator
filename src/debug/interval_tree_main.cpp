@@ -6,8 +6,12 @@
 
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
+#include "../include/sampling_lcp_construction/succinct_interval_tree.hpp"
+
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
+#include "stool/src/debug.hpp"
+
 #include <sdsl/bp_support.hpp>
 
 using namespace std;
@@ -15,237 +19,89 @@ using namespace stool;
 using namespace stool::rlbwt;
 using namespace sdsl;
 
-struct SuccinctIntervalTreePointer{
-    uint64_t rank;
-    uint64_t mid_point;
-    uint8_t height;
 
-    string to_string() const {
-        string s;
-        s += "[";
-        s += std::to_string(this->rank);
-        s += ", ";
-        s += std::to_string(this->mid_point);
-        s += ", ";
-        s += std::to_string(this->height);
-        s += "]";
-        return s;
+bool check(uint64_t x, SuccinctIntervalTree<uint64_t, uint8_t> &tree, NaiveIntervalTree &nit){
+    //std::cout << "check x = " << x << std::endl;
+    auto r = tree.report_and_remove(x);  
+    std::vector<std::pair<uint64_t, uint64_t>> r1;
+    for(auto it : r){
+        r1.push_back(tree.get_item(it));        
     }
-};
 
-
-
-template <typename INTERVAL_SUM, typename INTERVAL_SINGLE>
-class SuccinctIntervalTree
-{
-public:
-    class iterator
-    {
-        std::stack<SuccinctIntervalTreePointer> st;
-        const SuccinctIntervalTree *tree;
-
-        public:
-        iterator() = default;
-        
-        iterator(const SuccinctIntervalTree *_tree, bool is_start) : tree(_tree) 
-        {
-            if(is_start){
-                SuccinctIntervalTreePointer root = tree->get_root();
-                this->st.push(root);
-            }else{
-
-            }
-        }
-        
-        bool isEnd(){
-            return this->st.size() == 0;
-        }
-        SuccinctIntervalTreePointer operator*() const
-        {
-            SuccinctIntervalTreePointer p = this->st.top();
-            return p;
-        }
-        iterator &operator++()
-        {
-            if(st.size() > 0){
-                SuccinctIntervalTreePointer top = st.top();
-                st.pop();
-                if(top.height > 1){
-                    SuccinctIntervalTreePointer right = tree->get_right_child(top);
-                    SuccinctIntervalTreePointer left = tree->get_left_child(top);
-                    st.push(right);
-                    st.push(left);
-                }
-                return *this;
-            }else{
-                throw std::logic_error("error");
-            }
-        }
-        uint64_t rank() const {
-            if(st.size() > 0){
-                SuccinctIntervalTreePointer p = this->st.top();
-                return p.rank;
-            }else{
-                return tree->get_bottom_rank();
-            }
-        }
-        bool operator!=(const iterator &rhs) const
-        {            
-            return (this->rank() != rhs.rank());
-        }
-    };
-
-    using ITEM = std::pair<uint64_t, uint64_t>;
-    //using INTERVAL_SIZE_TYPE = uint8_t;
-    std::vector<ITEM> items;
-
-    uint64_t depth;
-    std::vector<uint64_t> tree_size_vec;
-    std::vector<uint64_t> leave_size_vec;
-    std::vector<INTERVAL_SINGLE> interval_pointer_vec;
-    std::vector<uint64_t> left_ordered_intervals_vec;
-    std::vector<uint64_t> right_ordered_intervals_vec;
-
-    uint64_t get_tree_size(uint64_t height) const {
-        return this->tree_size_vec[height];
+    auto r2 = nit.report_and_remove(x);  
+        std::sort(r1.begin(), r1.end(), [&](auto const &lhs, auto const &rhs) {
+            return lhs.first < rhs.first;
+        });
+        std::sort(r2.begin(), r2.end(), [&](auto const &lhs, auto const &rhs) {
+            return lhs.first < rhs.first;
+        });
+        /*
+        std::cout << "succicnt report is .." << std::endl;
+        for(auto it : r1){
+            std::cout << "[" << it.first << ".." << it.second << "]" << std::endl;
     }
-    uint64_t get_leave_size(uint64_t height) const {
-        return this->leave_size_vec[height];
+        std::cout << "naive report is .." << std::endl;
+
+        for(auto it : r2){
+            std::cout << "[" << it.first << ".." << it.second << "]" << std::endl;
     }
-    uint64_t get_bottom_rank() const {
-        return this->tree_size_vec[this->depth];
+    */
+
+    if(r1.size() != r2.size()){
+        throw std::logic_error("size error");
     }
-    SuccinctIntervalTreePointer get_left_child(SuccinctIntervalTreePointer &top) const {
-        if(top.height != 0){
-            SuccinctIntervalTreePointer left;
-            left.rank = top.rank+1;
-            left.height = top.height-1;
-            if(left.height == 1){
-                left.mid_point = top.mid_point - 1;
-            }else{
-                uint64_t left_leave_num = this->get_leave_size(left.height);
-                left.mid_point = top.mid_point - (left_leave_num/2);
-            }
-            return left;
-        }else{
-            throw std::logic_error("error");
+    for(uint64_t i=0;i<r1.size();i++){
+        if(r1[i].first != r2[i].first || r1[i].second != r2[i].second){
+        throw std::logic_error("content error");
         }
     }
-    SuccinctIntervalTreePointer get_right_child(SuccinctIntervalTreePointer &top) const {
-        if(top.height != 0){
-            SuccinctIntervalTreePointer right;
-            right.height = top.height-1;
-            right.rank = top.rank+(this->get_tree_size(right.height)) + 1;
-            if(right.height == 1){
-                right.mid_point = top.mid_point;
-            }else{
-                uint64_t right_leave_num = this->get_leave_size(right.height);
-                right.mid_point = top.mid_point + (right_leave_num/2);
-            }
-            return right;
-        }else{
-            throw std::logic_error("error");
-        }
-    }
-    bool is_leaf(SuccinctIntervalTreePointer &top) const {
-        return top.height == 1;
-    }
+    return true;
 
-    //uint64_t get_left_tree_size(uint64_t height){
-    //    return this->tree_size_vec[height-1];
-    //}
-    SuccinctIntervalTreePointer get_root() const {
-        SuccinctIntervalTreePointer sitp;
-        sitp.rank = 0;
-        sitp.height = this->depth;
-        sitp.mid_point = leave_size_vec[sitp.height-1];
-        return sitp;
-    }
-    void initialize(uint64_t max_right){
-
-        this->tree_size_vec.push_back(0);
-        this->leave_size_vec.push_back(0);
-        uint64_t t=1;
-        uint64_t l=1;
-        uint64_t d=1;        
-        this->tree_size_vec.push_back(t);
-        this->leave_size_vec.push_back(l);
-
-        while(l <= max_right){
-            t = (2*t)+1;
-            l*=2;
-            d++;
-            this->tree_size_vec.push_back(t);
-            this->leave_size_vec.push_back(l);
-        }
-        std::cout << t << "/" << l << "/" << d << std::endl;
-        this->depth = d;
-    }
-    iterator begin() const {
-        return iterator(this, true);
-    }
-    iterator end() const {
-        return iterator(this, false);
-    }
-    
-    
-
-    void construct(std::vector<ITEM> &_items)
-    {
-        this->items.swap(_items);
-        std::stack<std::vector<uint64_t>> st;
-            std::vector<uint64_t> top_items;
-        for(uint64_t i=0;i<this->items.size();i++){
-            top_items.push_back(i);
-        }
-        uint64_t rank = 0;
-        //SuccinctIntervalTreeTmp tt;
-        //tt.rank = 0;
-        //tt.b = false;
-        //tt.items.swap(top_items);
-        st.push(top_items);
-
-        while(st.size() > 0){
-            auto top = st.top();
-            st.pop();
-
-        }
-        
-
-    }
-    std::vector<ITEM> reportAndRemove(uint64_t x)
-    {
-        std::vector<ITEM> r;
-        std::vector<ITEM> r2;
-
-        for (auto &p : this->items)
-        {
-            if (p.first <= x && x <= p.second)
-            {
-                r.push_back(p);
-            }
-            else
-            {
-                r2.push_back(p);
-            }
-        }
-        this->items.swap(r2);
-        return r;
-    }
-
-};
+}
 
 int main(int argc, char *argv[])
 {
-    SuccinctIntervalTree<uint64_t, uint8_t> tree;
-    tree.initialize(20);
-    auto root = tree.get_root();
-    std::cout << root.to_string() << std::endl;
+    uint64_t len = 1000;
+    std::string randStr = stool::CreateRandomString(len, 12);
+    std::vector<std::pair<uint64_t, uint64_t>> p = SuccinctIntervalTreeDebug::to_intervals(randStr);
+    
 
+    
+    SuccinctIntervalTree<uint64_t, uint8_t> tree;
+    tree.initialize(len );
+    tree.construct(p);
+    NaiveIntervalTree nit;
+    nit.construct(p);
+    //auto root = tree.get_root();
+    //std::cout << root.to_string() << std::endl;
+    /*
     for(auto it : tree){
-        std::cout << (it).to_string() << std::endl;
+        uint64_t rank = tree.get_rank(it.line_rank, it.height);
+        if(tree.get_item_count(rank) > 0){
+        std::cout << tree.get_info(it.line_rank, it.height)<< std::endl;
+        }
+    }
+    */
+    for(uint64_t i=0;i<len;i++){
+        check(i, tree, nit);
+    }
+    std::cout << "OK!" << std::endl;
+    /*
+    auto r = tree.report_and_remove(50);  
+    for(auto it : r){
+            auto item = p[it]; 
+            std::cout << "[" << item.first << ".." << item.second << "]" << std::endl;
 
     }
+    std::cout << std::endl;
+    auto r2 = nit.report_and_remove(50);  
+    for(auto it : r2){
+            std::cout << "[" << it.first << ".." << it.second << "]" << std::endl;
+
+    }
+    */
+
+    
     /*
     auto beg = tree.begin();
     auto end = tree.end();
