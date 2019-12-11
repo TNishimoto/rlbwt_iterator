@@ -21,7 +21,8 @@ public:
 
     void construct(std::vector<ITEM> &_items)
     {
-        for(auto it : _items){
+        for (auto it : _items)
+        {
             this->add(it.first, it.second);
         }
     }
@@ -48,9 +49,7 @@ public:
         this->items.swap(r2);
         return r;
     }
-
 };
-
 
 template <typename INTERVAL_SUM, typename INTERVAL_SINGLE>
 struct SuccinctIntervalTreePointer
@@ -160,7 +159,7 @@ public:
     //std::vector<ITEM> *items;
 
     uint64_t depth;
-    uint64_t item_count=0;
+    uint64_t item_count = 0;
     std::vector<uint64_t> tree_size_vec;
     std::vector<uint64_t> leave_size_vec;
     std::vector<uint64_t> depth_first_node_rank_vec;
@@ -169,7 +168,7 @@ public:
     std::vector<INTERVAL_SINGLE> right_ordered_intervals_vec;
     std::vector<INTERVAL_SINGLE> current_left_offset_vec;
     std::vector<INTERVAL_SINGLE> current_right_offset_vec;
-    
+
     stool::EliasFanoVector intervals_size_sequence;
     std::vector<bool> reported_checker;
 
@@ -195,13 +194,15 @@ public:
     }
     uint64_t get_item_count(uint64_t rank) const
     {
-        return intervals_size_sequence[rank+1] - intervals_size_sequence[rank];
+        return intervals_size_sequence[rank + 1] - intervals_size_sequence[rank];
     }
-    std::pair<uint64_t, uint64_t> get_item(uint64_t item_number) const {
+    std::pair<uint64_t, uint64_t> get_item(uint64_t item_number) const
+    {
         return std::pair<INTERVAL_SUM, INTERVAL_SUM>((*left_array)[item_number], (*right_array)[item_number]);
         //(*this->items)[item_number];
     }
-    uint64_t get_original_size() const {
+    uint64_t get_original_size() const
+    {
         return this->item_count;
     }
 
@@ -341,14 +342,37 @@ public:
         this->left_array = _left_array;
         this->right_array = _right_array;
 
+        uint64_t prev_i = UINT64_MAX;
+        for (uint64_t i = 0; i < item_flag_vec.size(); i++)
+        {
+            if (item_flag_vec[i])
+            {
+                if (prev_i != UINT64_MAX)
+                {
+                    if ((*this->left_array)[prev_i] > (*this->left_array)[i])
+                    {
+                        throw std::logic_error("construct error!");
+                    }
+                }
+                else
+                {
+                    prev_i = i;
+                }
+            }
+        }
+
         uint64_t pp = 0;
-        for(uint64_t i=0;i<item_flag_vec.size();i++){
-            if(item_flag_vec[i]){
+        for (uint64_t i = 0; i < item_flag_vec.size(); i++)
+        {
+            if (item_flag_vec[i])
+            {
                 pp++;
                 //_items[pp++] = i;
             }
         }
         this->item_count = pp;
+
+        /*
         std::vector<INTERVAL_SUM> _items;
         _items.resize(this->item_count, 0);
         pp = 0;
@@ -363,11 +387,13 @@ public:
         std::sort(_items.begin(), _items.end(), [&](auto const &lhs, auto const &rhs) {
             return (*this->left_array)[lhs] < (*this->left_array)[rhs];
         });
+        */
 
         //this->items.swap(_items);
         uint64_t n = this->get_original_size();
         reported_checker.resize(item_flag_vec.size(), false);
-        for(uint64_t i=0;i<item_flag_vec.size();i++){
+        for (uint64_t i = 0; i < item_flag_vec.size(); i++)
+        {
             reported_checker[i] = !item_flag_vec[i];
         }
 
@@ -381,15 +407,20 @@ public:
             std::cout << "[" << it.first << ".." << it.second << "]" << std::endl;
         }
         */
-       //std::vector<INTERVAL_SUM> intervals_size_vec;
-       std::vector<bool> intervals_size_bit_vec;
-       intervals_size_bit_vec.push_back(true);
-       //intervals_size_vec.push_back(0);
+        //std::vector<INTERVAL_SUM> intervals_size_vec;
+        std::vector<bool> intervals_size_bit_vec;
+        intervals_size_bit_vec.push_back(true);
+        //intervals_size_vec.push_back(0);
 
         for (uint64_t h = this->depth; h > 0; --h)
         {
             uint64_t linesize = this->get_line_size(h);
             uint64_t w = 0;
+            uint64_t w_index = 0;
+            while (w_index < item_flag_vec.size() && !item_flag_vec[w_index])
+            {
+                w_index++;
+            }
 
             //throw -1;
             for (uint64_t x = 0; x < linesize; x++)
@@ -398,19 +429,25 @@ public:
                 std::vector<uint64_t> tmp_intervals;
                 while (w < n)
                 {
-                    ITEM current_item = this->get_item(_items[w]);
-                    if(current_item.first > mid_point){
+                    ITEM current_item = this->get_item(w_index);
+                    if (current_item.first > mid_point)
+                    {
                         break;
                     }
                     if (!checker[w])
                     {
                         if (current_item.first <= mid_point && mid_point <= current_item.second)
                         {
-                            tmp_intervals.push_back(_items[w]);
+                            tmp_intervals.push_back(w_index);
                             checker[w] = true;
                         }
                     }
                     w++;
+                    w_index++;
+                    while (w_index < item_flag_vec.size() && !item_flag_vec[w_index])
+                    {
+                        w_index++;
+                    }
                 }
                 for (auto it : tmp_intervals)
                 {
@@ -419,7 +456,8 @@ public:
 
                 std::vector<INTERVAL_SINGLE> tmp_right_interval_ids;
                 tmp_right_interval_ids.resize(tmp_intervals.size(), 0);
-                for(uint64_t i=0;i<tmp_right_interval_ids.size();i++){
+                for (uint64_t i = 0; i < tmp_right_interval_ids.size(); i++)
+                {
                     tmp_right_interval_ids[i] = i;
                 }
 
@@ -432,7 +470,8 @@ public:
                 {
                     right_ordered_intervals_vec.push_back(it);
                 }
-                for(uint64_t tmp_i = 0; tmp_i < tmp_intervals.size();tmp_i++){
+                for (uint64_t tmp_i = 0; tmp_i < tmp_intervals.size(); tmp_i++)
+                {
                     intervals_size_bit_vec.push_back(false);
                 }
                 intervals_size_bit_vec.push_back(true);
@@ -458,7 +497,8 @@ public:
         while (true)
         {
             bool b = report_and_remove(x, p, r);
-            if(p.height == 1){
+            if (p.height == 1)
+            {
                 break;
             }
             if (b)
@@ -478,54 +518,68 @@ public:
         uint64_t mid_point = this->get_mid_point(p.line_rank, p.height);
         uint64_t rank = this->get_rank(p.line_rank, p.height);
         int64_t start = this->get_interval_starting_position(rank);
-        int64_t stop = (int64_t)(start + this->get_item_count(rank)) -1;
+        int64_t stop = (int64_t)(start + this->get_item_count(rank)) - 1;
         int64_t k;
 
-        // std::cout << "search: mid = " << mid_point << "/" << x <<  p.to_string() << "start: = " << start << ", stop = " << stop << std::endl;   
+        // std::cout << "search: mid = " << mid_point << "/" << x <<  p.to_string() << "start: = " << start << ", stop = " << stop << std::endl;
         if (x < mid_point)
         {
             uint64_t t = start + this->current_left_offset_vec[rank];
             //std::cout << "offset = " << (t -start) << std::endl;
-            for(k = t;k <= stop;k++){
+            for (k = t; k <= stop; k++)
+            {
                 uint64_t item_number = this->left_ordered_intervals_vec[k];
                 ITEM current_item = this->get_item(item_number);
-                if(!reported_checker[item_number]){
+                if (!reported_checker[item_number])
+                {
                     //std::cout << "check[" << current_item.first << ", " << current_item.second << "]" << std::endl;
                     assert(current_item.first <= mid_point && mid_point <= current_item.second);
-                    if(current_item.first <= x){
+                    if (current_item.first <= x)
+                    {
                         output.push_back(item_number);
-                        //std::cout << "reportX[" << current_item.first << ", " << current_item.second << "]" << std::endl; 
+                        //std::cout << "reportX[" << current_item.first << ", " << current_item.second << "]" << std::endl;
                         this->current_left_offset_vec[rank]++;
                         reported_checker[item_number] = true;
-                    }else{
+                    }
+                    else
+                    {
                         break;
                     }
-                }else{
+                }
+                else
+                {
                     this->current_left_offset_vec[rank]++;
                 }
             }
         }
         else
         {
-            uint64_t t = start + this->current_right_offset_vec[rank];            
+            uint64_t t = start + this->current_right_offset_vec[rank];
             //std::cout << "offset = " <<(t-start) << std::endl;
 
-            for(k = t;k <= stop;k++){
-                uint64_t tmp_k = this->right_ordered_intervals_vec[k];                
+            for (k = t; k <= stop; k++)
+            {
+                uint64_t tmp_k = this->right_ordered_intervals_vec[k];
                 uint64_t item_number = this->left_ordered_intervals_vec[start + tmp_k];
                 ITEM current_item = this->get_item(item_number);
-                if(!reported_checker[item_number]){
+                if (!reported_checker[item_number])
+                {
                     //std::cout << "check[" << current_item.first << ", " << current_item.second << "]" << std::endl;
                     assert(current_item.first <= mid_point && mid_point <= current_item.second);
-                    if(x <= current_item.second){
-                        output.push_back(item_number);                        
-                        //std::cout << "reportY[" << current_item.first << ", " << current_item.second << "]" << std::endl; 
+                    if (x <= current_item.second)
+                    {
+                        output.push_back(item_number);
+                        //std::cout << "reportY[" << current_item.first << ", " << current_item.second << "]" << std::endl;
                         reported_checker[item_number] = true;
                         this->current_right_offset_vec[rank]++;
-                    }else{
+                    }
+                    else
+                    {
                         break;
                     }
-                }else{
+                }
+                else
+                {
                     this->current_right_offset_vec[rank]++;
                 }
             }
