@@ -91,8 +91,8 @@ target_link_libraries(slcp.out fn)
 ##add_executable(lcp_test.out src/debug/lcp_test_main.cpp)
 ##target_link_libraries(lcp_test.out fn)
 
-##add_executable(time_lcp.out src/debug/time_lcp_main.cpp)
-##target_link_libraries(time_lcp.out fn)
+add_executable(time_lcp.out src/debug/time_lcp_main.cpp)
+target_link_libraries(time_lcp.out fn)
 
 
 ##add_executable(interval_test.out src/debug/interval_tree_main.cpp)

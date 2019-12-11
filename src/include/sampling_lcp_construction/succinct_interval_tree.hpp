@@ -166,7 +166,7 @@ public:
     std::vector<uint64_t> depth_first_node_rank_vec;
 
     std::vector<uint64_t> left_ordered_intervals_vec;
-    std::vector<uint64_t> right_ordered_intervals_vec;
+    std::vector<INTERVAL_SINGLE> right_ordered_intervals_vec;
     std::vector<INTERVAL_SINGLE> current_left_offset_vec;
     std::vector<INTERVAL_SINGLE> current_right_offset_vec;
     
@@ -417,12 +417,18 @@ public:
                     left_ordered_intervals_vec.push_back(it);
                 }
 
-                std::sort(tmp_intervals.begin(), tmp_intervals.end(), [&](auto const &lhs, auto const &rhs) {
-                    ITEM current_item1 = this->get_item(lhs);
-                    ITEM current_item2 = this->get_item(rhs);
+                std::vector<INTERVAL_SINGLE> tmp_right_interval_ids;
+                tmp_right_interval_ids.resize(tmp_intervals.size(), 0);
+                for(uint64_t i=0;i<tmp_right_interval_ids.size();i++){
+                    tmp_right_interval_ids[i] = i;
+                }
+
+                std::sort(tmp_right_interval_ids.begin(), tmp_right_interval_ids.end(), [&](auto const &lhs, auto const &rhs) {
+                    ITEM current_item1 = this->get_item(tmp_intervals[lhs]);
+                    ITEM current_item2 = this->get_item(tmp_intervals[rhs]);
                     return current_item1.second > current_item2.second;
                 });
-                for (auto it : tmp_intervals)
+                for (auto it : tmp_right_interval_ids)
                 {
                     right_ordered_intervals_vec.push_back(it);
                 }
@@ -505,7 +511,8 @@ public:
             //std::cout << "offset = " <<(t-start) << std::endl;
 
             for(k = t;k <= stop;k++){
-                uint64_t item_number = this->right_ordered_intervals_vec[k];
+                uint64_t tmp_k = this->right_ordered_intervals_vec[k];                
+                uint64_t item_number = this->left_ordered_intervals_vec[start + tmp_k];
                 ITEM current_item = this->get_item(item_number);
                 if(!reported_checker[item_number]){
                     //std::cout << "check[" << current_item.first << ", " << current_item.second << "]" << std::endl;
