@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     tree.initialize(len );
     std::vector<bool> flag_vec;
     flag_vec.resize(p.size(), true);
-    tree.construct(&leftArr, &rightArr, p.size(), flag_vec);
+    tree.construct(&leftArr, &rightArr, flag_vec);
     NaiveIntervalTree nit;
     nit.construct(p);
     //auto root = tree.get_root();

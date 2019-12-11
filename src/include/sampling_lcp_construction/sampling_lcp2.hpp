@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include "../sampling_lcp.hpp"
 #include "./succinct_interval_tree.hpp"
+#include "stool/src/debug.hpp"
 
 namespace stool
 {
@@ -73,7 +74,7 @@ public:
         std::vector<uint64_t> __sampling_lcp_array_on_L;
         __sampling_lcp_array_on_L.resize(_rlbwt.rle_size(), UINT64_MAX);
 
-        NaiveIntervalTree nit;
+        //NaiveIntervalTree nit;
         //std::cout << "PCI:" << std::flush;
         //Printer::print(previous_c_index_vector);
         uint64_t interval_count = 0;
@@ -89,13 +90,13 @@ public:
                 uint64_t prev_index = previous_c_index_vector[i] + 1;
                 interval_flag_vec[i] = true;
                 interval_count++;
-                uint64_t _i = getSpecialDistance(prev_index, 0);
-                uint64_t _j = getSpecialDistance(i, 0);
-                std::cout << "add:" << i << "@"<< _i << ", " << _j << std::endl;
-                nit.add(_i, _j);
+                //uint64_t _i = getSpecialDistance(prev_index, 0);
+                //uint64_t _j = getSpecialDistance(i, 0);
+                //std::cout << "add:" << i << "@"<< _i << ", " << _j << std::endl;
+                //nit.add(_i, _j);
             }
         }
-        intervalTree.construct(&left_intervals, &right_intervals, interval_count, interval_flag_vec);
+        intervalTree.construct(&left_intervals, &right_intervals, interval_flag_vec);
 
         //Printer::print(zero_lcp_findexes);
 
@@ -125,18 +126,27 @@ public:
                     }
                     //std::cout  << std::endl;
                     
-
+                    /*
                     auto r2 = nit.report_and_remove(pos);
-                    assert(r.size() == r2.size() );
+                    std::vector<uint64_t> r3;
+                    //assert(r.size() == r2.size());
 
-                    std::cout << "report : " << std::flush;
+                    //std::cout << "report : " << std::flush;
                     for (auto rep : r2)
                     {
                         uint64_t index = rep.second / 2;
-                        std::cout << index << ", "<< std::flush;
+                        //std::cout << index << ", "<< std::flush;
+                        r3.push_back(index);
                         //reportedIndexes.push_back(index);
                     }
-                    std::cout  << std::endl;
+                    */
+                    //std::cout  << "+"<< std::flush;
+                    //std::sort(r.begin(), r.end());
+                    //std::sort(r3.begin(), r3.end());
+                    //stool::Printer::print(r);
+                    //stool::Printer::print(r3);
+
+                    //bool b2 = stool::equal_check<uint64_t>(r3, r);
                     
                     
 

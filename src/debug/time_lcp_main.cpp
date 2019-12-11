@@ -1,9 +1,12 @@
 #include <cassert>
 #include <chrono>
-#include "../common/cmdline.h"
-#include "../common/print.hpp"
-#include "../common/io.h"
 #include "../common/print_rlbwt.hpp"
+
+
+#include "stool/src/io.hpp"
+#include "stool/src/cmdline.h"
+#include "stool/src/debug.hpp"
+#include "../include/sampling_lcp_construction/sampling_lcp2.hpp"
 
 #include "../include/rlbwt_iterator.hpp"
 
@@ -21,6 +24,8 @@ bool SHOW = false;
 
 int main(int argc, char *argv[])
 {
+    using CHAR = char;
+    using INDEX = uint64_t;
     cmdline::parser p;
     p.add<string>("input_file", 'i', "input file name", true);
     p.add<string>("mode", 'm', "mode", false, "xx");
@@ -36,79 +41,36 @@ int main(int argc, char *argv[])
         std::cout << inputFile << " cannot open." << std::endl;
         return -1;
     }
+    if(mode != "old") mode = "new";
 
-    string text = "";
-    std::cout << "Loading : " << inputFile << std::endl;
-    stool::IO::load(inputFile, text);
+    stool::rlbwt::RLBWT<std::vector<CHAR>, std::vector<INDEX> > rlestr = stool::rlbwt::Constructor::load_RLBWT_from_file<CHAR, INDEX>(inputFile);
+    std::vector<uint64_t> slcp;
+    auto start = std::chrono::system_clock::now();
+    if(mode == "old"){
+        std::vector<uint64_t> correct_slcp = stool::rlbwt::SamplingLCP<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
+        slcp.swap(correct_slcp);
+    }else{
 
-    RLBWT<CHAR, INDEX> rlestr;
-    //Constructor::construct_from_bwt<CHAR, INDEX>(rlestr, bwt);
-    Constructor::construct_from_string<CHAR, INDEX>(rlestr, text);
-
-    text.push_back((char)0);
-
-    std::cout << "Text length = " << text.size() << std::endl;
-    if (text.size() <= 100)
-    {
-        std::cout << "Text: ";
-        std::cout << text << std::endl;
+        std::vector<uint64_t> slcp_new = stool::rlbwt::SamplingLCP2<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
+        slcp.swap(slcp_new);
     }
+    auto end = std::chrono::system_clock::now();
+    double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    uint64_t textSize = rlestr.str_size();
 
-    RLBWT<char>::check_text_for_rlbwt(text);
+    std::cout << "\033[36m";
+    std::cout << "=============RESULT===============" << std::endl;
+    std::cout << "File : " << inputFile << std::endl;
+    std::cout << "Mode : " << mode << std::endl;
 
-    std::string bwt = stool::rlbwt::SuffixArrayConstructor::naive_bwt(text);
+    std::cout << "The length of the input text : " << textSize << std::endl;
+    double charperms = (double)textSize / elapsed;
+    std::cout << "The number of runs : " << rlestr.rle_size() << std::endl;
+    std::cout << "Ratio : " << (double)rlestr.rle_size() / (double)textSize << std::endl;
 
-    std::vector<uint64_t> rlbwt_runs;
-    std::vector<char> rlbwt_chars;
-    stool::rlbwt::SuffixArrayConstructor::naive_rlbwt(text, rlbwt_chars, rlbwt_runs);
-    //Printer::print_chars(rlbwt_chars);
-    //Printer::print(rlbwt_runs);
+    std::cout << "Excecution time : " << elapsed << "ms" << std::endl;
+    //std::cout << "[" << charperms << "chars/ms]" << std::endl;
+    std::cout << "==================================" << std::endl;
+    std::cout << "\033[39m" << std::endl;
 
-    
-    //std::cout << "sa" << std::endl;
-    //Printer::print(sa);
-
-    std::vector<uint64_t> lf_mapper = RLBWTFunctions::construct_rle_lf_mapper<INDEX>(rlestr);
-    std::vector<uint64_t> fl_mapper = RLBWTFunctions::construct_rle_fl_mapper<INDEX>(rlestr);
-    std::vector<uint64_t> fpos_array = RLBWTFunctions::construct_fpos_array<INDEX>(rlestr);
-
-
-    
-    vector<INDEX> sa = stool::rlbwt::SuffixArrayConstructor::naive_sa<INDEX>(text);
-    //string bwt = stool::rlbwt::SuffixArrayConstructor::construct_bwt(text, sa);
-    vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
-    vector<INDEX> lcp = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
-    
-
-
-    vector<uint64_t> slcp = SamplingLCP<>::construct_sampling_lcp_array_lorder(rlestr);
-
-    vector<uint64_t> slcp_forder = stool::rlbwt::permutate(std::move(slcp), lf_mapper);
-
-    //ForwardLCPArray<> w2;
-    //w2.construct_from_rlbwt(&rlestr, false);
-    //vector<uint64_t> lcp2 = w2.to_lcp_array();
-    //vector<uint64_t> slcp = w2.copy_slcp_array();
-    //stool::Printer::print(slcp);
-    RLBWTPrinter::printText(text);
-    RLBWTPrinter::printRLBWTIndexes(rlbwt_runs);
-    RLBWTPrinter::printOnRLBWT(rlbwt_chars, rlbwt_runs, "L(RLBWT)");
-    RLBWTPrinter::printOnRLBWT(lf_mapper, rlbwt_runs, "lf_mapper");
-    RLBWTPrinter::printOnRLBWT(fl_mapper, rlbwt_runs, "fl_mapper");
-    RLBWTPrinter::printOnRLBWT(fpos_array, rlbwt_runs, "fpos_array");
-    RLBWTPrinter::printWithFOrder(slcp_forder, rlbwt_runs, lf_mapper, "slcp_array");
-    RLBWTPrinter::print(lcp, "lcp_array");
-
-
-
-
-    /*
-    */
-
-    /*
-    test_sampling_lcp(text);
-    test_sa2(text);
-
-    test_ms(text);
-    */
 }

@@ -201,7 +201,7 @@ public:
         return std::pair<INTERVAL_SUM, INTERVAL_SUM>((*left_array)[item_number], (*right_array)[item_number]);
         //(*this->items)[item_number];
     }
-    uint64_t get_size() const {
+    uint64_t get_original_size() const {
         return this->item_count;
     }
 
@@ -336,21 +336,28 @@ public:
         return iterator(this, false);
     }
 
-    void construct(LEFT_ARRAY *_left_array, RIGHT_ARRAY *_right_array, uint64_t _size, std::vector<bool> &item_flag_vec)
+    void construct(LEFT_ARRAY *_left_array, RIGHT_ARRAY *_right_array, std::vector<bool> &item_flag_vec)
     {
         this->left_array = _left_array;
         this->right_array = _right_array;
-        this->item_count = _size;
 
-        std::vector<INTERVAL_SUM> _items;
-        _items.resize(_size, 0);
         uint64_t pp = 0;
         for(uint64_t i=0;i<item_flag_vec.size();i++){
             if(item_flag_vec[i]){
-                //std::cout << "cadd" << i << std::endl;
+                pp++;
+                //_items[pp++] = i;
+            }
+        }
+        this->item_count = pp;
+        std::vector<INTERVAL_SUM> _items;
+        _items.resize(this->item_count, 0);
+        pp = 0;
+        for(uint64_t i=0;i<item_flag_vec.size();i++){
+            if(item_flag_vec[i]){
                 _items[pp++] = i;
             }
         }
+
 
 
         std::sort(_items.begin(), _items.end(), [&](auto const &lhs, auto const &rhs) {
@@ -358,12 +365,16 @@ public:
         });
 
         //this->items.swap(_items);
-        uint64_t n = this->get_size();
-        reported_checker.resize(this->get_size(), false);
+        uint64_t n = this->get_original_size();
+        reported_checker.resize(item_flag_vec.size(), false);
+        for(uint64_t i=0;i<item_flag_vec.size();i++){
+            reported_checker[i] = !item_flag_vec[i];
+        }
+
         current_left_offset_vec.resize(this->get_tree_size(), 0);
         current_right_offset_vec.resize(this->get_tree_size(), 0);
         std::vector<bool> checker;
-        checker.resize(this->get_size(), false);
+        checker.resize(n, false);
         /*
         for (auto it : items)
         {
