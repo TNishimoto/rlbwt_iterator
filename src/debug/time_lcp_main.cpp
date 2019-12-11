@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
         std::cout << inputFile << " cannot open." << std::endl;
         return -1;
     }
-    if(mode != "old") mode = "new";
 
     stool::rlbwt::RLBWT<std::vector<CHAR>, std::vector<INDEX> > rlestr = stool::rlbwt::Constructor::load_RLBWT_from_file<CHAR, INDEX>(inputFile);
     std::vector<uint64_t> slcp;
@@ -50,7 +49,7 @@ int main(int argc, char *argv[])
         std::vector<uint64_t> correct_slcp = stool::rlbwt::SamplingLCP<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
         slcp.swap(correct_slcp);
     }else{
-
+        mode = "new";
         std::vector<uint64_t> slcp_new = stool::rlbwt::SamplingLCP2<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
         slcp.swap(slcp_new);
     }

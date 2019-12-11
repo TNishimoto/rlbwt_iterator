@@ -381,8 +381,10 @@ public:
             std::cout << "[" << it.first << ".." << it.second << "]" << std::endl;
         }
         */
-       std::vector<INTERVAL_SUM> intervals_size_vec;
-       intervals_size_vec.push_back(0);
+       //std::vector<INTERVAL_SUM> intervals_size_vec;
+       std::vector<bool> intervals_size_bit_vec;
+       intervals_size_bit_vec.push_back(true);
+       //intervals_size_vec.push_back(0);
 
         for (uint64_t h = this->depth; h > 0; --h)
         {
@@ -424,11 +426,17 @@ public:
                 {
                     right_ordered_intervals_vec.push_back(it);
                 }
-                intervals_size_vec.push_back(intervals_size_vec[intervals_size_vec.size()-1] + tmp_intervals.size());
+                for(uint64_t tmp_i = 0; tmp_i < tmp_intervals.size();tmp_i++){
+                    intervals_size_bit_vec.push_back(false);
+                }
+                intervals_size_bit_vec.push_back(true);
+
+                //intervals_size_vec.push_back(intervals_size_vec[intervals_size_vec.size()-1] + tmp_intervals.size());
             }
         }
-
-        this->intervals_size_sequence.construct(&intervals_size_vec);
+        this->intervals_size_sequence.build_from_bit_vector(intervals_size_bit_vec);
+        //auto ppp = this->intervals_size_sequence.to_vector();
+        //stool::Printer::print(ppp);
 
         for (uint64_t i = 0; i < checker.size(); i++)
         {
