@@ -164,7 +164,7 @@ public:
     std::vector<uint64_t> leave_size_vec;
     std::vector<uint64_t> depth_first_node_rank_vec;
 
-    std::vector<uint64_t> left_ordered_intervals_vec;
+    std::vector<INTERVAL_SUM> left_ordered_intervals_vec;
     std::vector<INTERVAL_SINGLE> right_ordered_intervals_vec;
     std::vector<INTERVAL_SINGLE> current_left_offset_vec;
     std::vector<INTERVAL_SINGLE> current_right_offset_vec;

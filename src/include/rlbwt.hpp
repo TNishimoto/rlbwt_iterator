@@ -21,7 +21,7 @@ namespace rlbwt
 {
 
 //template <typename CHAR = char, typename INDEX = uint64_t, typename CHARVEC = std::vector<CHAR>, typename POWVEC = std::vector<INDEX>>
-template <typename CHARVEC = std::vector<char>, typename POWVEC = std::vector<uint64_t>>
+template <typename CHARVEC = std::vector<char>, typename POWVEC = std::vector<uint64_t>, typename RLE_SIZE_TYPE = uint64_t>
 class RLBWT
 {
 
