@@ -74,16 +74,16 @@ public:
 
 };
 
-template <typename CHAR>
+template <typename CHAR, typename WT>
 class WTSelectOnRLBWT
 {
 public:
     //const RLBWT_STR *_rlbwt;
     uint64_t _size;
-    sdsl::wt_gmr<> *wt;
+    WT *wt;
     //std::vector<bool> first_c_flag_vec;
 
-    void set(sdsl::wt_gmr<> *_wt)
+    void set(WT *_wt)
     {
         this->wt = _wt;
         this->_size = this->wt->size();
@@ -236,19 +236,25 @@ public:
     static std::vector<uint64_t> compute_slcp_array_on_L(const RLBWT_STR &_rlbwt)
     {
         //using SELECTER = SelectOnRLBWT<RLE_SIZE_TYPE>;
-        using SELECTER = WTSelectOnRLBWT<typename RLBWT_STR::CHAR> ;
+        //using INT_VECTOR_SIZE = sizeof(typename RLBWT_STR::CHAR) * 8;
+        using INT_VECTOR = sdsl::int_vector<sizeof(typename RLBWT_STR::CHAR) * 8>;
+        using WT = sdsl::wt_huff<>;
+        //using INT_VECTOR = sdsl::int_vector<>;
+        
+        using SELECTER = WTSelectOnRLBWT<typename RLBWT_STR::CHAR, WT> ;
         uint64_t run_size = _rlbwt.rle_size();
 
-        sdsl::wt_gmr<> wt;
-        //sdsl::int_vector<sizeof(typename RLBWT_STR::CHAR) * 8> chars;
-        sdsl::int_vector<> chars;
+        INT_VECTOR chars;
+        //sdsl::int_vector<> chars;
         chars.resize(run_size);
         for (uint64_t i = 0; i < run_size; i++)
         {
             chars[i] = (uint8_t)_rlbwt.get_char_by_run_index(i);
         }
+        WT wt;
+
         construct_im(wt, chars);
-        WTSelectOnRLBWT<typename RLBWT_STR::CHAR> wts;
+        SELECTER wts;
         wts.set(&wt);
         wts.get_next_c_index(0);
 
@@ -268,6 +274,7 @@ public:
 
         }
         */
+        
         
 
         std::vector<bool> interval_flag_vec = construct_interval_flag_vec(wts);
