@@ -6,7 +6,7 @@
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
 #include "stool/src/debug.hpp"
-#include "../include/sampling_lcp_construction/sampling_lcp2.hpp"
+#include "../include/sampling_lcp_construction/succinct_slcp_constructor.hpp"
 
 #include "../include/rlbwt_iterator.hpp"
 
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         slcp.swap(correct_slcp);
     }else{
         mode = "new";
-        std::vector<uint64_t> slcp_new = stool::rlbwt::SamplingLCP2<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
+        std::vector<uint64_t> slcp_new = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
         slcp.swap(slcp_new);
     }
     auto end = std::chrono::system_clock::now();

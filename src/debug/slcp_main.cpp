@@ -6,7 +6,7 @@
 
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
-#include "../include/sampling_lcp_construction/sampling_lcp2.hpp"
+#include "../include/sampling_lcp_construction/succinct_slcp_constructor.hpp"
 
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     std::vector<uint64_t> correct_slcp = stool::rlbwt::SamplingLCP<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
 
 
-    std::vector<uint64_t> slcp = stool::rlbwt::SamplingLCP2<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
+    std::vector<uint64_t> slcp = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
     //stool::Printer::print(slcp);
 
 
