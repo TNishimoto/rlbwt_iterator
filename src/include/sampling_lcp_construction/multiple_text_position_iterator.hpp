@@ -14,7 +14,7 @@ namespace stool
 namespace rlbwt
 {
 
-template <typename RLBWT_STR>
+template <typename RLBWT_STR, typename FINDEXES_VEC>
 class MultipleTextPositionIterator
 {
   private:
@@ -23,13 +23,13 @@ class MultipleTextPositionIterator
     uint64_t _distance = 0;
 
     const RLBWT_STR &_rlbwt;
-    std::vector<uint64_t> &_findexes_lorder;
+    FINDEXES_VEC &_findexes_lorder;
     std::vector<uint64_t> _findexes;
     //std::vector<uint64_t> _xvec;
 
   public:
     MultipleTextPositionIterator() = default;
-    MultipleTextPositionIterator(std::vector<uint64_t> &indexes, const RLBWT_STR &__rlbwt, std::vector<uint64_t> &__findexes_lorder) : _rlbwt(__rlbwt), _findexes_lorder(__findexes_lorder)
+    MultipleTextPositionIterator(std::vector<uint64_t> &indexes, const RLBWT_STR &__rlbwt, FINDEXES_VEC &__findexes_lorder) : _rlbwt(__rlbwt), _findexes_lorder(__findexes_lorder)
     {
         for (auto p : indexes)
         {

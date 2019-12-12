@@ -64,7 +64,7 @@ public:
                  }
                  else
                  {
-                     return (INDEX)rlbwt.get_char_by_run_index(x) < (INDEX)rlbwt.get_char_by_run_index(y);
+                     return (uint64_t)rlbwt.get_char_by_run_index(x) < (uint64_t)rlbwt.get_char_by_run_index(y);
                      //return this->char_vec[x] < this->char_vec[y];
                  }
              });

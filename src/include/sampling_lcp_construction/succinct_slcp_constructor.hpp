@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <unordered_set>
 #include "./multiple_text_position_iterator.hpp"
+#include "./wt_select_on_rlbwt.hpp"
+
 #include "./succinct_interval_tree.hpp"
 #include "stool/src/debug.hpp"
 #include <sdsl/wavelet_trees.hpp>
@@ -13,155 +15,6 @@ namespace stool
 {
 namespace rlbwt
 {
-
-template <typename RLE_SIZE_TYPE>
-class SelectOnRLBWT
-{
-    //const RLBWT_STR *_rlbwt;
-    std::vector<RLE_SIZE_TYPE> next_c_index_vector;
-    std::vector<bool> first_c_flag_vec;
-
-public:
-    template <typename RLBWT_STR>
-    void build(RLBWT_STR &_rlbwt)
-    {
-        RLEFArray<RLBWT_STR> generator(_rlbwt);
-
-        //std::vector<uint64_t> previous_c_index_vector;
-        this->next_c_index_vector.resize(_rlbwt.rle_size(), std::numeric_limits<RLE_SIZE_TYPE>::max());
-        this->first_c_flag_vec.resize(_rlbwt.rle_size(), false);
-
-        RLE_SIZE_TYPE prev_c = std::numeric_limits<RLE_SIZE_TYPE>::max();
-        RLE_SIZE_TYPE prev_rle_lindex_on_F = std::numeric_limits<RLE_SIZE_TYPE>::max();
-
-        for (typename RLEFArray<RLBWT_STR>::iterator it = generator.begin(); it != generator.end(); ++it)
-        {
-
-            uint64_t rle_findex = it.rle_findex();
-            RLE_SIZE_TYPE rle_lindex = it.rle_lindex();
-            uint64_t c = it.character();
-
-            if (rle_findex == 0 || prev_c != c)
-            {
-                first_c_flag_vec[rle_lindex] = true;
-                //previous_c_index_vector[rle_lindex] = UINT64_MAX;
-                //uint64_t findex = it.findex();
-            }
-            else
-            {
-                next_c_index_vector[prev_rle_lindex_on_F] = rle_lindex;
-                //previous_c_index_vector[rle_lindex] = prev_rle_lindex_on_F;
-            }
-            prev_c = c;
-            prev_rle_lindex_on_F = rle_lindex;
-        }
-    }
-
-    bool get_first_c_flag(uint64_t x)
-    {
-        return first_c_flag_vec[x];
-    }
-    uint64_t size()
-    {
-        return next_c_index_vector.size();
-    }
-    uint64_t get_next_c_index(uint64_t x)
-    {
-        return next_c_index_vector[x];
-    }
-    uint64_t null_flag()
-    {
-        return std::numeric_limits<RLE_SIZE_TYPE>::max();
-    }
-};
-
-template <typename CHAR, typename WT>
-class WTSelectOnRLBWT
-{
-public:
-    //const RLBWT_STR *_rlbwt;
-    uint64_t _size;
-    WT *wt;
-    //std::vector<bool> first_c_flag_vec;
-
-    void set(WT *_wt)
-    {
-        this->wt = _wt;
-        this->_size = this->wt->size();
-        /*
-        this->first_c_flag_vec.resize(this->_size);
-        for(uint64_t i=0;i<_size;i++){
-            this->first_c_flag_vec[i] = this->get_first_c_flag(i);
-        }
-        */
-    }
-    uint64_t get_next_c_index(uint64_t x)
-    {
-
-        CHAR c = (*wt)[x];
-        uint64_t rank = wt->rank(x + 1, c);
-        uint64_t c_num = wt->rank(_size, c);
-        uint64_t next_rank = rank + 1;
-        if (next_rank <= c_num)
-        {
-            return wt->select(next_rank, c);
-        }
-        else
-        {
-            return UINT64_MAX;
-        }
-    }
-    bool get_first_c_flag(uint64_t x)
-    {
-        CHAR c = (*wt)[x];
-        uint64_t rank = wt->rank(x + 1, c);
-        return rank == 1;
-    }
-    uint64_t size()
-    {
-        return this->_size;
-    }
-    uint64_t null_flag()
-    {
-        return std::numeric_limits<uint64_t>::max();
-    }
-
-    /*
-    template <typename RLBWT_STR>
-    void build(RLBWT_STR &_rlbwt){
-        RLEFArray<RLBWT_STR> generator(_rlbwt);
-
-        //std::vector<uint64_t> previous_c_index_vector;
-        this->next_c_index_vector.resize(_rlbwt.rle_size(), std::numeric_limits<RLE_SIZE_TYPE>::max());
-        this->first_c_flag_vec.resize(_rlbwt.rle_size(), false);
-
-        RLE_SIZE_TYPE prev_c = std::numeric_limits<RLE_SIZE_TYPE>::max();
-        RLE_SIZE_TYPE prev_rle_lindex_on_F = std::numeric_limits<RLE_SIZE_TYPE>::max();
-
-        for (typename RLEFArray<RLBWT_STR>::iterator it = generator.begin(); it != generator.end(); ++it)
-        {
-
-            uint64_t rle_findex = it.rle_findex();
-            RLE_SIZE_TYPE rle_lindex = it.rle_lindex();
-            uint64_t c = it.character();
-
-            if (rle_findex == 0 || prev_c != c)
-            {
-                first_c_flag_vec[rle_lindex] = true;
-                //previous_c_index_vector[rle_lindex] = UINT64_MAX;
-                //uint64_t findex = it.findex();
-            }
-            else
-            {
-                next_c_index_vector[prev_rle_lindex_on_F] = rle_lindex;
-                //previous_c_index_vector[rle_lindex] = prev_rle_lindex_on_F;
-            }
-            prev_c = c;
-            prev_rle_lindex_on_F = rle_lindex;
-        }
-    }
-    */
-};
 
 class RLBWTLeftIntervals
 {
@@ -210,8 +63,8 @@ public:
     {
         return (_rle_lindex * 2) + (_diff == 0 ? 0 : 1);
     }
-    template <typename SELECTER>
-    static std::vector<uint64_t> construct_zero_lcp_findexes(SELECTER &selecter, std::vector<uint64_t> &_findexes_lorder)
+    template <typename SELECTER, typename FINDEXES_VEC>
+    static std::vector<uint64_t> construct_zero_lcp_findexes(SELECTER &selecter, FINDEXES_VEC &_findexes_lorder)
     {
         std::vector<uint64_t> zero_lcp_findexes;
         for (uint64_t i = 0; i < selecter.size(); i++)
@@ -237,8 +90,8 @@ public:
         return interval_flag_vec;
     }
 
-    template <typename RLE_SIZE_TYPE, typename SELECTER>
-    static std::vector<uint64_t> compute_slcp_array_on_L(const RLBWT_STR &_rlbwt, SELECTER &selecter)
+    template <typename RLE_SIZE_TYPE, typename SELECTER, typename FINDEXES_VEC>
+    static std::vector<uint64_t> compute_slcp_array_on_L(const RLBWT_STR &_rlbwt, SELECTER &selecter, FINDEXES_VEC &_findexes_lorder)
     {
         uint64_t run_size = _rlbwt.rle_size();
         using UNSIGNED_CHAR = typename make_unsigned<typename RLBWT_STR::CHAR>::type;
@@ -246,7 +99,7 @@ public:
         std::vector<bool> _access_checker;
         _access_checker.resize(run_size * 2, false);
 
-        auto _findexes_lorder = RLBWTFunctions::construct_fpos_array(_rlbwt);
+        //
 
         std::vector<bool> interval_flag_vec = construct_interval_flag_vec(selecter);
         std::vector<uint64_t> zero_lcp_findexes = construct_zero_lcp_findexes(selecter, _findexes_lorder);
@@ -259,7 +112,7 @@ public:
 
         //Printer::print(zero_lcp_findexes);
 
-        MultipleTextPositionIterator<RLBWT_STR> findex_iterator(zero_lcp_findexes, _rlbwt, _findexes_lorder);
+        MultipleTextPositionIterator<RLBWT_STR, FINDEXES_VEC> findex_iterator(zero_lcp_findexes, _rlbwt, _findexes_lorder);
 
         uint64_t interval_count = run_size - zero_lcp_findexes.size();
         uint64_t nokori_counter = interval_count;
@@ -321,36 +174,47 @@ public:
             construct_im(wt, chars);
             SELECTER wts;
             wts.set(&wt);
-            wts.get_next_c_index(0);
+
+            //auto _findexes_lorder = RLBWTFunctions::construct_fpos_array(_rlbwt);
+            SuccinctFIndexesLOrder<UNSIGNED_CHAR, WT> _findexes_lorder2;
+            _findexes_lorder2.build(_rlbwt, &wt);
+            /*
+            for(uint64_t i=0;i<run_size;i++){
+                std::cout << (int)_rlbwt.get_char_by_run_index(i) << "/"<< _findexes_lorder[i] << "/" << _findexes_lorder2[i] << std::endl;
+                assert(_findexes_lorder[i] == _findexes_lorder2[i]);
+            }
+            */
+
 
             if (run_size < UINT16_MAX)
             {
-                return compute_slcp_array_on_L<uint16_t>(_rlbwt, wts);
+                return compute_slcp_array_on_L<uint16_t>(_rlbwt, wts, _findexes_lorder2);
             }
             else if (run_size < UINT32_MAX)
             {
-                return compute_slcp_array_on_L<uint32_t>(_rlbwt, wts);
+                return compute_slcp_array_on_L<uint32_t>(_rlbwt, wts, _findexes_lorder2);
             }
             else
             {
-                return compute_slcp_array_on_L<uint64_t>(_rlbwt, wts);
+                return compute_slcp_array_on_L<uint64_t>(_rlbwt, wts, _findexes_lorder2);
             }
         }
         else
         {
             SelectOnRLBWT<uint64_t> selecter;
             selecter.build(_rlbwt);
+            auto _findexes_lorder = RLBWTFunctions::construct_fpos_array(_rlbwt);
             if (run_size < UINT16_MAX)
             {
-                return compute_slcp_array_on_L<uint16_t>(_rlbwt, selecter);
+                return compute_slcp_array_on_L<uint16_t>(_rlbwt, selecter, _findexes_lorder);
             }
             else if (run_size < UINT32_MAX)
             {
-                return compute_slcp_array_on_L<uint32_t>(_rlbwt, selecter);
+                return compute_slcp_array_on_L<uint32_t>(_rlbwt, selecter, _findexes_lorder);
             }
             else
             {
-                return compute_slcp_array_on_L<uint64_t>(_rlbwt, selecter);
+                return compute_slcp_array_on_L<uint64_t>(_rlbwt, selecter, _findexes_lorder);
             }
         }
     }
