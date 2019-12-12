@@ -184,7 +184,7 @@ public:
   template <typename RLBWT_STR>
   void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
   {
-    using CHAR = typename RLBWT_STR::char_type;
+    //using CHAR = typename RLBWT_STR::char_type;
 
     //INDEX _str_size = _rlbwt->str_size();
     std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = SA::construct_sampling_sa(_rlbwt);

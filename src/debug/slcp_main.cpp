@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     std::vector<uint64_t> correct_slcp = stool::rlbwt::SamplingLCP<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
 
 
-    std::vector<uint64_t> slcp = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
+    std::vector<uint64_t> slcp = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr, mode == "sdsl");
     //stool::Printer::print(slcp);
 
 

@@ -48,9 +48,12 @@ int main(int argc, char *argv[])
     if(mode == "old"){
         std::vector<uint64_t> correct_slcp = stool::rlbwt::SamplingLCP<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
         slcp.swap(correct_slcp);
+    }else if(mode == "sdsl"){
+        std::vector<uint64_t> slcp_new = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr, true);
+        slcp.swap(slcp_new);
     }else{
         mode = "new";
-        std::vector<uint64_t> slcp_new = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
+        std::vector<uint64_t> slcp_new = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr, false);
         slcp.swap(slcp_new);
     }
     auto end = std::chrono::system_clock::now();

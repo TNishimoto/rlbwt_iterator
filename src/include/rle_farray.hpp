@@ -107,7 +107,7 @@ public:
     template <typename RLBWT_STR>
     static std::vector<uint64_t> construct_rle_lf_lorder(const RLBWT_STR &__rlbwt)
     {
-        using CHAR = typename RLBWT_STR::char_type;
+        //using CHAR = typename RLBWT_STR::char_type;
         using INDEX = typename RLBWT_STR::index_type;
         RLEFArray<RLBWT_STR> generator(__rlbwt);
         std::vector<uint64_t> rle_lf_lorder;
