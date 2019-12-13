@@ -170,7 +170,11 @@ public:
     std::vector<INTERVAL_SINGLE> current_left_offset_vec;
     std::vector<INTERVAL_SINGLE> current_right_offset_vec;
 
-    stool::EliasFanoVector intervals_size_sequence;
+    //stool::EliasFanoVector intervals_size_sequence;
+
+    sdsl::bit_vector intervals_size_bits;
+    sdsl::bit_vector::select_1_type intervals_size_selecter;
+
     std::vector<bool> reported_checker;
 
     uint64_t get_tree_size(uint64_t height) const
@@ -195,7 +199,11 @@ public:
     }
     uint64_t get_item_count(uint64_t rank) const
     {
-        return intervals_size_sequence[rank + 1] - intervals_size_sequence[rank];
+        //uint64_t x = intervals_size_sequence[rank + 1] - intervals_size_sequence[rank];
+        uint64_t y = intervals_size_selecter(rank+2) - intervals_size_selecter(rank+1) - 1;
+        //std::cout << "rank:" << rank << "/"<< x << "/" << y << std::endl;
+        //assert(x == y);
+        return y;
     }
     std::pair<uint64_t, uint64_t> get_item(uint64_t item_number) const
     {
@@ -213,7 +221,12 @@ public:
     }
     uint64_t get_interval_starting_position(uint64_t rank) const
     {
-        return intervals_size_sequence[rank];
+        uint64_t x = intervals_size_selecter(rank+1) - rank;
+        //uint64_t y = intervals_size_sequence[rank];
+        //std::cout << "rank:" << intervals_size_selecter(rank+2) << "/"<< intervals_size_selecter(rank+1) << "/"  << std::endl;
+        //std::cout << "rank:" << rank << "/"<< x << "/" << y << std::endl;
+        //assert(x == y);
+        return x;
         /*
         uint64_t x = 0;
         for (uint64_t i = 0; i < rank; i++)
@@ -462,7 +475,28 @@ public:
                 //intervals_size_vec.push_back(intervals_size_vec[intervals_size_vec.size()-1] + tmp_intervals.size());
             }
         }
-        this->intervals_size_sequence.build_from_bit_vector(intervals_size_bit_vec);
+        //this->intervals_size_sequence.build_from_bit_vector(intervals_size_bit_vec);
+        //intervals_size_bits.resize(intervals_size_bit_vec.size());
+
+        sdsl::bit_vector bxx(intervals_size_bit_vec.size(), 0);
+        uint64_t one_num = 0;
+        for(uint64_t i=0;i<intervals_size_bit_vec.size();i++){
+            bxx[i] = intervals_size_bit_vec[i];
+            //std::cout << (bxx[i] ? "1" : "0") << std::flush;
+            if(bxx[i]){
+                one_num++;
+            }
+        }
+        //std::cout << "@"<< std::endl;
+        intervals_size_bits.swap(bxx);
+        sdsl::bit_vector::select_1_type b_sel(&intervals_size_bits);
+        intervals_size_selecter.set_vector(&intervals_size_bits);
+        intervals_size_selecter.swap(b_sel);
+        //for(uint64_t i=1;i<=one_num;i++){
+        //    std::cout << "x" << i << "/" << intervals_size_selecter(i) << std::endl;
+        //}
+        //assert(false);
+
         //auto ppp = this->intervals_size_sequence.to_vector();
         //stool::Printer::print(ppp);
 
@@ -589,11 +623,11 @@ public:
         uint64_t m5 = reported_checker.size() / 8;
         std::cout << "checker: " << m5 << " bytes" << std::endl;
 
-        uint64_t m6 = intervals_size_sequence.get_using_memory();
+        uint64_t m6 = intervals_size_bits.size() / 8;
         std::cout << "EF vec: " << m6 << " bytes" << std::endl;
 
-        std::cout << "item num: " << left_ordered_intervals_vec.size() << std::endl;
-        std::cout << "tree size: " << current_left_offset_vec.size() << std::endl;
+        std::cout << "[item num]: " << left_ordered_intervals_vec.size() << std::endl;
+        std::cout << "[tree size]: " << current_left_offset_vec.size() << std::endl;
 
         return m + m1 + m2 + m3 + m4 + m5 + m6;
     }
