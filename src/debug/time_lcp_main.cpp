@@ -5,7 +5,7 @@
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
 #include "stool/src/debug.hpp"
-#include "../include/sampling_lcp_construction/succinct_slcp_constructor.hpp"
+#include "../include/sampling_lcp/succinct_slcp_constructor.hpp"
 
 #include "../include/rlbwt_iterator.hpp"
 
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
         //rlbwt_memory = rlestr.get_using_memory();
         rle_size = rlestr.rle_size();
         textSize = rlestr.str_size();
-        std::vector<uint64_t> correct_slcp = stool::rlbwt::SamplingLCP<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
+        std::vector<uint64_t> correct_slcp = stool::rlbwt::PracticalSamplingLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
         slcp.swap(correct_slcp);
     }
     else if (mode == "sdsl")

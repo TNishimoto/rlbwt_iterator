@@ -6,7 +6,7 @@
 
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
-#include "../include/sampling_lcp_construction/succinct_interval_tree.hpp"
+#include "../include/sampling_lcp/succinct_interval_tree.hpp"
 
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"

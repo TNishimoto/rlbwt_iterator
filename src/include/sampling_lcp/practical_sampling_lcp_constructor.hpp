@@ -4,12 +4,12 @@
 #include <random>
 #include <algorithm>
 #include <unordered_set>
-#include "rlbwt.hpp"
-#include "backward_text.hpp"
+#include "../rlbwt.hpp"
+#include "../backward_text.hpp"
 //#include "forward_sa.hpp"
-#include "rle_farray.hpp"
-#include "rlbwt_functions.hpp"
-#include "./sampling_lcp_construction/multiple_text_position_iterator.hpp"
+#include "../rle_farray.hpp"
+#include "../rlbwt_functions.hpp"
+#include "./multiple_text_position_iterator.hpp"
 
 namespace stool
 {
@@ -18,7 +18,7 @@ namespace rlbwt
 
 
 template <typename RLBWT_STR>
-class SamplingLCP
+class PracticalSamplingLCPConstructor
 {
   private:
   public:
@@ -32,7 +32,7 @@ class SamplingLCP
     std::vector<bool> _checker;
     uint64_t current_lcp = 0;
 
-    SamplingLCP(const RLBWT_STR &__rlbwt) : _rlbwt(__rlbwt)
+    PracticalSamplingLCPConstructor(const RLBWT_STR &__rlbwt) : _rlbwt(__rlbwt)
     {
 
         this->_findexes_lorder = RLBWTFunctions::construct_fpos_array(__rlbwt);
@@ -64,7 +64,7 @@ class SamplingLCP
             {
                 //_d_lcp_vec[*it] = it._distance;
                 auto current_rle_findex = *findex_iterator;
-                uint64_t lcp_interval_special_position = SamplingLCP<RLBWT_STR>::getSpecialDistance(current_rle_findex.first, current_rle_findex.second);
+                uint64_t lcp_interval_special_position = PracticalSamplingLCPConstructor<RLBWT_STR>::getSpecialDistance(current_rle_findex.first, current_rle_findex.second);
                 if (!this->_checker[lcp_interval_special_position])
                 {
                     lcp_interval_special_positions.push_back(lcp_interval_special_position);
@@ -99,8 +99,8 @@ class SamplingLCP
  
         for (auto &rle_lindex_it : this->_undetermined_rle_lindexes_of_LCP)
         {
-            uint64_t left = SamplingLCP<RLBWT_STR>::getSpecialDistance(_previous_lindex_mapper_on_F[rle_lindex_it], 1);
-            uint64_t right = SamplingLCP<RLBWT_STR>::getSpecialDistance(rle_lindex_it, 0);
+            uint64_t left = PracticalSamplingLCPConstructor<RLBWT_STR>::getSpecialDistance(_previous_lindex_mapper_on_F[rle_lindex_it], 1);
+            uint64_t right = PracticalSamplingLCPConstructor<RLBWT_STR>::getSpecialDistance(rle_lindex_it, 0);
 
 
             auto pointer = std::upper_bound(x_lcp_interval_special_positions.begin(), x_lcp_interval_special_positions.end(), left);
@@ -159,7 +159,7 @@ class SamplingLCP
     }
     static std::vector<uint64_t> construct_sampling_lcp_array_lorder(const RLBWT_STR &__rlbwt)
     {
-        SamplingLCP slcp(__rlbwt);
+        PracticalSamplingLCPConstructor slcp(__rlbwt);
         return slcp._sampling_lcp_array_on_L;
     }
 

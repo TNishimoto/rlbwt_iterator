@@ -6,7 +6,7 @@
 #include "stool/src/debug.hpp"
 #include "stool/src/value_array.hpp"
 
-#include "../include/sampling_lcp_construction/variable_fixed_array.hpp"
+#include "../include/sampling_lcp/variable_fixed_array.hpp"
 
 bool SHOW = false;
 
