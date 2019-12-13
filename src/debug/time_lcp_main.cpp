@@ -55,8 +55,9 @@ int main(int argc, char *argv[])
     else if (mode == "sdsl")
     {
 
-        using RLBWT_STR = stool::rlbwt::RLBWT<std::vector<CHAR>, stool::EliasFanoVector>;
-        RLBWT_STR rlestr = stool::rlbwt::Constructor::load_RLBWT_from_file2<CHAR, INDEX>(inputFile);
+        //using RLBWT_STR = stool::rlbwt::RLBWT<std::vector<CHAR>, stool::EliasFanoVector>;
+        using RLBWT_STR = stool::rlbwt::RLBWT<std::vector<CHAR>, std::vector<INDEX>>;
+        RLBWT_STR rlestr = stool::rlbwt::Constructor::load_RLBWT_from_file<CHAR, INDEX>(inputFile);
         //rlbwt_memory = rlestr.get_using_memory();
 
         std::vector<uint64_t> slcp_new = stool::rlbwt::SuccinctSLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(rlestr, true);
@@ -66,11 +67,11 @@ int main(int argc, char *argv[])
     }
     else
     {
-        using RLBWT_STR = stool::rlbwt::RLBWT<std::vector<CHAR>, stool::EliasFanoVector>;
-        RLBWT_STR rlestr = stool::rlbwt::Constructor::load_RLBWT_from_file2<CHAR, INDEX>(inputFile);
+        using RLBWT_STR = stool::rlbwt::RLBWT<std::vector<CHAR>, std::vector<INDEX>>;
+        RLBWT_STR rlestr = stool::rlbwt::Constructor::load_RLBWT_from_file<CHAR, INDEX>(inputFile);
 
         std::cout << "plain : " << (rlestr.rle_size() * sizeof(uint64_t)) << "Bytes" << std::endl; 
-        std::cout << "elias : " << (rlestr.get_run_vec()->get_using_memory() ) << "Bytes" << std::endl; 
+        //std::cout << "elias : " << (rlestr.get_run_vec()->get_using_memory() ) << "Bytes" << std::endl; 
         //rlbwt_memory = rlestr.get_using_memory();
 
         mode = "new";

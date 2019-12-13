@@ -129,6 +129,7 @@ public:
         {
             reportedIndexes.clear();
             //std::cout << "nit size:" << nit.items.size() << std::endl;
+            //std::cout << findex_iterator.size() << ", " << std::flush;
             while (!findex_iterator.isEnd())
             {
                 auto current_rle_findex = *findex_iterator;
