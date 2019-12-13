@@ -55,14 +55,17 @@ public:
     static uint64_t get_bits(const vector<uint64_t> &arr, uint64_t i, uint8_t width)
     {
 
-        int16_t x = i / 64;
+        uint64_t x = i / 64;
         int16_t y = i % 64;
         if (y + width <= 64)
         {
+            assert(x < arr.size());
             return BinaryOperations::get_bits(arr[x], y, width);
         }
         else
         {
+            assert(x < arr.size() && (x+1) < arr.size());
+
             uint8_t lower_bits = 64 - y;
             uint8_t upper_bits = width - lower_bits;
             uint64_t lower = BinaryOperations::get_bits(arr[x], y, lower_bits);
@@ -74,10 +77,11 @@ public:
 
     static void write_bits(vector<uint64_t> &arr, uint64_t value, uint64_t i, uint8_t width)
     {
-        int16_t x = i / 64;
+        uint64_t x = i / 64;
         int16_t y = i % 64;
         if (y + width <= 64)
         {
+            assert(x < arr.size());
             arr[x] = BinaryOperations::write_bits(arr[x], value, y, width);
         }
         else
@@ -86,6 +90,7 @@ public:
             uint8_t upper_bits = width - lower_bits;
             uint64_t lower_value = BinaryOperations::get_bits(value, 0, lower_bits);
             uint64_t upper_value = BinaryOperations::get_bits(value, lower_bits, upper_bits);
+            assert(x < arr.size() && (x+1) < arr.size());
 
             arr[x] = BinaryOperations::write_bits(arr[x], lower_value, y, lower_bits);
             arr[x+1] =  BinaryOperations::write_bits(arr[x+1], upper_value, 0, upper_bits);

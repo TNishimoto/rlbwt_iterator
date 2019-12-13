@@ -104,7 +104,7 @@ public:
 
         std::vector<bool> interval_flag_vec = construct_interval_flag_vec(selecter);
         std::vector<uint64_t> zero_lcp_findexes = construct_zero_lcp_findexes(selecter, _findexes_lorder);
-        std::cout << "memory(zero_lcp_findexes): " << (zero_lcp_findexes.size() * sizeof(uint64_t) )  << " bytes" << std::endl;
+        std::cout << "memory(zero_lcp_findexes): " << (zero_lcp_findexes.size() * sizeof(uint64_t)) << " bytes" << std::endl;
 
         RLBWTLeftIntervals left_intervals;
         RLBWTRightIntervals<SELECTER> right_intervals(&selecter);
@@ -123,23 +123,30 @@ public:
 
         std::vector<uint64_t> __sampling_lcp_array_on_L;
         __sampling_lcp_array_on_L.resize(run_size, 0);
-        std::cout << "memory(__sampling_lcp_array_on_L): " << (__sampling_lcp_array_on_L.size() * sizeof(uint64_t) )  << " bytes" << std::endl;
-        std::vector<uint64_t> reportedIndexes;
+        std::cout << "memory(__sampling_lcp_array_on_L): " << (__sampling_lcp_array_on_L.size() * sizeof(uint64_t)) << " bytes" << std::endl;
         while (nokori_counter > 0)
         {
-            reportedIndexes.clear();
+            //reportedIndexes.clear();
+            std::vector<uint64_t> reportedIndexes;
+
             //std::cout << "nit size:" << nit.items.size() << std::endl;
             //std::cout << findex_iterator.size() << ", " << std::flush;
+
             while (!findex_iterator.isEnd())
             {
                 auto current_rle_findex = *findex_iterator;
+
                 uint64_t pos = getSpecialDistance(current_rle_findex.first, current_rle_findex.second);
+
                 if (!_access_checker[pos])
                 {
                     auto r = intervalTree.report_and_remove(pos);
-                    for (auto rep : r)
-                    {
+                    for(uint64_t i=0;i<r.size();i++){
+                        uint64_t rep = r[i];
                         nokori_counter--;
+                        assert(rep < run_size);
+                        assert(selecter.get_next_c_index(rep) < run_size);
+
                         reportedIndexes.push_back(selecter.get_next_c_index(rep));
                     }
 
@@ -148,10 +155,15 @@ public:
 
                 ++findex_iterator;
             }
+
             uint64_t distance = findex_iterator.distance();
+
             findex_iterator.process();
+
             for (auto p : reportedIndexes)
             {
+                //std::cout << p << "/" << run_size << std::endl;
+                assert(p < run_size);
                 __sampling_lcp_array_on_L[p] = distance + 1;
                 findex_iterator.add(_findexes_lorder[p]);
             }
@@ -192,7 +204,6 @@ public:
             }
             */
 
-
             if (run_size < UINT16_MAX)
             {
                 return compute_slcp_array_on_L<uint16_t>(_rlbwt, wts, _findexes_lorder2);
@@ -212,7 +223,7 @@ public:
             selecter.build(_rlbwt);
             auto _findexes_lorder = RLBWTFunctions::construct_fpos_array(_rlbwt);
 
-            std::cout << "memory(_findexes_lorder): " << (_findexes_lorder.size() * sizeof(uint64_t)) << " bytes"<< std::endl;
+            std::cout << "memory(_findexes_lorder): " << (_findexes_lorder.size() * sizeof(uint64_t)) << " bytes" << std::endl;
             if (run_size < UINT16_MAX)
             {
                 return compute_slcp_array_on_L<uint16_t>(_rlbwt, selecter, _findexes_lorder);
