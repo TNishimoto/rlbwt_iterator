@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 
     std::vector<uint64_t> r4;
     for(auto it : efs2) r4.push_back(it);
-stool::Printer::print(r4);
+    stool::Printer::print(r4);
 
 
 

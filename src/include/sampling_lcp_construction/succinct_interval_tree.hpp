@@ -7,6 +7,7 @@
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
 #include "../elias_fano_vector.hpp"
+#include "./variable_fixed_array.hpp"
 
 namespace stool
 {
@@ -167,8 +168,10 @@ public:
 
     std::vector<INTERVAL_SUM> left_ordered_intervals_vec;
     std::vector<INTERVAL_SINGLE> right_ordered_intervals_vec;
-    std::vector<INTERVAL_SINGLE> current_left_offset_vec;
-    std::vector<INTERVAL_SINGLE> current_right_offset_vec;
+    //std::vector<INTERVAL_SINGLE> current_left_offset_vec;
+    stool::VariableFixedArray current_left_offsets;
+    //std::vector<INTERVAL_SINGLE> current_right_offset_vec;
+    stool::VariableFixedArray current_right_offsets;
 
     //stool::EliasFanoVector intervals_size_sequence;
 
@@ -350,6 +353,38 @@ public:
     {
         return iterator(this, false);
     }
+    uint64_t get_current_left_offset(uint64_t rank){
+        //uint64_t x = this->current_left_offset_vec[rank];
+        uint64_t y = this->current_left_offsets[rank];
+        //assert(x == y);
+        return y;
+    }
+    void add_current_left_offset(uint64_t rank){
+        //this->current_left_offset_vec[rank]++;
+
+        uint64_t y = this->current_left_offsets[rank];
+        this->current_left_offsets.change(rank, y+1);
+
+        //assert(this->current_left_offset_vec[rank] == this->current_left_offsets[rank]);
+
+    }
+
+    uint64_t get_current_right_offset(uint64_t rank){
+        //uint64_t x = this->current_right_offset_vec[rank];
+        uint64_t y = this->current_right_offsets[rank];
+        //assert(x == y);
+        return y;
+    }
+    void add_current_right_offset(uint64_t rank){
+        //this->current_right_offset_vec[rank]++;
+
+        uint64_t y = this->current_right_offsets[rank];
+        this->current_right_offsets.change(rank, y+1);
+
+        //assert(this->current_right_offset_vec[rank] == this->current_right_offsets[rank]);
+
+
+    }
 
     void construct(LEFT_ARRAY *_left_array, RIGHT_ARRAY *_right_array, std::vector<bool> &item_flag_vec)
     {
@@ -393,8 +428,8 @@ public:
             reported_checker[i] = !item_flag_vec[i];
         }
 
-        current_left_offset_vec.resize(this->get_tree_size(), 0);
-        current_right_offset_vec.resize(this->get_tree_size(), 0);
+        //current_left_offset_vec.resize(this->get_tree_size(), 0);
+        //current_right_offset_vec.resize(this->get_tree_size(), 0);
         std::vector<bool> checker;
         checker.resize(n, false);
         /*
@@ -492,6 +527,9 @@ public:
         sdsl::bit_vector::select_1_type b_sel(&intervals_size_bits);
         intervals_size_selecter.set_vector(&intervals_size_bits);
         intervals_size_selecter.swap(b_sel);
+        this->current_left_offsets.build(&intervals_size_selecter, this->get_tree_size());
+        this->current_right_offsets.build(&intervals_size_selecter, this->get_tree_size());
+
         //for(uint64_t i=1;i<=one_num;i++){
         //    std::cout << "x" << i << "/" << intervals_size_selecter(i) << std::endl;
         //}
@@ -541,7 +579,7 @@ public:
         // std::cout << "search: mid = " << mid_point << "/" << x <<  p.to_string() << "start: = " << start << ", stop = " << stop << std::endl;
         if (x < mid_point)
         {
-            uint64_t t = start + this->current_left_offset_vec[rank];
+            uint64_t t = start + this->get_current_left_offset(rank);
             //std::cout << "offset = " << (t -start) << std::endl;
             for (k = t; k <= stop; k++)
             {
@@ -555,7 +593,7 @@ public:
                     {
                         output.push_back(item_number);
                         //std::cout << "reportX[" << current_item.first << ", " << current_item.second << "]" << std::endl;
-                        this->current_left_offset_vec[rank]++;
+                        this->add_current_left_offset(rank);
                         reported_checker[item_number] = true;
                     }
                     else
@@ -564,14 +602,14 @@ public:
                     }
                 }
                 else
-                {
-                    this->current_left_offset_vec[rank]++;
+                {                        
+                    this->add_current_left_offset(rank);
                 }
             }
         }
         else
         {
-            uint64_t t = start + this->current_right_offset_vec[rank];
+            uint64_t t = start + this->get_current_right_offset(rank);
             //std::cout << "offset = " <<(t-start) << std::endl;
 
             for (k = t; k <= stop; k++)
@@ -588,7 +626,7 @@ public:
                         output.push_back(item_number);
                         //std::cout << "reportY[" << current_item.first << ", " << current_item.second << "]" << std::endl;
                         reported_checker[item_number] = true;
-                        this->current_right_offset_vec[rank]++;
+                        this->add_current_right_offset(rank);
                     }
                     else
                     {
@@ -597,7 +635,7 @@ public:
                 }
                 else
                 {
-                    this->current_right_offset_vec[rank]++;
+                    this->add_current_right_offset(rank);
                 }
             }
         }
@@ -606,28 +644,28 @@ public:
     uint64_t get_using_memory() const {
         uint64_t m = 8 + 8 + ((tree_size_vec.size() + leave_size_vec.size() + depth_first_node_rank_vec.size()) * sizeof(uint64_t)) ;
 
-        std::cout << "basic: " << m << " bytes" << std::endl;
+        //std::cout << "basic: " << m << " bytes" << std::endl;
 
         uint64_t m1 = left_ordered_intervals_vec.size() * sizeof(INTERVAL_SUM);
-        std::cout << "left vec: " << m1 << " bytes" << std::endl;
+        //std::cout << "left vec: " << m1 << " bytes" << std::endl;
 
         uint64_t m2 = right_ordered_intervals_vec.size() * sizeof(INTERVAL_SINGLE);
-        std::cout << "right vec: " << m2 << " bytes" << std::endl;
+        //std::cout << "right vec: " << m2 << " bytes" << std::endl;
 
-        uint64_t m3 = current_left_offset_vec.size() * sizeof(INTERVAL_SINGLE);
-        std::cout << "left offset vec: " << m3 << " bytes" << std::endl;
+        uint64_t m3 = this->current_left_offsets.get_using_memory();
+        //std::cout << "left offset vec: " << m3 << " bytes" << std::endl;
 
-        uint64_t m4 = current_right_offset_vec.size() * sizeof(INTERVAL_SINGLE);
-        std::cout << "right offset vec: " << m4 << " bytes" << std::endl;
+        uint64_t m4 = this->current_right_offsets.get_using_memory();
+        //std::cout << "right offset vec: " << m4 << " bytes" << std::endl;
 
         uint64_t m5 = reported_checker.size() / 8;
-        std::cout << "checker: " << m5 << " bytes" << std::endl;
+        //std::cout << "checker: " << m5 << " bytes" << std::endl;
 
         uint64_t m6 = intervals_size_bits.size() / 8;
-        std::cout << "EF vec: " << m6 << " bytes" << std::endl;
+        //std::cout << "EF vec: " << m6 << " bytes" << std::endl;
 
-        std::cout << "[item num]: " << left_ordered_intervals_vec.size() << std::endl;
-        std::cout << "[tree size]: " << current_left_offset_vec.size() << std::endl;
+        //std::cout << "[item num]: " << left_ordered_intervals_vec.size() << std::endl;
+        //std::cout << "[tree size]: " << this->get_tree_size() << std::endl;
 
         return m + m1 + m2 + m3 + m4 + m5 + m6;
     }
