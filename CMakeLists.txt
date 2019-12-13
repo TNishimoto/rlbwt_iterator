@@ -9,9 +9,9 @@ cmake_minimum_required(VERSION 3.1)
 endif(CMAKE_OLD)
 
 if(CPP_STATIC)
-set(CMAKE_CXX_FLAGS "-std=c++14 -m64 -Wall -Wextra -static")
+set(CMAKE_CXX_FLAGS "-std=c++11 -m64 -Wall -Wextra -static")
 else(CPP_STATIC)
-set(CMAKE_CXX_FLAGS "-std=c++14 -m64 -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-std=c++11 -m64 -Wall -Wextra")
 endif(CPP_STATIC)
 
 #set(CMAKE_CXX_FLAGS_DEBUG  "-g -O0 -DDEBUG")

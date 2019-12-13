@@ -492,7 +492,7 @@ public:
                     tmp_right_interval_ids[i] = i;
                 }
 
-                std::sort(tmp_right_interval_ids.begin(), tmp_right_interval_ids.end(), [&](auto const &lhs, auto const &rhs) {
+                std::sort(tmp_right_interval_ids.begin(), tmp_right_interval_ids.end(), [&](const INTERVAL_SINGLE &lhs, const INTERVAL_SINGLE &rhs) {
                     ITEM current_item1 = this->get_item(tmp_intervals[lhs]);
                     ITEM current_item2 = this->get_item(tmp_intervals[rhs]);
                     return current_item1.second > current_item2.second;

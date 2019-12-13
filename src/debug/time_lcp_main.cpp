@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     std::cout << "Mode : " << mode << std::endl;
 
     std::cout << "The length of the input text : " << textSize << std::endl;
-    double charperms = (double)textSize / elapsed;
+    //double charperms = (double)textSize / elapsed;
     std::cout << "The number of runs : " << rle_size << std::endl;
     std::cout << "Ratio : " << (double)rle_size / (double)textSize << std::endl;
     std::cout << "The memory of RLBWT : " << rlbwt_memory << std::endl;

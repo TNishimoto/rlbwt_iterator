@@ -147,7 +147,7 @@ void test(RLBWT_TYPE &rlestr, string &text, string name){
 int main(int argc, char *argv[])
 {
 using CHAR = char;
-using INDEX = uint64_t;
+//using INDEX = uint64_t;
     cmdline::parser p;
     p.add<string>("input_file", 'i', "input file name", false, "");
     p.add<string>("mode", 'm', "mode", true);

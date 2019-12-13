@@ -185,7 +185,7 @@ class SuccinctFIndexesLOrder{
         for(uint64_t i=0;i<rle_size;i++){
             chars[i] = _rlbwt.get_char_by_run_index(i);
         }
-        std::sort(chars.begin(), chars.end(), [&](auto const &lhs, auto const &rhs) {
+        std::sort(chars.begin(), chars.end(), [&](const typename RLBWT_STR::CHAR &lhs, const typename RLBWT_STR::CHAR &rhs) {
                     return (uint64_t)lhs < (uint64_t)rhs;
                 });
 
