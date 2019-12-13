@@ -11,8 +11,8 @@
 //#include "common/print.hpp"
 #include "other_functions.hpp"
 #include "OnlineRlbwt/online_rlbwt.hpp"
-#include "sd_vector.hpp"
-#include "elias_fano_vector.hpp"
+//#include "sd_vector.hpp"
+//#include "elias_fano_vector.hpp"
 //using namespace std;
 
 namespace stool

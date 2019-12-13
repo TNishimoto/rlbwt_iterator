@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include "stool/src/debug.hpp"
 #include <sdsl/wavelet_trees.hpp>
-#include "../elias_fano_vector.hpp"
+#include "stool/src/elias_fano_vector.hpp"
 
 namespace stool
 {

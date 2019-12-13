@@ -66,15 +66,15 @@ target_link_libraries(fn online_rlbwt Basics BTree sdsl)
 #target_link_libraries(test.out online_rlbwt Basics BTree)
 
 
-##add_executable(compress.out src/main/compress_main.cpp)
-##target_link_libraries(compress.out fn)
+add_executable(compress.out src/main/compress_main.cpp)
+target_link_libraries(compress.out fn)
 
 add_executable(slcp.out src/debug/slcp_main.cpp)
 target_link_libraries(slcp.out fn)
 
 
-##add_executable(check.out src/debug/check_main.cpp)
-##target_link_libraries(check.out fn)
+add_executable(check.out src/debug/check_main.cpp)
+target_link_libraries(check.out fn)
 
 ##add_executable(time.out src/debug/time_main.cpp)
 ##target_link_libraries(time.out fn)

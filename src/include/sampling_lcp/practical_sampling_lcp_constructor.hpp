@@ -184,6 +184,8 @@ class PracticalSamplingLCPConstructor
         //to_ylcp(slcp_lorder, yf);
     }
 
+
+
     /*
     static void to_ylcp(std::vector<uint64_t> &slcp, std::vector<uint64_t> &yf)
     {

@@ -8,6 +8,7 @@
 #include "backward_text.hpp"
 #include "forward_sa.hpp"
 #include "./sampling_lcp/practical_sampling_lcp_constructor.hpp"
+#include "./sampling_lcp/succinct_slcp_constructor.hpp"
 #include "rlbwt_functions.hpp"
 
 namespace stool
@@ -68,7 +69,7 @@ public:
       bool b = (_sa_iterator) != (rhs._sa_iterator);
       return b;
     }
-
+  /*
     template <typename RLBWT_STR>
     static std::vector<INDEX> construct_sampling_lcp_array(RLBWT_STR &rlbwt, typename BackwardText<typename RLBWT_STR::char_type, INDEX>::iterator &&beginIt, typename BackwardText<typename RLBWT_STR::char_type, INDEX>::iterator &&endIt)
     {
@@ -87,6 +88,7 @@ public:
       }
       return samp_lcp_vec;
     }
+    */
     /*
   template <typename CHAR = char>
   static std::vector<INDEX> construct_lcp_array(RLBWT<CHAR> &rlbwt, BackwardTextIterator<CHAR> &&beginIt, BackwardTextIterator<CHAR> &&endIt)
@@ -187,12 +189,17 @@ public:
     //using CHAR = typename RLBWT_STR::char_type;
 
     //INDEX _str_size = _rlbwt->str_size();
+    //std::vector<INDEX> succ_slcp_lorder = PracticalSamplingLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(*_rlbwt);
+    std::vector<INDEX> succ_slcp_lorder = SuccinctSLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(*_rlbwt, false);
+
+
     std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = SA::construct_sampling_sa(_rlbwt);
     std::vector<INDEX> _first_psa = std::move(pairVec.first);
     std::vector<INDEX> _last_psa = std::move(pairVec.second);
     INDEX _first_psa_value = _first_psa[0];
 
-    std::vector<INDEX> succ_slcp_yorder = PracticalSamplingLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array(*_rlbwt, _last_psa);
+    //std::vector<INDEX> succ_slcp_yorder = PracticalSamplingLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array(*_rlbwt, _last_psa);
+    std::vector<INDEX> succ_slcp_yorder = PracticalSamplingLCPConstructor<RLBWT_STR>::to_succ_sampling_lcp_array_yorder(std::move(succ_slcp_lorder),*_rlbwt, _last_psa);
 
     auto _succ_ssa_yorder = SA::construct_succ_ssa_yorder(std::move(_first_psa), _last_psa);
     auto _sorted_end_ssa = SA::construct_sorted_end_ssa(std::move(_last_psa));

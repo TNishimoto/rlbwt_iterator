@@ -11,8 +11,7 @@
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
 #include <sdsl/bit_vectors.hpp>
-#include "../include/elias_fano_vector.hpp"
-
+#include "stool/src/elias_fano_vector.hpp"
 
 using namespace std;
 using namespace stool;
@@ -168,9 +167,9 @@ using INDEX = uint64_t;
         RLBWT_TYPE rlestr;
         test(rlestr, text, "Vector");
 
-        using RLBWT_TYPE1 = RLBWT<std::vector<CHAR>, SDVectorSeq>;
-        RLBWT_TYPE1 rlestr1;
-        test(rlestr1, text, "SDSL");
+        //using RLBWT_TYPE1 = RLBWT<std::vector<CHAR>, SDVectorSeq>;
+        //RLBWT_TYPE1 rlestr1;
+        //test(rlestr1, text, "SDSL");
 
 
         using RLBWT_TYPE2 = RLBWT<std::vector<CHAR>, stool::EliasFanoVector>;

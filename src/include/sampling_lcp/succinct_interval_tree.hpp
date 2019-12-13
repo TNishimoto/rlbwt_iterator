@@ -6,7 +6,7 @@
 
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
-#include "../elias_fano_vector.hpp"
+#include "stool/src/elias_fano_vector.hpp"
 #include "./variable_fixed_array.hpp"
 
 namespace stool
