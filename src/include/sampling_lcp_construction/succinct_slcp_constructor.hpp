@@ -93,6 +93,7 @@ public:
     template <typename RLE_SIZE_TYPE, typename SELECTER, typename FINDEXES_VEC>
     static std::vector<uint64_t> compute_slcp_array_on_L(const RLBWT_STR &_rlbwt, SELECTER &selecter, FINDEXES_VEC &_findexes_lorder)
     {
+        std::cout << "memory(selecter):" << selecter.get_using_memory() << " bytes" << std::endl;
         uint64_t run_size = _rlbwt.rle_size();
         using UNSIGNED_CHAR = typename make_unsigned<typename RLBWT_STR::CHAR>::type;
 
@@ -103,12 +104,15 @@ public:
 
         std::vector<bool> interval_flag_vec = construct_interval_flag_vec(selecter);
         std::vector<uint64_t> zero_lcp_findexes = construct_zero_lcp_findexes(selecter, _findexes_lorder);
+        std::cout << "memory(zero_lcp_findexes): " << (zero_lcp_findexes.size() * sizeof(uint64_t) )  << " bytes" << std::endl;
 
         RLBWTLeftIntervals left_intervals;
         RLBWTRightIntervals<SELECTER> right_intervals(&selecter);
         SuccinctIntervalTree<RLE_SIZE_TYPE, UNSIGNED_CHAR, RLBWTLeftIntervals, RLBWTRightIntervals<SELECTER>> intervalTree;
         intervalTree.initialize(getSpecialDistance(run_size, 1));
         intervalTree.construct(&left_intervals, &right_intervals, interval_flag_vec);
+
+        std::cout << "memory(intervalTree): " << intervalTree.get_using_memory() << " bytes" << std::endl;
 
         //Printer::print(zero_lcp_findexes);
 
@@ -118,10 +122,12 @@ public:
         uint64_t nokori_counter = interval_count;
 
         std::vector<uint64_t> __sampling_lcp_array_on_L;
-        __sampling_lcp_array_on_L.resize(_rlbwt.rle_size(), 0);
+        __sampling_lcp_array_on_L.resize(run_size, 0);
+        std::cout << "memory(__sampling_lcp_array_on_L): " << (__sampling_lcp_array_on_L.size() * sizeof(uint64_t) )  << " bytes" << std::endl;
+        std::vector<uint64_t> reportedIndexes;
         while (nokori_counter > 0)
         {
-            std::vector<uint64_t> reportedIndexes;
+            reportedIndexes.clear();
             //std::cout << "nit size:" << nit.items.size() << std::endl;
             while (!findex_iterator.isEnd())
             {
@@ -204,6 +210,8 @@ public:
             SelectOnRLBWT<uint64_t> selecter;
             selecter.build(_rlbwt);
             auto _findexes_lorder = RLBWTFunctions::construct_fpos_array(_rlbwt);
+
+            std::cout << "memory(_findexes_lorder): " << (_findexes_lorder.size() * sizeof(uint64_t)) << " bytes"<< std::endl;
             if (run_size < UINT16_MAX)
             {
                 return compute_slcp_array_on_L<uint16_t>(_rlbwt, selecter, _findexes_lorder);

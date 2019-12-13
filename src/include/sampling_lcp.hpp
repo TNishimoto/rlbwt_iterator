@@ -31,7 +31,6 @@ class SamplingLCP
     std::vector<uint64_t> _sampling_lcp_array_on_L;
     std::vector<bool> _checker;
     uint64_t current_lcp = 0;
-    uint64_t special_counter = 0;
 
     SamplingLCP(const RLBWT_STR &__rlbwt) : _rlbwt(__rlbwt)
     {
@@ -85,7 +84,6 @@ class SamplingLCP
             //std::cout << it.size() << std::endl;
             //it.succ_process(result);
         }
-        std::cout << "special counter: " << this->special_counter << std::endl;
     }
     bool search(std::vector<uint64_t> &x_lcp_interval_special_positions, std::vector<uint64_t> &result, uint64_t distance)
     {
@@ -101,7 +99,6 @@ class SamplingLCP
  
         for (auto &rle_lindex_it : this->_undetermined_rle_lindexes_of_LCP)
         {
-            special_counter++;
             uint64_t left = SamplingLCP<RLBWT_STR>::getSpecialDistance(_previous_lindex_mapper_on_F[rle_lindex_it], 1);
             uint64_t right = SamplingLCP<RLBWT_STR>::getSpecialDistance(rle_lindex_it, 0);
 

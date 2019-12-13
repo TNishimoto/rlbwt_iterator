@@ -373,24 +373,6 @@ public:
         }
         this->item_count = pp;
 
-        /*
-        std::vector<INTERVAL_SUM> _items;
-        _items.resize(this->item_count, 0);
-        pp = 0;
-        for(uint64_t i=0;i<item_flag_vec.size();i++){
-            if(item_flag_vec[i]){
-                _items[pp++] = i;
-            }
-        }
-
-
-
-        std::sort(_items.begin(), _items.end(), [&](auto const &lhs, auto const &rhs) {
-            return (*this->left_array)[lhs] < (*this->left_array)[rhs];
-        });
-        */
-
-        //this->items.swap(_items);
         uint64_t n = this->get_original_size();
         reported_checker.resize(item_flag_vec.size(), false);
         for (uint64_t i = 0; i < item_flag_vec.size(); i++)
@@ -587,7 +569,34 @@ public:
         }
         return x < mid_point;
     }
+    uint64_t get_using_memory() const {
+        uint64_t m = 8 + 8 + ((tree_size_vec.size() + leave_size_vec.size() + depth_first_node_rank_vec.size()) * sizeof(uint64_t)) ;
 
+        std::cout << "basic: " << m << " bytes" << std::endl;
+
+        uint64_t m1 = left_ordered_intervals_vec.size() * sizeof(INTERVAL_SUM);
+        std::cout << "left vec: " << m1 << " bytes" << std::endl;
+
+        uint64_t m2 = right_ordered_intervals_vec.size() * sizeof(INTERVAL_SINGLE);
+        std::cout << "right vec: " << m2 << " bytes" << std::endl;
+
+        uint64_t m3 = current_left_offset_vec.size() * sizeof(INTERVAL_SINGLE);
+        std::cout << "left offset vec: " << m3 << " bytes" << std::endl;
+
+        uint64_t m4 = current_right_offset_vec.size() * sizeof(INTERVAL_SINGLE);
+        std::cout << "right offset vec: " << m4 << " bytes" << std::endl;
+
+        uint64_t m5 = reported_checker.size() / 8;
+        std::cout << "checker: " << m5 << " bytes" << std::endl;
+
+        uint64_t m6 = intervals_size_sequence.get_using_memory();
+        std::cout << "EF vec: " << m6 << " bytes" << std::endl;
+
+        std::cout << "item num: " << left_ordered_intervals_vec.size() << std::endl;
+        std::cout << "tree size: " << current_left_offset_vec.size() << std::endl;
+
+        return m + m1 + m2 + m3 + m4 + m5 + m6;
+    }
     std::string get_info(uint64_t line_rank, uint64_t height)
     {
         uint64_t rank = this->get_rank(line_rank, height);

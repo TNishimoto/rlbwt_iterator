@@ -394,6 +394,10 @@ public:
         auto p = iterator(this, _size);
         return p;
     }
+
+    uint64_t get_using_memory() const {
+        return this->lower_bits.get_using_memory() + (this->upper_bits.size()/8) + 18;
+    }
 };
 
 } // namespace stool

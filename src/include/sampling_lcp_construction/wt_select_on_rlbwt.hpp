@@ -72,6 +72,9 @@ public:
     {
         return std::numeric_limits<RLE_SIZE_TYPE>::max();
     }
+    uint64_t get_using_memory() const {
+        return (next_c_index_vector.size() * sizeof(RLE_SIZE_TYPE)) + (first_c_flag_vec.size() / 8);
+    }
 };
 
 template <typename CHAR, typename WT>
@@ -123,6 +126,9 @@ public:
     uint64_t null_flag()
     {
         return std::numeric_limits<uint64_t>::max();
+    }
+    uint64_t get_using_memory()  const {
+        return 8;
     }
 
     /*
@@ -200,6 +206,10 @@ class SuccinctFIndexesLOrder{
         uint64_t rank = wt->rank(i+1, c);
 
         return this->X[pos + rank-1];
+    }
+    uint64_t get_using_memory() const {
+        return 1 + (C_on_rlbwt.size() * sizeof(uint64_t));
+
     }
 
     template <typename RLBWT_STR>

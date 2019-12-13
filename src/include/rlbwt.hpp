@@ -248,6 +248,24 @@ public:
         return std::pair<INDEX, INDEX>(lindex, diff);
     }
     /*
+    uint64_t get_using_memory() const {
+        uint64_t m = 0;
+        if(is_same<CHARVEC, std::vector<CHAR>>::value ){
+            m += this->rle_size() * sizeof(CHAR);
+        }else{
+            m += this->char_vec->get_using_memory();
+        }
+        if(is_same<POWVEC, std::vector<INDEX>>::value){
+            m += this->rle_size() * sizeof(INDEX);
+
+        }else{
+            m += this->run_vec->get_using_memory();            
+        }
+        return m;
+
+    }
+    */
+    /*
     stool::rlbwt::ForwardBWT<CHAR, INDEX, CHARVEC,POWVEC> get_bwt(){
         return stool::rlbwt::ForwardBWT<CHAR, INDEX, CHARVEC,POWVEC>(this->char_vec, this->run_vec);
     }

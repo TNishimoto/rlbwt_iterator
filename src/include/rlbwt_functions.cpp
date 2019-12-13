@@ -66,6 +66,5 @@ template<> void Constructor::construct_from_string(RLBWT<std::vector<char>, stoo
 
 
 
-
 } // namespace rlbwt
 } // namespace stool

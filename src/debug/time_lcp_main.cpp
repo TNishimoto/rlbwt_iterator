@@ -2,15 +2,12 @@
 #include <chrono>
 #include "../common/print_rlbwt.hpp"
 
-
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
 #include "stool/src/debug.hpp"
 #include "../include/sampling_lcp_construction/succinct_slcp_constructor.hpp"
 
 #include "../include/rlbwt_iterator.hpp"
-
-
 
 using namespace std;
 using namespace stool;
@@ -19,8 +16,6 @@ using namespace stool::rlbwt;
 using CHAR = char;
 using INDEX = uint64_t;
 bool SHOW = false;
-
-
 
 int main(int argc, char *argv[])
 {
@@ -42,23 +37,51 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    stool::rlbwt::RLBWT<std::vector<CHAR>, std::vector<INDEX> > rlestr = stool::rlbwt::Constructor::load_RLBWT_from_file<CHAR, INDEX>(inputFile);
+    //
+    uint64_t rlbwt_memory = 0;
+    uint64_t rle_size = 0;
+    uint64_t textSize = 0;
     std::vector<uint64_t> slcp;
     auto start = std::chrono::system_clock::now();
-    if(mode == "old"){
+    if (mode == "old")
+    {
+        stool::rlbwt::RLBWT<std::vector<CHAR>, std::vector<INDEX>> rlestr = stool::rlbwt::Constructor::load_RLBWT_from_file<CHAR, INDEX>(inputFile);
+        //rlbwt_memory = rlestr.get_using_memory();
+        rle_size = rlestr.rle_size();
+        textSize = rlestr.str_size();
         std::vector<uint64_t> correct_slcp = stool::rlbwt::SamplingLCP<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
         slcp.swap(correct_slcp);
-    }else if(mode == "sdsl"){
-        std::vector<uint64_t> slcp_new = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr, true);
+    }
+    else if (mode == "sdsl")
+    {
+
+        using RLBWT_STR = stool::rlbwt::RLBWT<std::vector<CHAR>, stool::EliasFanoVector>;
+        RLBWT_STR rlestr = stool::rlbwt::Constructor::load_RLBWT_from_file2<CHAR, INDEX>(inputFile);
+        //rlbwt_memory = rlestr.get_using_memory();
+
+        std::vector<uint64_t> slcp_new = stool::rlbwt::SuccinctSLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(rlestr, true);
+        rle_size = rlestr.rle_size();
+        textSize = rlestr.str_size();
         slcp.swap(slcp_new);
-    }else{
+    }
+    else
+    {
+        using RLBWT_STR = stool::rlbwt::RLBWT<std::vector<CHAR>, stool::EliasFanoVector>;
+        RLBWT_STR rlestr = stool::rlbwt::Constructor::load_RLBWT_from_file2<CHAR, INDEX>(inputFile);
+
+        std::cout << "plain : " << (rlestr.rle_size() * sizeof(uint64_t)) << "Bytes" << std::endl; 
+        std::cout << "elias : " << (rlestr.get_run_vec()->get_using_memory() ) << "Bytes" << std::endl; 
+        //rlbwt_memory = rlestr.get_using_memory();
+
         mode = "new";
-        std::vector<uint64_t> slcp_new = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr, false);
+
+        std::vector<uint64_t> slcp_new = stool::rlbwt::SuccinctSLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(rlestr, false);
+        rle_size = rlestr.rle_size();
+        textSize = rlestr.str_size();
         slcp.swap(slcp_new);
     }
     auto end = std::chrono::system_clock::now();
     double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    uint64_t textSize = rlestr.str_size();
 
     std::cout << "\033[36m";
     std::cout << "=============RESULT===============" << std::endl;
@@ -67,12 +90,12 @@ int main(int argc, char *argv[])
 
     std::cout << "The length of the input text : " << textSize << std::endl;
     double charperms = (double)textSize / elapsed;
-    std::cout << "The number of runs : " << rlestr.rle_size() << std::endl;
-    std::cout << "Ratio : " << (double)rlestr.rle_size() / (double)textSize << std::endl;
+    std::cout << "The number of runs : " << rle_size << std::endl;
+    std::cout << "Ratio : " << (double)rle_size / (double)textSize << std::endl;
+    std::cout << "The memory of RLBWT : " << rlbwt_memory << std::endl;
 
     std::cout << "Excecution time : " << elapsed << "ms" << std::endl;
     //std::cout << "[" << charperms << "chars/ms]" << std::endl;
     std::cout << "==================================" << std::endl;
     std::cout << "\033[39m" << std::endl;
-
 }

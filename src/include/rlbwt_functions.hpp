@@ -229,6 +229,44 @@ public:
         rlestr.check_rlbwt();
         return rlestr;
     }
+    template <typename CHAR = char, typename INDEX = uint64_t>
+    static RLBWT<std::vector<CHAR>, stool::EliasFanoVector> load_RLBWT_from_file2(std::string filename)
+    {
+        //using INDEX = typename RLBWT<std::vector<CHAR>, stool::EliasFanoVector>::index_type;
+        std::ifstream inp;
+        std::vector<CHAR> char_vec;
+
+        inp.open(filename, std::ios::binary);
+        bool inputFileExist = inp.is_open();
+        if (!inputFileExist)
+        {
+            std::cout << filename << " cannot open." << std::endl;
+
+            throw std::runtime_error("error");
+        }
+
+        inp.seekg(0, std::ios::end);
+        INDEX n = (unsigned long)inp.tellg();
+        inp.seekg(0, std::ios::beg);
+        INDEX len = n / (sizeof(CHAR) + sizeof(INDEX));
+        char_vec.resize(len);
+
+        std::vector<INDEX> pows;
+        pows.resize(len);
+        inp.read((char *)&(char_vec)[0], len * sizeof(CHAR));
+        inp.read((char *)&(pows)[0], len * sizeof(INDEX));
+
+        std::vector<INDEX> run_vec = construct_run_vec(pows);
+        inp.close();
+
+        stool::EliasFanoVector nVec2;
+        nVec2.construct(&run_vec);
+
+        RLBWT<std::vector<CHAR>, stool::EliasFanoVector> rlestr;
+        rlestr.set(std::move(char_vec), std::move(nVec2));
+        rlestr.check_rlbwt();
+        return rlestr;
+    }
 };
 
 } // namespace rlbwt
