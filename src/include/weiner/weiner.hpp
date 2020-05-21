@@ -80,7 +80,7 @@ namespace stool
                 auto v2 = RLBWTFunctions::construct_rle_lf_mapper(_rlbwt);
                 this->lf_mapper.swap(v2);
 
-                this->checkerArray.resize(str_size, false);
+                this->checkerArray.resize(_rlbwt.rle_size(), false);
 
                 this->queue.push(WeinerInterval::get_special());
             }
@@ -132,6 +132,7 @@ namespace stool
                     {
                         uint64_t end_pos = this->fposArray[it.endIndex] + it.endDiff;
                         r.push_back(end_pos);
+                        this->checkerArray[it.endIndex] = true;
                         //std::cout << "PUSH ";
                         //it.print();
                         //it.print2(this->fposArray);
@@ -166,9 +167,12 @@ namespace stool
                             for (auto it : result)
                             {
                                 uint64_t end_pos = this->fposArray[it.endIndex] + it.endDiff;
-                                if (!this->checkerArray[end_pos])
+                                bool b = _rlbwt.get_run(it.endIndex) == (it.endDiff + 1);
+                                if (!b || !this->checkerArray[it.endIndex])
                                 {
                                     r.push_back(end_pos);
+                                    if(b) this->checkerArray[it.endIndex] = true;
+
                                     //std::cout << "PUSH ";
                                     //it.print2(this->fposArray);
                                     this->queue.push(it);
@@ -192,7 +196,8 @@ namespace stool
                     {
                         //std::cout << "LCP[" << (it + 1) << "] = " << this->current_length << std::endl;
                         r[it+1] = this->current_length;
-                        this->checkerArray[it] = true;
+
+                        //this->checkerArray[it] = true;
                     }
                     if (next_lcp_indexes.size() == 0 && this->queue.size() == 1)
                     {
