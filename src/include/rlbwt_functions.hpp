@@ -32,6 +32,10 @@ public:
         INDEX succ_sa_index = fpos_vec[lindex] + diff;
         return succ_sa_index;
     }
+    /*
+    Let R be the output array of length r.
+    R[i] stores the starting position of the F-run corresponding to i-th L-run.
+    */
     template <typename RLBWT_STR>
     static std::vector<typename RLBWT_STR::index_type> construct_fpos_array(const RLBWT_STR &rlbwt)
     {
@@ -47,6 +51,10 @@ public:
         }
         return output;
     }
+    /*
+    Let R be the output array of length r.
+    R[i] stores the index of the L-run corresponding to i-th F-run.
+    */
     template <typename RLBWT_STR>
     static std::vector<typename RLBWT_STR::index_type> construct_rle_fl_mapper(const RLBWT_STR &rlbwt)
     {
@@ -72,6 +80,10 @@ public:
         return indexes;
     }
 
+    /*
+    Let R be the output array of length r.
+    R[i] stores the index of the F-run corresponding to i-th L-run.
+    */
     template <typename RLBWT_STR>
     static std::vector<typename RLBWT_STR::index_type> construct_rle_lf_mapper(const RLBWT_STR &rlbwt)
     {

@@ -104,6 +104,12 @@ public:
 class RLBWTFunctions2
 {
 public:
+    /*
+    Let R be the output array.
+    The length of R is r.
+    Let f_{i} be the F-run such that i-th L-run corresponds the F-run.
+    R[i] stores the index of the L-run contains the starting position of f_{i}.
+    */
     template <typename RLBWT_STR>
     static std::vector<uint64_t> construct_rle_lf_lorder(const RLBWT_STR &__rlbwt)
     {
