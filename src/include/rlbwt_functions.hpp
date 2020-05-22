@@ -211,6 +211,7 @@ public:
     template <typename CHAR = char, typename INDEX = uint64_t>
     static RLBWT<std::vector<CHAR>, std::vector<INDEX>> load_RLBWT_from_file(std::string filename)
     {
+
         std::ifstream inp;
         std::vector<CHAR> char_vec;
 
@@ -240,6 +241,7 @@ public:
         RLBWT<std::vector<CHAR>, std::vector<INDEX>> rlestr;
         rlestr.set(std::move(char_vec), std::move(run_vec));
         rlestr.check_rlbwt();
+
         return rlestr;
     }
     template <typename CHAR = char, typename INDEX = uint64_t>

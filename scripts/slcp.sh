@@ -10,12 +10,12 @@ filearr=( "fib41" "rs.13" "tm29" "dblp.xml.00001.1" "dblp.xml.00001.2" "dblp.xml
 #done
 
 for file in ${filearr[@]}; do
-	echo "sclp test new (sdsl) ${file}"
-    nohup /usr/bin/time -f "#slcp test new (sdsl) ${file}, %e sec, %M KB" ~/rlbwt_iterator/build/time_lcp.out -i ${outputpath}/${file}.rlbwt -m new >> /mnt/server/nishimoto/result/slcp0_new_output.log
+	echo "sclp test new ${file}"
+    nohup /usr/bin/time -f "#slcp test new ${file}, %e sec, %M KB" ~/rlbwt_iterator/build/time_lcp.out -i ${outputpath}/${file}.rlbwt -m new >> /mnt/server/nishimoto/result/slcp0_new_output.log
 done
 
 for file in ${filearr[@]}; do
-	echo "sclp test new (sdsl) ${file}"
-    nohup /usr/bin/time -f "#slcp test new (sdsl) ${file}, %e sec, %M KB" ~/rlbwt_iterator/build/time_lcp.out -i ${outputpath}/${file}.rlbwt -m weiner >> /mnt/server/nishimoto/result/slcp0_weiner_output.log
+	echo "sclp test weiner ${file}"
+    nohup /usr/bin/time -f "#slcp test weiner ${file}, %e sec, %M KB" ~/rlbwt_iterator/build/time_lcp.out -i ${outputpath}/${file}.rlbwt -m weiner >> /mnt/server/nishimoto/result/slcp0_weiner_output.log
 done
 
