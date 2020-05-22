@@ -6,65 +6,28 @@
 #include <unordered_map>
 #include <queue>
 
-#include "../rlbwt.hpp"
-#include "../backward_text.hpp"
-#include "../rle_farray.hpp"
-#include "../rlbwt_functions.hpp"
+#include "./range_distinct.hpp"
 #include "stool/src/debug.hpp"
 
 namespace stool
 {
     namespace rlbwt
     {
-        struct WeinerInterval
-        {
-            uint64_t beginIndex;
-            uint64_t beginDiff;
-            uint64_t endIndex;
-            uint64_t endDiff;
-
-            void print()
-            {
-                std::cout << "[" << this->beginIndex << ", " << this->beginDiff << ", " << this->endIndex << ", " << this->endDiff << "]" << std::endl;
-            }
-            void print2(std::vector<uint64_t> &fposArray)
-            {
-                if (this->is_special())
-                {
-                    std::cout << "[BOTTOM]" << std::endl;
-                }
-                else
-                {
-                    uint64_t begin_pos = fposArray[this->beginIndex] + this->beginDiff;
-                    uint64_t end_pos = fposArray[this->endIndex] + this->endDiff;
-
-                    std::cout << "[" << begin_pos << ", " << end_pos << "]" << std::endl;
-                }
-            }
-
-            bool is_special()
-            {
-                return this->beginIndex == UINT64_MAX;
-            }
-
-            static WeinerInterval get_special()
-            {
-                WeinerInterval r;
-                r.beginIndex = UINT64_MAX;
-                return r;
-            }
-        };
 
         template <typename RLBWT_STR>
         class Weiner
         {
         private:
             using CHAR = typename RLBWT_STR::char_type;
+            using CHAR_VEC = typename RLBWT_STR::char_vec_type;
+            using LPOS = std::pair<uint64_t, uint64_t>;
+
             const RLBWT_STR &_rlbwt;
             std::queue<WeinerInterval> queue;
             std::vector<bool> checkerArray;
             std::vector<uint64_t> fposArray;
-            std::vector<uint64_t> lf_mapper;
+            //std::vector<uint64_t> lf_mapper;
+            RangeDistinctDataStructure<CHAR_VEC> range_distinct_data_structure;
 
             uint64_t current_length = 0;
             uint64_t str_size;
@@ -77,12 +40,14 @@ namespace stool
                 this->fposArray.swap(v1);
                 //stool::Printer::print(this->fposArray);
 
-                auto v2 = RLBWTFunctions::construct_rle_lf_mapper(_rlbwt);
-                this->lf_mapper.swap(v2);
+                //auto v2 = RLBWTFunctions::construct_rle_lf_mapper(_rlbwt);
+                //this->lf_mapper.swap(v2);
 
                 this->checkerArray.resize(_rlbwt.rle_size(), false);
 
                 this->queue.push(WeinerInterval::get_special());
+
+                range_distinct_data_structure.preprocess(_rlbwt.get_char_vec());
             }
             vector<WeinerInterval> computeFirstWeinerIntervals()
             {
@@ -90,39 +55,12 @@ namespace stool
                 uint64_t begin_diff = 0;
                 uint64_t end_lindex = _rlbwt.rle_size() - 1;
                 uint64_t end_diff = _rlbwt.get_run(end_lindex) - 1;
-                return this->naiveWeinerQuery(begin_lindex, begin_diff, end_lindex, end_diff);
-                /*
-                vector<WeinerInterval> r;
-                auto vec = RLBWTFunctions::construct_rle_fl_mapper(_rlbwt);
-                uint64_t begin = 0;
-                for (uint64_t i = 1; i < vec.size(); i++)
-                {
-                    CHAR c1 = _rlbwt.get_char_by_run_index(vec[i - 1]);
-                    CHAR c2 = _rlbwt.get_char_by_run_index(vec[i]);
-                    if (c1 != c2)
-                    {
-                        WeinerInterval interval;
-                        interval.beginIndex = begin;
-                        interval.beginDiff = 0;
-                        interval.endIndex = i - 1;
-                        interval.endDiff = _rlbwt.get_run(vec[i - 1]) - 1;
-                        r.push_back(interval);
-                        begin = i;
-                    }
-                }
-                WeinerInterval interval;
-                interval.beginIndex = begin;
-                interval.beginDiff = 0;
-                interval.endIndex = vec.size() - 1;
-                interval.endDiff = _rlbwt.get_run(vec[vec.size() - 1]) - 1;
-                r.push_back(interval);
-
-                return r;
-                */
+                //return this->naiveWeinerQuery(begin_lindex, begin_diff, end_lindex, end_diff);
+                return RangeDistinctDataStructureOnRLBWT<RLBWT_STR>::range_distinct(_rlbwt, range_distinct_data_structure, begin_lindex, begin_diff, end_lindex, end_diff);
             }
-            std::vector<uint64_t> compute_next_lcp_indexes()
+            std::vector<LPOS> compute_next_lcp_indexes()
             {
-                std::vector<uint64_t> r;
+                std::vector<LPOS> r;
 
                 if (this->current_length == 0)
                 {
@@ -130,12 +68,9 @@ namespace stool
                     vector<WeinerInterval> vec = this->computeFirstWeinerIntervals();
                     for (auto it : vec)
                     {
-                        uint64_t end_pos = this->fposArray[it.endIndex] + it.endDiff;
-                        r.push_back(end_pos);
+                        //uint64_t end_pos = this->fposArray[it.endIndex] + it.endDiff;
+                        r.push_back(LPOS(it.endIndex, it.endDiff));
                         this->checkerArray[it.endIndex] = true;
-                        //std::cout << "PUSH ";
-                        //it.print();
-                        //it.print2(this->fposArray);
 
                         this->queue.push(it);
                     }
@@ -163,18 +98,18 @@ namespace stool
                             uint64_t end_lindex = _rlbwt.get_lindex_containing_the_position(end_pos);
                             uint64_t end_diff = end_pos - _rlbwt.get_lpos(end_lindex);
 
-                            vector<WeinerInterval> result = this->naiveWeinerQuery(begin_lindex, begin_diff, end_lindex, end_diff);
+                            //vector<WeinerInterval> result = this->naiveWeinerQuery(begin_lindex, begin_diff, end_lindex, end_diff);
+                            vector<WeinerInterval> result = RangeDistinctDataStructureOnRLBWT<RLBWT_STR>::range_distinct(_rlbwt, range_distinct_data_structure, begin_lindex, begin_diff, end_lindex, end_diff);
                             for (auto it : result)
                             {
-                                uint64_t end_pos = this->fposArray[it.endIndex] + it.endDiff;
+                                //uint64_t end_pos = this->fposArray[it.endIndex] + it.endDiff;
                                 bool b = _rlbwt.get_run(it.endIndex) == (it.endDiff + 1);
                                 if (!b || !this->checkerArray[it.endIndex])
                                 {
-                                    r.push_back(end_pos);
-                                    if(b) this->checkerArray[it.endIndex] = true;
+                                    r.push_back(LPOS(it.endIndex, it.endDiff));
+                                    if (b)
+                                        this->checkerArray[it.endIndex] = true;
 
-                                    //std::cout << "PUSH ";
-                                    //it.print2(this->fposArray);
                                     this->queue.push(it);
                                 }
                             }
@@ -191,13 +126,11 @@ namespace stool
 
                 while (this->queue.size() > 0)
                 {
-                    std::vector<uint64_t> next_lcp_indexes = this->compute_next_lcp_indexes();
+                    std::vector<LPOS> next_lcp_indexes = this->compute_next_lcp_indexes();
                     for (auto it : next_lcp_indexes)
                     {
-                        //std::cout << "LCP[" << (it + 1) << "] = " << this->current_length << std::endl;
-                        r[it+1] = this->current_length;
-
-                        //this->checkerArray[it] = true;
+                        uint64_t pos = this->fposArray[it.first] + it.second;
+                        r[pos + 1] = this->current_length;
                     }
                     if (next_lcp_indexes.size() == 0 && this->queue.size() == 1)
                     {
@@ -210,18 +143,36 @@ namespace stool
                 }
                 return r;
             }
+            std::vector<uint64_t> _construct_sampling_lcp_array()
+            {
+                std::vector<uint64_t> r;
+                r.resize(this->_rlbwt.rle_size(), 0);
+
+                while (this->queue.size() > 0)
+                {
+                    std::vector<LPOS> next_lcp_indexes = this->compute_next_lcp_indexes();
+                    for (auto it : next_lcp_indexes)
+                    {
+                        if (it.second == this->_rlbwt.get_run(it.first) - 1)
+                        {
+                            r[it.first] = this->current_length;
+                        }
+                    }
+                    if (next_lcp_indexes.size() == 0 && this->queue.size() == 1)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        this->current_length++;
+                    }
+                }
+                return r;
+            }
+            /*
             vector<WeinerInterval> naiveWeinerQuery(uint64_t &begin_lindex, uint64_t &begin_diff, uint64_t &end_lindex, uint64_t &end_diff)
             {
                 vector<WeinerInterval> r;
-                /*
-                uint64_t begin_pos = this->fposArray[interval.beginIndex] + interval.beginDiff;
-                uint64_t begin_lindex = _rlbwt.get_lindex_containing_the_position(begin_pos);
-                uint64_t begin_diff = begin_pos - _rlbwt.get_lpos(begin_lindex);
-
-                uint64_t end_pos = this->fposArray[interval.endIndex] + interval.endDiff;
-                uint64_t end_lindex = _rlbwt.get_lindex_containing_the_position(end_pos);
-                uint64_t end_diff = end_pos - _rlbwt.get_lpos(end_lindex);
-                */
 
                 std::unordered_map<CHAR, uint64_t> beginMap;
                 std::unordered_map<CHAR, uint64_t> endMap;
@@ -264,15 +215,30 @@ namespace stool
                 }
                 return r;
             }
-
-            void test()
+            */
+            static std::vector<uint64_t> construct_sampling_lcp_array(const RLBWT_STR &__rlbwt)
             {
-                auto vec = this->computeFirstWeinerIntervals();
-                for (uint64_t i = 0; i < vec.size(); i++)
-                {
-                    vec[i].print();
+                Weiner<RLBWT_STR> weiner(__rlbwt);
+                return weiner._construct_sampling_lcp_array();
+            }
+        };
+        template <typename RLBWT_STR>
+        class SamplingLCPArrayConstructor
+        {
+
+        public:
+            static std::vector<uint64_t> construct_sampling_lcp_array_lorder(const RLBWT_STR &__rlbwt)
+            {
+                auto w = Weiner<RLBWT_STR>::construct_sampling_lcp_array(__rlbwt);
+                auto fl_mapper = RLBWTFunctions::construct_rle_fl_mapper(__rlbwt);
+
+                std::vector<uint64_t> r;
+                r.resize(__rlbwt.rle_size(), 0);
+                for(uint64_t i=0;i<r.size() - 1;i++){
+                    r[fl_mapper[i+1]] = w[fl_mapper[i]]; 
                 }
-                _rlbwt.print_info();
+
+                return r;
             }
         };
     } // namespace rlbwt

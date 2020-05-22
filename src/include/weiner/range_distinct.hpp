@@ -1,0 +1,295 @@
+#pragma once
+#include <cassert>
+#include <chrono>
+#include <random>
+#include <algorithm>
+#include <unordered_map>
+#include <queue>
+
+#include "../rlbwt.hpp"
+#include "../backward_text.hpp"
+#include "../rle_farray.hpp"
+#include "../rlbwt_functions.hpp"
+#include "stool/src/debug.hpp"
+#include "stool/src/elias_fano_vector.hpp"
+#include <sdsl/rmq_support.hpp> // include header for range minimum queries
+
+namespace stool
+{
+    namespace rlbwt
+    {
+        struct WeinerInterval
+        {
+            uint64_t beginIndex;
+            uint64_t beginDiff;
+            uint64_t endIndex;
+            uint64_t endDiff;
+
+            void print()
+            {
+                std::cout << "[" << this->beginIndex << ", " << this->beginDiff << ", " << this->endIndex << ", " << this->endDiff << "]" << std::endl;
+            }
+            void print2(std::vector<uint64_t> &fposArray)
+            {
+                if (this->is_special())
+                {
+                    std::cout << "[BOTTOM]" << std::endl;
+                }
+                else
+                {
+                    uint64_t begin_pos = fposArray[this->beginIndex] + this->beginDiff;
+                    uint64_t end_pos = fposArray[this->endIndex] + this->endDiff;
+
+                    std::cout << "[" << begin_pos << ", " << end_pos << "]" << std::endl;
+                }
+            }
+
+            bool is_special()
+            {
+                return this->beginIndex == UINT64_MAX;
+            }
+
+            static WeinerInterval get_special()
+            {
+                WeinerInterval r;
+                r.beginIndex = UINT64_MAX;
+                return r;
+            }
+        };
+
+        template <typename CHAR_VEC>
+        class RangeDistinctDataStructure
+        {
+        private:
+            using CHAR = typename CHAR_VEC::value_type;
+
+            const CHAR_VEC *_char_vec;
+            std::unordered_map<CHAR, stool::EliasFanoVector> positionMap;
+            std::vector<uint64_t> rankVec;
+            uint64_t size;
+            sdsl::rmq_succinct_sada<> RMQ;
+            sdsl::rmq_succinct_sada<> RmQ;
+            std::unordered_map<CHAR, uint64_t> tmpRangeDistinctResult;
+
+            uint64_t get_next(uint64_t i)
+            {
+                CHAR c = (*_char_vec)[i];
+                uint64_t rank = rankVec[i];
+                if (positionMap[c].size() == rank + 1)
+                {
+                    return UINT64_MAX;
+                }
+                else
+                {
+                    return positionMap[c][rank + 1];
+                }
+            }
+            int64_t get_prev(uint64_t i)
+            {
+                CHAR c = (*_char_vec)[i];
+                uint64_t rank = rankVec[i];
+                if (rank == 0)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return positionMap[c][rank - 1];
+                }
+            }
+            std::vector<uint64_t> construct_next_vector()
+            {
+                std::vector<uint64_t> r;
+                r.resize(size, 0);
+                for (uint64_t i = 0; i < size; i++)
+                {
+                    r[i] = this->get_next(i);
+                }
+                return r;
+            }
+            std::vector<uint64_t> construct_rev_next_vector()
+            {
+                std::vector<uint64_t> r;
+                r.resize(size, 0);
+                for (uint64_t i = 0; i < size; i++)
+                {
+                    uint64_t p = this->get_next(i);
+                    if (p == UINT64_MAX)
+                    {
+                        r[i] = 0;
+                    }
+                    else
+                    {
+                        r[i] = size - p;
+                    }
+                }
+                return r;
+            }
+
+            std::vector<int64_t> construct_prev_vector()
+            {
+                std::vector<int64_t> r;
+                r.resize(size, 0);
+                for (uint64_t i = 0; i < size; i++)
+                {
+                    r[i] = this->get_prev(i);
+                }
+                return r;
+            }
+
+            void search_less(uint64_t x, uint64_t i, uint64_t j, std::vector<uint64_t> &output)
+            {
+                std::vector<uint64_t> r;
+                uint64_t p = RmQ(i, j);
+                int64_t value = this->get_prev(p);
+                //std::cout << "RMQ[" << i << "," << j << "]=" << p << std::endl;
+                if (value >= (int64_t)x)
+                {
+                    return;
+                }
+                else
+                {
+                    output.push_back(p);
+                    if (p > i)
+                    {
+                        search_less(x, i, p - 1, output);
+                    }
+
+                    if (p < j)
+                    {
+                        search_less(x, p + 1, j, output);
+                    }
+                }
+            }
+            void search_than(uint64_t x, uint64_t i, uint64_t j, std::vector<uint64_t> &output)
+            {
+                std::vector<uint64_t> r;
+                uint64_t p = RMQ(i, j);
+                uint64_t value = this->get_next(p);
+                //std::cout << "RMQ[" << i << "," << j << "]=" << p << std::endl;
+                if (value <= x)
+                {
+                    return;
+                }
+                else
+                {
+                    output.push_back(p);
+                    if (p > i)
+                    {
+                        search_than(x, i, p - 1, output);
+                    }
+
+                    if (p < j)
+                    {
+                        search_than(x, p + 1, j, output);
+                    }
+                }
+            }
+
+        public:
+            RangeDistinctDataStructure()
+            {
+            }
+            void preprocess(const CHAR_VEC *__char_vec)
+            {
+                this->_char_vec = __char_vec;
+                std::unordered_map<CHAR, std::vector<uint64_t>> positionSeqMap;
+                size = _char_vec->size();
+                this->rankVec.resize(size, 0);
+
+                for (uint64_t i = 0; i < size; i++)
+                {
+                    CHAR c = (*_char_vec)[i];
+                    auto it = positionSeqMap.find(c);
+                    if (it == positionSeqMap.end())
+                    {
+                        positionSeqMap[c] = std::vector<uint64_t>();
+                    }
+                    this->rankVec[i] = positionSeqMap[c].size();
+                    positionSeqMap[c].push_back(i);
+                }
+
+                for (auto itr = positionSeqMap.begin(); itr != positionSeqMap.end(); ++itr)
+                {
+
+                    CHAR c = itr->first;
+                    //std::cout << c << std::endl;
+                    //stool::Printer::print(itr->second);
+
+                    stool::EliasFanoVector ef;
+                    //ef.construct(&itr->second);
+                    //auto pair = std::pair<CHAR, stool::EliasFanoVector>(c, stool::EliasFanoVector());
+                    positionMap.insert(std::pair<CHAR, stool::EliasFanoVector>(c, stool::EliasFanoVector()));
+                    positionMap[c].construct(&itr->second);
+                }
+
+                auto next_vec = this->construct_rev_next_vector();
+                sdsl::rmq_succinct_sada<> next_rmq(&next_vec);
+                this->RMQ.swap(next_rmq);
+
+                next_vec.resize(0);
+                next_vec.shrink_to_fit();
+
+                auto prev_vec = this->construct_prev_vector();
+                sdsl::rmq_succinct_sada<> prev_rmq(&prev_vec);
+                this->RmQ.swap(prev_rmq);
+            }
+            std::vector<std::pair<uint64_t, uint64_t>> range_distinct(uint64_t i, uint64_t j)
+            {
+                std::vector<std::pair<uint64_t, uint64_t>> r;
+
+                std::vector<uint64_t> output;
+                search_less(i, i, j, output);
+                for (auto it : output)
+                {
+                    CHAR c = (*_char_vec)[it];
+                    tmpRangeDistinctResult[c] = it;
+                }
+                output.resize(0);
+                search_than(j, i, j, output);
+                for (auto it : output)
+                {
+                    CHAR c = (*_char_vec)[it];
+                    auto pair = std::pair<uint64_t, uint64_t>(tmpRangeDistinctResult[c], it);
+                    r.push_back(pair);
+                }
+
+                tmpRangeDistinctResult.clear();
+                return r;
+            }
+        };
+        template <typename RLBWT_STR>
+        class RangeDistinctDataStructureOnRLBWT
+        {
+            public:
+            using CHAR = typename RLBWT_STR::char_type;
+            using CHAR_VEC = typename RLBWT_STR::char_vec_type;
+            static std::vector<WeinerInterval> range_distinct(const RLBWT_STR &_rlbwt, RangeDistinctDataStructure<CHAR_VEC> &rd, uint64_t &begin_lindex, uint64_t &begin_diff, uint64_t &end_lindex, uint64_t &end_diff)
+            {
+
+                vector<WeinerInterval> r;
+
+                vector<std::pair<uint64_t, uint64_t>> rangeVec = rd.range_distinct(begin_lindex, end_lindex);
+
+                for (auto& it : rangeVec)
+                {
+                    //CHAR c = _rlbwt.get_char_by_run_index(it.first);
+                    uint64_t cBeginIndex = it.first;
+                    uint64_t cEndIndex = it.second;
+                    uint64_t cBeginDiff = cBeginIndex == begin_lindex ? begin_diff : 0;
+                    uint64_t cEndDiff = cEndIndex == end_lindex ? end_diff : _rlbwt.get_run(cEndIndex) - 1;
+
+                    WeinerInterval cInterval;
+                    cInterval.beginIndex = cBeginIndex;
+                    cInterval.beginDiff = cBeginDiff;
+                    cInterval.endIndex = cEndIndex;
+                    cInterval.endDiff = cEndDiff;
+
+                    r.push_back(cInterval);
+                }
+                return r;
+            }
+        };
+
+    } // namespace rlbwt
+} // namespace stool

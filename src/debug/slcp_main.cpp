@@ -7,6 +7,7 @@
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
 #include "../include/sampling_lcp/succinct_slcp_constructor.hpp"
+#include "../include/weiner/weiner.hpp"
 
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
@@ -70,6 +71,11 @@ int main(int argc, char *argv[])
     std::vector<uint64_t> slcp = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr, mode == "sdsl");
     //stool::Printer::print(slcp);
 
+    auto slcp2 = stool::rlbwt::SamplingLCPArrayConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
+
+        stool::Printer::print(correct_slcp);
+        stool::Printer::print(slcp2);
+
 
     std::vector<uint64_t> lf = RLBWTFunctions::construct_rle_lf_mapper(rlestr);
     std::vector<uint64_t> slcp_forder = stool::rlbwt::permutate(std::move(slcp), lf);
@@ -83,6 +89,8 @@ int main(int argc, char *argv[])
     if(correct_slcp_forder.size() < 100){
         stool::Printer::print(correct_slcp_forder);
         stool::Printer::print(slcp_forder);
+
+
     }
 
 }

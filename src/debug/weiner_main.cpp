@@ -51,6 +51,20 @@ int main(int argc, char *argv[])
 
     RLBWT<>::check_text_for_rlbwt(text);
 
+    //std::vector<char> charText;
+    /*
+    stool::rlbwt::RangeDistinctDataStructure<std::string> rd(&text);
+
+    std::vector<uint64_t> output;
+    std::vector<uint64_t> output_last;
+    
+    auto r = rd.range_distinct(1, 13);
+    for(auto it : r){
+        std::cout << "[" << it.first << ", " << it.second << "]" << std::endl;
+    }
+    */
+
+    
     vector<INDEX> sa = stool::rlbwt::SuffixArrayConstructor::naive_sa<INDEX>(text);
     vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
     vector<INDEX> lcpArray = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
@@ -60,4 +74,5 @@ int main(int argc, char *argv[])
     vector<INDEX> testLCPArray = weiner.construct_lcp_array();
     stool::equal_check(lcpArray, testLCPArray);
     std::cout << "OK!" << std::endl;
+    
 }
