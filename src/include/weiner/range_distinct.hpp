@@ -64,24 +64,25 @@ namespace stool
             using CHAR = typename CHAR_VEC::value_type;
 
             const CHAR_VEC *_char_vec;
-            std::unordered_map<CHAR, stool::EliasFanoVector> positionMap;
+            std::vector<stool::EliasFanoVector> positionVec;
             std::vector<uint64_t> rankVec;
             uint64_t size;
             sdsl::rmq_succinct_sada<> RMQ;
             sdsl::rmq_succinct_sada<> RmQ;
-            std::unordered_map<CHAR, uint64_t> tmpRangeDistinctResult;
+            std::vector<uint64_t> tmpRangeDistinctResult;
+            //std::unordered_map<CHAR, uint64_t> tmpRangeDistinctResult;
 
             uint64_t get_next(uint64_t i)
             {
                 CHAR c = (*_char_vec)[i];
                 uint64_t rank = rankVec[i];
-                if (positionMap[c].size() == rank + 1)
+                if (positionVec[(uint8_t)c].size() == rank + 1)
                 {
                     return UINT64_MAX;
                 }
                 else
                 {
-                    return positionMap[c][rank + 1];
+                    return positionVec[(uint8_t)c][rank + 1];
                 }
             }
             int64_t get_prev(uint64_t i)
@@ -94,7 +95,7 @@ namespace stool
                 }
                 else
                 {
-                    return positionMap[c][rank - 1];
+                    return positionVec[(uint8_t)c][rank - 1];
                 }
             }
             std::vector<uint64_t> construct_next_vector()
@@ -193,34 +194,45 @@ namespace stool
             void preprocess(const CHAR_VEC *__char_vec)
             {
                 this->_char_vec = __char_vec;
-                std::unordered_map<CHAR, std::vector<uint64_t>> positionSeqMap;
+                this->positionVec.resize(UINT8_MAX);
+
+                std::vector<std::vector<uint64_t>> positionSeqVec;
+                positionSeqVec.resize(UINT8_MAX, std::vector<uint64_t>());
+                tmpRangeDistinctResult.resize(UINT8_MAX, 0);
+
+                //std::unordered_map<CHAR, std::vector<uint64_t>> positionSeqMap;
                 size = _char_vec->size();
                 this->rankVec.resize(size, 0);
 
                 for (uint64_t i = 0; i < size; i++)
                 {
-                    CHAR c = (*_char_vec)[i];
+                    uint8_t c = (uint8_t)(*_char_vec)[i];
+                    /*
                     auto it = positionSeqMap.find(c);
                     if (it == positionSeqMap.end())
                     {
                         positionSeqMap[c] = std::vector<uint64_t>();
                     }
-                    this->rankVec[i] = positionSeqMap[c].size();
-                    positionSeqMap[c].push_back(i);
+                    */
+                    this->rankVec[i] = positionSeqVec[c].size();
+                    positionSeqVec[c].push_back(i);
                 }
 
-                for (auto itr = positionSeqMap.begin(); itr != positionSeqMap.end(); ++itr)
+                for (uint64_t i = 0; i < positionSeqVec.size(); i++)
                 {
+                    if (positionSeqVec[i].size() > 0)
+                    {
+                        //uint8_t c = i;
+                        positionVec[i].construct(&positionSeqVec[i]);
 
-                    CHAR c = itr->first;
-                    //std::cout << c << std::endl;
-                    //stool::Printer::print(itr->second);
+                        //std::cout << c << std::endl;
+                        //stool::Printer::print(itr->second);
 
-                    stool::EliasFanoVector ef;
-                    //ef.construct(&itr->second);
-                    //auto pair = std::pair<CHAR, stool::EliasFanoVector>(c, stool::EliasFanoVector());
-                    positionMap.insert(std::pair<CHAR, stool::EliasFanoVector>(c, stool::EliasFanoVector()));
-                    positionMap[c].construct(&itr->second);
+                        //stool::EliasFanoVector ef;
+                        //ef.construct(&itr->second);
+                        //auto pair = std::pair<CHAR, stool::EliasFanoVector>(c, stool::EliasFanoVector());
+                        //positionMap.insert(std::pair<CHAR, stool::EliasFanoVector>(c, stool::EliasFanoVector()));
+                    }
                 }
 
                 auto next_vec = this->construct_rev_next_vector();
@@ -242,26 +254,26 @@ namespace stool
                 search_less(i, i, j, output);
                 for (auto it : output)
                 {
-                    CHAR c = (*_char_vec)[it];
+                    uint8_t c = (uint8_t)(*_char_vec)[it];
                     tmpRangeDistinctResult[c] = it;
                 }
                 output.resize(0);
                 search_than(j, i, j, output);
                 for (auto it : output)
                 {
-                    CHAR c = (*_char_vec)[it];
+                    uint8_t c = (uint8_t)(*_char_vec)[it];
                     auto pair = std::pair<uint64_t, uint64_t>(tmpRangeDistinctResult[c], it);
                     r.push_back(pair);
                 }
 
-                tmpRangeDistinctResult.clear();
+                //tmpRangeDistinctResult.clear();
                 return r;
             }
         };
         template <typename RLBWT_STR>
         class RangeDistinctDataStructureOnRLBWT
         {
-            public:
+        public:
             using CHAR = typename RLBWT_STR::char_type;
             using CHAR_VEC = typename RLBWT_STR::char_vec_type;
             static std::vector<WeinerInterval> range_distinct(const RLBWT_STR &_rlbwt, RangeDistinctDataStructure<CHAR_VEC> &rd, uint64_t &begin_lindex, uint64_t &begin_diff, uint64_t &end_lindex, uint64_t &end_diff)
@@ -271,7 +283,7 @@ namespace stool
 
                 vector<std::pair<uint64_t, uint64_t>> rangeVec = rd.range_distinct(begin_lindex, end_lindex);
 
-                for (auto& it : rangeVec)
+                for (auto &it : rangeVec)
                 {
                     //CHAR c = _rlbwt.get_char_by_run_index(it.first);
                     uint64_t cBeginIndex = it.first;
