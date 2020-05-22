@@ -70,6 +70,8 @@ namespace stool
             sdsl::rmq_succinct_sada<> RMQ;
             sdsl::rmq_succinct_sada<> RmQ;
             std::vector<uint64_t> tmpRangeDistinctResult;
+            std::stack<uint64_t> tmpSearchStack;
+
             //std::unordered_map<CHAR, uint64_t> tmpRangeDistinctResult;
 
             uint64_t get_next(uint64_t i)
@@ -138,7 +140,7 @@ namespace stool
                 return r;
             }
 
-            void search_less(uint64_t x, uint64_t i, uint64_t j, std::vector<uint64_t> &output)
+            void search_less(uint64_t x, uint64_t i, uint64_t j, std::stack<uint64_t> &output)
             {
                 std::vector<uint64_t> r;
                 uint64_t p = RmQ(i, j);
@@ -150,7 +152,7 @@ namespace stool
                 }
                 else
                 {
-                    output.push_back(p);
+                    output.push(p);
                     if (p > i)
                     {
                         search_less(x, i, p - 1, output);
@@ -162,7 +164,7 @@ namespace stool
                     }
                 }
             }
-            void search_than(uint64_t x, uint64_t i, uint64_t j, std::vector<uint64_t> &output)
+            void search_than(uint64_t x, uint64_t i, uint64_t j, std::stack<uint64_t> &output)
             {
                 std::vector<uint64_t> r;
                 uint64_t p = RMQ(i, j);
@@ -174,7 +176,7 @@ namespace stool
                 }
                 else
                 {
-                    output.push_back(p);
+                    output.push(p);
                     if (p > i)
                     {
                         search_than(x, i, p - 1, output);
@@ -250,22 +252,40 @@ namespace stool
             {
                 std::vector<std::pair<uint64_t, uint64_t>> r;
 
-                std::vector<uint64_t> output;
-                search_less(i, i, j, output);
+                //std::vector<uint64_t> output;
+                search_less(i, i, j, tmpSearchStack);
+                while(tmpSearchStack.size() > 0){
+                    uint64_t p = tmpSearchStack.top();
+                    uint8_t c = (uint8_t)(*_char_vec)[p];
+                    tmpRangeDistinctResult[c] = p;
+                    tmpSearchStack.pop();
+                }
+                /*
                 for (auto it : output)
                 {
                     uint8_t c = (uint8_t)(*_char_vec)[it];
                     tmpRangeDistinctResult[c] = it;
                 }
                 output.resize(0);
-                search_than(j, i, j, output);
+                */
+                search_than(j, i, j, tmpSearchStack);
+
+                while(tmpSearchStack.size() > 0){
+                    uint64_t p = tmpSearchStack.top();
+                    uint8_t c = (uint8_t)(*_char_vec)[p];
+                    auto pair = std::pair<uint64_t, uint64_t>(tmpRangeDistinctResult[c], p);
+                    r.push_back(pair);
+
+                    tmpSearchStack.pop();
+                }
+                /*
                 for (auto it : output)
                 {
                     uint8_t c = (uint8_t)(*_char_vec)[it];
                     auto pair = std::pair<uint64_t, uint64_t>(tmpRangeDistinctResult[c], it);
                     r.push_back(pair);
                 }
-
+                */
                 //tmpRangeDistinctResult.clear();
                 return r;
             }
