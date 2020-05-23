@@ -38,16 +38,13 @@ namespace stool
                 this->str_size = _rlbwt.str_size();
                 auto v1 = RLBWTFunctions::construct_fpos_array(_rlbwt);
                 this->fposArray.swap(v1);
-                //stool::Printer::print(this->fposArray);
-
-                //auto v2 = RLBWTFunctions::construct_rle_lf_mapper(_rlbwt);
-                //this->lf_mapper.swap(v2);
 
                 this->checkerArray.resize(_rlbwt.rle_size(), false);
 
                 this->queue.push(WeinerInterval::get_special());
 
                 range_distinct_data_structure.preprocess(_rlbwt.get_char_vec());
+
             }
             vector<WeinerInterval> computeFirstWeinerIntervals()
             {
@@ -167,6 +164,7 @@ namespace stool
                         this->current_length++;
                     }
                 }
+
                 return r;
             }
             /*
@@ -230,6 +228,7 @@ namespace stool
             static std::vector<uint64_t> construct_sampling_lcp_array_lorder(const RLBWT_STR &__rlbwt)
             {
                 auto w = Weiner<RLBWT_STR>::construct_sampling_lcp_array(__rlbwt);
+
                 auto fl_mapper = RLBWTFunctions::construct_rle_fl_mapper(__rlbwt);
 
                 std::vector<uint64_t> r;
