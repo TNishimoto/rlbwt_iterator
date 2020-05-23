@@ -94,6 +94,10 @@ target_link_libraries(check.out fn)
 add_executable(time_lcp.out src/debug/time_lcp_main.cpp)
 target_link_libraries(time_lcp.out fn)
 
+add_executable(sampling_sa.out src/debug/sampling_sa_main.cpp)
+target_link_libraries(sampling_sa.out fn)
+
+
 add_executable(vfa.out src/debug/variable_fixed_array_test_main.cpp)
 target_link_libraries(vfa.out fn)
 
