@@ -58,7 +58,7 @@ namespace stool
             }
         };
 
-        template <typename CHAR_VEC>
+        template <typename CHAR_VEC, typename INDEX_SIZE>
         class RangeDistinctDataStructure
         {
         private:
@@ -267,7 +267,7 @@ namespace stool
         public:
             using CHAR = typename RLBWT_STR::char_type;
             using CHAR_VEC = typename RLBWT_STR::char_vec_type;
-            static std::vector<WeinerInterval<INDEX_SIZE>> range_distinct(const RLBWT_STR &_rlbwt, RangeDistinctDataStructure<CHAR_VEC> &rd, uint64_t &begin_lindex, uint64_t &begin_diff, uint64_t &end_lindex, uint64_t &end_diff)
+            static std::vector<WeinerInterval<INDEX_SIZE>> range_distinct(const RLBWT_STR &_rlbwt, RangeDistinctDataStructure<CHAR_VEC, INDEX_SIZE> &rd, uint64_t &begin_lindex, uint64_t &begin_diff, uint64_t &end_lindex, uint64_t &end_diff)
             {
 
                 vector<WeinerInterval<INDEX_SIZE>> r;

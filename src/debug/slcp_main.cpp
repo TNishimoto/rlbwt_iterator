@@ -69,9 +69,11 @@ int main(int argc, char *argv[])
     std::vector<uint64_t> correct_slcp = stool::rlbwt::PracticalSamplingLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
 
 
-    std::vector<uint64_t> slcp = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr, mode == "sdsl");
-    //stool::Printer::print(slcp);
+    //std::vector<uint64_t> slcp = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr, mode == "sdsl");
+    std::vector<uint64_t> slcp = stool::rlbwt::HyperSamplingLCPArrayConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
 
+    //stool::Printer::print(slcp);
+    /*
     auto slcp2 = stool::rlbwt::HyperWeiner<RLBWT<>>::construct_sampling_lcp_array(rlestr);
     auto slcp3 = stool::rlbwt::Weiner<RLBWT<>>::construct_sampling_lcp_array(rlestr);
     if(slcp2.size() < 100){
@@ -86,10 +88,10 @@ int main(int argc, char *argv[])
     if(b1){
         std::cout << "OK!" << std::endl;
     }
-
-    /*
-    stool::Printer::print(correct_slcp);
-    stool::Printer::print(slcp2);
+    */
+    
+    //stool::Printer::print(correct_slcp);
+    //stool::Printer::print(slcp2);
 
 
     std::vector<uint64_t> lf = RLBWTFunctions::construct_rle_lf_mapper(rlestr);
@@ -107,6 +109,6 @@ int main(int argc, char *argv[])
 
 
     }
-    */
+    
 
 }

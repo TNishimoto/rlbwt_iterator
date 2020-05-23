@@ -29,7 +29,7 @@ namespace stool
             std::vector<uint64_t> frunStartingPositionMapperArray;
 
             //std::vector<uint64_t> lf_mapper;
-            RangeDistinctDataStructure<CHAR_VEC> range_distinct_data_structure;
+            RangeDistinctDataStructure<CHAR_VEC, INDEX_SIZE> range_distinct_data_structure;
 
             uint64_t current_length = 0;
             uint64_t str_size;

@@ -33,7 +33,7 @@ namespace stool
             //std::vector<uint64_t> frunStartingPositionMapperArray;
 
             //std::vector<uint64_t> lf_mapper;
-            RangeDistinctDataStructure<CHAR_VEC> range_distinct_data_structure;
+            RangeDistinctDataStructure<CHAR_VEC, INDEX_SIZE> range_distinct_data_structure;
 
             uint64_t current_length = 0;
             uint64_t str_size;
@@ -268,7 +268,7 @@ namespace stool
         public:
             static std::vector<uint64_t> construct_sampling_lcp_array_lorder(const RLBWT_STR &__rlbwt)
             {
-                auto w = HyperWeiner<RLBWT_STR>::construct_sampling_lcp_array(__rlbwt);
+                auto w = HyperWeiner<RLBWT_STR, uint64_t>::construct_sampling_lcp_array(__rlbwt);
 
                 auto fl_mapper = RLBWTFunctions::construct_rle_fl_mapper(__rlbwt);
 
