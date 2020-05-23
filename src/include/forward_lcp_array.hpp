@@ -9,6 +9,8 @@
 #include "forward_sa.hpp"
 #include "./sampling_lcp/practical_sampling_lcp_constructor.hpp"
 #include "./sampling_lcp/succinct_slcp_constructor.hpp"
+#include "./weiner/hyper_weiner.hpp"
+
 #include "rlbwt_functions.hpp"
 
 namespace stool
@@ -190,8 +192,8 @@ public:
 
     //INDEX _str_size = _rlbwt->str_size();
     //std::vector<INDEX> succ_slcp_lorder = PracticalSamplingLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(*_rlbwt);
-    std::vector<INDEX> succ_slcp_lorder = SuccinctSLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(*_rlbwt, false);
-
+    //std::vector<INDEX> succ_slcp_lorder = SuccinctSLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(*_rlbwt, false);
+    std::vector<INDEX> succ_slcp_lorder = stool::rlbwt::HyperSamplingLCPArrayConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(*_rlbwt);
 
     std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = SA::construct_sampling_sa(_rlbwt);
     std::vector<INDEX> _first_psa = std::move(pairVec.first);

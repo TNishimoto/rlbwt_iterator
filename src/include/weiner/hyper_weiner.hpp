@@ -230,6 +230,7 @@ namespace stool
 
                 while (!(r.size() == total_counter))
                 {
+                    //bool b = false;
 
                     if(this->hole_pos_array.size() == 0 && (total_counter > skip_threshold)){
                         RLBWTFunctions::construct_hole_array<RLBWT_STR, INDEX_SIZE>(_rlbwt, this->fposArray, hole_pos_array, hole_length_array);
@@ -243,14 +244,16 @@ namespace stool
                         {
                             r[it.first] = this->current_length;
                             total_counter++;
+                            //b = true;
                         }
                     }
                     /*
-                    if (1)
+                    if (b)
                     {
                         std::cout << "LCP = " << this->current_length  << ", " << (r.size() - total_counter) << "/" << (total_counter > skip_threshold) << std::endl;
                     }
                     */
+                    
                     this->current_length++;
                 }
 
