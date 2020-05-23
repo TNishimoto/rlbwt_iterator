@@ -18,12 +18,13 @@ namespace stool
 {
     namespace rlbwt
     {
+        template <typename INDEX_SIZE>
         struct WeinerInterval
         {
-            uint64_t beginIndex;
-            uint64_t beginDiff;
-            uint64_t endIndex;
-            uint64_t endDiff;
+            INDEX_SIZE beginIndex;
+            INDEX_SIZE beginDiff;
+            INDEX_SIZE endIndex;
+            INDEX_SIZE endDiff;
 
             void print()
             {
@@ -46,13 +47,13 @@ namespace stool
 
             bool is_special()
             {
-                return this->beginIndex == UINT64_MAX;
+                return this->beginIndex == std::numeric_limits<INDEX_SIZE>::max();
             }
 
             static WeinerInterval get_special()
             {
                 WeinerInterval r;
-                r.beginIndex = UINT64_MAX;
+                r.beginIndex = std::numeric_limits<INDEX_SIZE>::max();
                 return r;
             }
         };
@@ -247,14 +248,6 @@ namespace stool
                     tmpRangeDistinctResult[c] = p;
                     tmpSearchStack.pop();
                 }
-                /*
-                for (auto it : output)
-                {
-                    uint8_t c = (uint8_t)(*_char_vec)[it];
-                    tmpRangeDistinctResult[c] = it;
-                }
-                output.resize(0);
-                */
                 search_than(j, i, j, tmpSearchStack);
 
                 while(tmpSearchStack.size() > 0){
@@ -265,28 +258,19 @@ namespace stool
 
                     tmpSearchStack.pop();
                 }
-                /*
-                for (auto it : output)
-                {
-                    uint8_t c = (uint8_t)(*_char_vec)[it];
-                    auto pair = std::pair<uint64_t, uint64_t>(tmpRangeDistinctResult[c], it);
-                    r.push_back(pair);
-                }
-                */
-                //tmpRangeDistinctResult.clear();
                 return r;
             }
         };
-        template <typename RLBWT_STR>
+        template <typename RLBWT_STR, typename INDEX_SIZE>
         class RangeDistinctDataStructureOnRLBWT
         {
         public:
             using CHAR = typename RLBWT_STR::char_type;
             using CHAR_VEC = typename RLBWT_STR::char_vec_type;
-            static std::vector<WeinerInterval> range_distinct(const RLBWT_STR &_rlbwt, RangeDistinctDataStructure<CHAR_VEC> &rd, uint64_t &begin_lindex, uint64_t &begin_diff, uint64_t &end_lindex, uint64_t &end_diff)
+            static std::vector<WeinerInterval<INDEX_SIZE>> range_distinct(const RLBWT_STR &_rlbwt, RangeDistinctDataStructure<CHAR_VEC> &rd, uint64_t &begin_lindex, uint64_t &begin_diff, uint64_t &end_lindex, uint64_t &end_diff)
             {
 
-                vector<WeinerInterval> r;
+                vector<WeinerInterval<INDEX_SIZE>> r;
 
                 vector<std::pair<uint64_t, uint64_t>> rangeVec = rd.range_distinct(begin_lindex, end_lindex);
 
@@ -298,7 +282,7 @@ namespace stool
                     uint64_t cBeginDiff = cBeginIndex == begin_lindex ? begin_diff : 0;
                     uint64_t cEndDiff = cEndIndex == end_lindex ? end_diff : _rlbwt.get_run(cEndIndex) - 1;
 
-                    WeinerInterval cInterval;
+                    WeinerInterval<INDEX_SIZE> cInterval;
                     cInterval.beginIndex = cBeginIndex;
                     cInterval.beginDiff = cBeginDiff;
                     cInterval.endIndex = cEndIndex;

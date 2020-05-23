@@ -8,6 +8,7 @@
 #include "../include/bwt.hpp"
 #include "../include/sampling_lcp/succinct_slcp_constructor.hpp"
 #include "../include/weiner/weiner.hpp"
+#include "../include/weiner/hyper_weiner.hpp"
 
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
@@ -71,10 +72,24 @@ int main(int argc, char *argv[])
     std::vector<uint64_t> slcp = stool::rlbwt::SuccinctSLCPConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr, mode == "sdsl");
     //stool::Printer::print(slcp);
 
-    auto slcp2 = stool::rlbwt::SamplingLCPArrayConstructor<RLBWT<>>::construct_sampling_lcp_array_lorder(rlestr);
-
-        stool::Printer::print(correct_slcp);
+    auto slcp2 = stool::rlbwt::HyperWeiner<RLBWT<>>::construct_sampling_lcp_array(rlestr);
+    auto slcp3 = stool::rlbwt::Weiner<RLBWT<>>::construct_sampling_lcp_array(rlestr);
+    if(slcp2.size() < 100){
         stool::Printer::print(slcp2);
+        stool::Printer::print(slcp3);
+
+
+    }
+
+
+    bool b1 = stool::equal_check(slcp2, slcp3);
+    if(b1){
+        std::cout << "OK!" << std::endl;
+    }
+
+    /*
+    stool::Printer::print(correct_slcp);
+    stool::Printer::print(slcp2);
 
 
     std::vector<uint64_t> lf = RLBWTFunctions::construct_rle_lf_mapper(rlestr);
@@ -92,5 +107,6 @@ int main(int argc, char *argv[])
 
 
     }
+    */
 
 }

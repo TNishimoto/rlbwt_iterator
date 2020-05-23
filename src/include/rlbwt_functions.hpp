@@ -113,6 +113,13 @@ namespace stool
                 {
                     if (output_hole_length_array[i] == UINT64_MAX)
                     {
+                        HoleStackData hsd;
+                        hsd.hole_length = 1;
+                        hsd.hole_pos = fpos_array[i];
+                        hsd.lrun_index = i;
+                        stack.push(hsd);
+
+                        /*
                         uint64_t runlength = rlbwt.get_run(i);
                         if (runlength == 1)
                         {
@@ -121,12 +128,8 @@ namespace stool
                         }
                         else
                         {
-                            HoleStackData hsd;
-                            hsd.hole_length = 1;
-                            hsd.hole_pos = fpos_array[i];
-                            hsd.lrun_index = i;
-                            stack.push(hsd);
                         }
+                        */
                     }
                     while (stack.size() > 0)
                     {
@@ -138,8 +141,14 @@ namespace stool
 
                         uint64_t end_pos = top.hole_pos + rlbwt.get_run(top.lrun_index) - 1;
                         uint64_t end_lindex = rlbwt.get_lindex_containing_the_position(end_pos);
+                        uint64_t b = end_pos == (rlbwt.get_lpos(end_lindex) + rlbwt.get_run(end_lindex) - 1);
 
-                        if (begin_lindex == end_lindex)
+                        if (begin_lindex != end_lindex || (begin_lindex == end_lindex && b))
+                        {
+                            output_hole_pos_array[top.lrun_index] = top.hole_pos;
+                            output_hole_length_array[top.lrun_index] = top.hole_length;
+                        }
+                        else
                         {
                             if (output_hole_length_array[begin_lindex] == UINT64_MAX)
                             {
@@ -159,19 +168,14 @@ namespace stool
                                 stack.push(top);
                             }
                         }
-                        else
-                        {
-
-                            output_hole_pos_array[top.lrun_index] = top.hole_pos;
-                            output_hole_length_array[top.lrun_index] = top.hole_length;
-                        }
                     }
                 }
 
                 uint64_t max = 0;
                 for (uint64_t i = 0; i < rleSize; i++)
                 {
-                    if(output_hole_length_array[i] > max){
+                    if (output_hole_length_array[i] > max)
+                    {
                         max = output_hole_length_array[i];
                     }
                 }
