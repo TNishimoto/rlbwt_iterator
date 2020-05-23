@@ -43,11 +43,11 @@ namespace stool
     Let R be the output array of length r.
     R[i] stores the starting position of the F-run corresponding to i-th L-run.
     */
-            template <typename RLBWT_STR>
-            static std::vector<typename RLBWT_STR::index_type> construct_fpos_array(const RLBWT_STR &rlbwt)
+            template <typename RLBWT_STR, typename INDEX = typename RLBWT_STR::index_type>
+            static std::vector<INDEX> construct_fpos_array(const RLBWT_STR &rlbwt)
             {
-                using INDEX = typename RLBWT_STR::index_type;
-                std::vector<INDEX> fvec = construct_rle_fl_mapper(rlbwt);
+                //using INDEX = typename RLBWT_STR::index_type;
+                std::vector<INDEX> fvec = construct_rle_fl_mapper<RLBWT_STR, INDEX>(rlbwt);
                 std::vector<INDEX> output;
                 output.resize(fvec.size(), 0);
                 INDEX fsum = 0;
@@ -62,10 +62,9 @@ namespace stool
     Let R be the output array of length r.
     R[i] stores the index of the L-run corresponding to i-th F-run.
     */
-            template <typename RLBWT_STR>
-            static std::vector<typename RLBWT_STR::index_type> construct_rle_fl_mapper(const RLBWT_STR &rlbwt)
+            template <typename RLBWT_STR, typename INDEX = typename RLBWT_STR::index_type>
+            static std::vector<INDEX> construct_rle_fl_mapper(const RLBWT_STR &rlbwt)
             {
-                using INDEX = typename RLBWT_STR::index_type;
                 std::vector<INDEX> indexes;
                 indexes.resize(rlbwt.rle_size());
                 for (INDEX i = 0; i < rlbwt.rle_size(); i++)
@@ -98,20 +97,20 @@ namespace stool
                 return stool::rlbwt::change_inv(std::move(indexes));
             }
 
-            template <typename RLBWT_STR>
-            static void construct_hole_array(const RLBWT_STR &rlbwt, std::vector<uint64_t> &fpos_array, std::vector<uint64_t> &output_hole_pos_array, std::vector<uint64_t> &output_hole_length_array)
+            template <typename RLBWT_STR, typename INDEX = typename RLBWT_STR::index_type>
+            static void construct_hole_array(const RLBWT_STR &rlbwt, std::vector<INDEX> &fpos_array, std::vector<INDEX> &output_hole_pos_array, std::vector<INDEX> &output_hole_length_array)
             {
                 //using INDEX = typename RLBWT_STR::index_type;
 
-                output_hole_pos_array.resize(rlbwt.rle_size(), UINT64_MAX);
-                output_hole_length_array.resize(rlbwt.rle_size(), UINT64_MAX);
-                uint64_t rleSize = rlbwt.rle_size();
+                output_hole_pos_array.resize(rlbwt.rle_size(), std::numeric_limits<INDEX>::max() );
+                output_hole_length_array.resize(rlbwt.rle_size(), std::numeric_limits<INDEX>::max());
+                INDEX rleSize = rlbwt.rle_size();
                 std::stack<HoleStackData> stack;
                 //std::vector<bool> checker;
                 //checker.resize(rleSize, false);
-                for (uint64_t i = 0; i < rleSize; i++)
+                for (INDEX i = 0; i < rleSize; i++)
                 {
-                    if (output_hole_length_array[i] == UINT64_MAX)
+                    if (output_hole_length_array[i] == std::numeric_limits<INDEX>::max())
                     {
                         HoleStackData hsd;
                         hsd.hole_length = 1;
@@ -119,17 +118,6 @@ namespace stool
                         hsd.lrun_index = i;
                         stack.push(hsd);
 
-                        /*
-                        uint64_t runlength = rlbwt.get_run(i);
-                        if (runlength == 1)
-                        {
-                            output_hole_pos_array[i] = rlbwt.get_lpos(i);
-                            output_hole_length_array[i] = 0;
-                        }
-                        else
-                        {
-                        }
-                        */
                     }
                     while (stack.size() > 0)
                     {
@@ -141,7 +129,7 @@ namespace stool
 
                         uint64_t end_pos = top.hole_pos + rlbwt.get_run(top.lrun_index) - 1;
                         uint64_t end_lindex = rlbwt.get_lindex_containing_the_position(end_pos);
-                        uint64_t b = end_pos == (rlbwt.get_lpos(end_lindex) + rlbwt.get_run(end_lindex) - 1);
+                        bool b = end_pos == (rlbwt.get_lpos(end_lindex) + rlbwt.get_run(end_lindex) - 1);
 
                         if (begin_lindex != end_lindex || (begin_lindex == end_lindex && b))
                         {
@@ -150,7 +138,7 @@ namespace stool
                         }
                         else
                         {
-                            if (output_hole_length_array[begin_lindex] == UINT64_MAX)
+                            if (output_hole_length_array[begin_lindex] == std::numeric_limits<INDEX>::max())
                             {
                                 stack.push(top);
                                 HoleStackData hsd;
