@@ -186,16 +186,18 @@ public:
   }
 
   template <typename RLBWT_STR>
-  void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
+  std::pair<double, double> construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
   {
-    //using CHAR = typename RLBWT_STR::char_type;
-
-    //INDEX _str_size = _rlbwt->str_size();
-    //std::vector<INDEX> succ_slcp_lorder = PracticalSamplingLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(*_rlbwt);
-    //std::vector<INDEX> succ_slcp_lorder = SuccinctSLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(*_rlbwt, false);
+    auto start_prep = std::chrono::system_clock::now();
     std::vector<INDEX> succ_slcp_lorder = stool::rlbwt::HyperSamplingLCPArrayConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(*_rlbwt);
+    auto end_prep = std::chrono::system_clock::now();
+    double prep_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_prep - start_prep).count();
 
+    auto start_prep1 = std::chrono::system_clock::now();
     std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = SA::construct_sampling_sa(_rlbwt);
+    auto end_prep1 = std::chrono::system_clock::now();
+    double prep_time1 = std::chrono::duration_cast<std::chrono::milliseconds>(end_prep1 - start_prep1).count();
+
     std::vector<INDEX> _first_psa = std::move(pairVec.first);
     std::vector<INDEX> _last_psa = std::move(pairVec.second);
     INDEX _first_psa_value = _first_psa[0];
@@ -216,6 +218,7 @@ public:
     {
       this->set(std::move(_sa));
     }
+    return std::pair<double, double>(prep_time, prep_time1);
   }
   void print_info() const
   {
