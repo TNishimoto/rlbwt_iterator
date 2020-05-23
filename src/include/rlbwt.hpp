@@ -241,6 +241,20 @@ public:
         INDEX pos = std::distance(this->run_vec->begin(), p) - 1;
         return pos;
     }
+    INDEX get_lindex_containing_the_position_with_linear_search(INDEX lposition, INDEX start_lindex) const
+    {
+        uint64_t rleSize = this->run_vec->size();
+        for(uint64_t i= start_lindex;i< rleSize;i++){
+            uint64_t pos = (*run_vec)[i];
+            if(lposition < pos){
+                return i-1;
+            }
+        }
+        throw std::logic_error("ERROR!");
+
+    }
+
+
     std::pair<INDEX, INDEX> to_rle_lindex(INDEX lposition) const
     {
         INDEX lindex = this->get_lindex_containing_the_position(lposition);

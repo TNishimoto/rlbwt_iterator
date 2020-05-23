@@ -132,7 +132,6 @@ public:
 
             //std::cout << "nit size:" << nit.items.size() << std::endl;
             //std::cout << findex_iterator.size() << ", " << std::flush;
-
             while (!findex_iterator.isEnd())
             {
                 auto current_rle_findex = *findex_iterator;
@@ -158,6 +157,7 @@ public:
             }
 
             uint64_t distance = findex_iterator.distance();
+            //std::cout << "nokori_counter = " << nokori_counter << ", distance = " << distance << std::endl;
 
             findex_iterator.process();
 

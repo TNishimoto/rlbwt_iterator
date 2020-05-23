@@ -14,6 +14,9 @@ namespace stool
     namespace rlbwt
     {
 
+
+
+
         template <typename RLBWT_STR>
         class Weiner
         {
@@ -26,6 +29,8 @@ namespace stool
             std::queue<WeinerInterval> queue;
             std::vector<bool> checkerArray;
             std::vector<uint64_t> fposArray;
+            std::vector<uint64_t> frunStartingPositionMapperArray;
+
             //std::vector<uint64_t> lf_mapper;
             RangeDistinctDataStructure<CHAR_VEC> range_distinct_data_structure;
 
@@ -37,13 +42,21 @@ namespace stool
             {
                 this->str_size = _rlbwt.str_size();
                 auto v1 = RLBWTFunctions::construct_fpos_array(_rlbwt);
-                this->fposArray.swap(v1);
-
+                this->fposArray.swap(v1);                
                 this->checkerArray.resize(_rlbwt.rle_size(), false);
+
+                auto v2 = RLBWTFunctions2::construct_rle_lf_lorder(_rlbwt);
+                this->frunStartingPositionMapperArray.swap(v2);                
 
                 this->queue.push(WeinerInterval::get_special());
 
                 range_distinct_data_structure.preprocess(_rlbwt.get_char_vec());
+
+                std::vector<uint64_t> hole_pos_array;
+                std::vector<uint64_t> hole_length_array;
+                RLBWTFunctions::construct_hole_array(_rlbwt, this->fposArray, hole_pos_array, hole_length_array);
+                throw std::runtime_error("ERrro");
+
 
             }
             vector<WeinerInterval> computeFirstWeinerIntervals()
@@ -88,15 +101,24 @@ namespace stool
                         else
                         {
                             uint64_t begin_pos = this->fposArray[front.beginIndex] + front.beginDiff;
-                            uint64_t begin_lindex = _rlbwt.get_lindex_containing_the_position(begin_pos);
+                            //uint64_t begin_lindex = _rlbwt.get_lindex_containing_the_position(begin_pos);
+                            uint64_t begin_lindex = _rlbwt.get_lindex_containing_the_position_with_linear_search(begin_pos, this->frunStartingPositionMapperArray[front.beginIndex]);
                             uint64_t begin_diff = begin_pos - _rlbwt.get_lpos(begin_lindex);
 
                             uint64_t end_pos = this->fposArray[front.endIndex] + front.endDiff;
-                            uint64_t end_lindex = _rlbwt.get_lindex_containing_the_position(end_pos);
+                            //uint64_t end_lindex = _rlbwt.get_lindex_containing_the_position(end_pos);
+                            uint64_t end_lindex = _rlbwt.get_lindex_containing_the_position_with_linear_search(end_pos, this->frunStartingPositionMapperArray[front.endIndex]);
+                            
                             uint64_t end_diff = end_pos - _rlbwt.get_lpos(end_lindex);
 
                             //vector<WeinerInterval> result = this->naiveWeinerQuery(begin_lindex, begin_diff, end_lindex, end_diff);
                             vector<WeinerInterval> result = RangeDistinctDataStructureOnRLBWT<RLBWT_STR>::range_distinct(_rlbwt, range_distinct_data_structure, begin_lindex, begin_diff, end_lindex, end_diff);
+                            if(begin_lindex == end_lindex){
+                                king_counter++;
+                            }
+                            if(front.beginIndex == front.endIndex){
+                                king_counter2++;
+                            }
                             for (auto it : result)
                             {
                                 //uint64_t end_pos = this->fposArray[it.endIndex] + it.endDiff;
@@ -140,21 +162,35 @@ namespace stool
                 }
                 return r;
             }
+            uint64_t total_counter = 0;
+            uint64_t king_counter = 0;
+            uint64_t king_counter2 = 0;
+
             std::vector<uint64_t> _construct_sampling_lcp_array()
             {
                 std::vector<uint64_t> r;
                 r.resize(this->_rlbwt.rle_size(), 0);
 
-                while (this->queue.size() > 0)
+                while (this->queue.size() > 0 || (r.size() == total_counter))
                 {
+                    this->king_counter = 0;
+                    this->king_counter2 = 0;
+
                     std::vector<LPOS> next_lcp_indexes = this->compute_next_lcp_indexes();
+                    uint64_t counter = 0;
                     for (auto it : next_lcp_indexes)
                     {
                         if (it.second == this->_rlbwt.get_run(it.first) - 1)
                         {
                             r[it.first] = this->current_length;
+                            counter++;
+                            total_counter++;
                         }
                     }
+                    if(counter>0){
+                        std::cout << "LCP = " << this->current_length << ", " << counter << ", "<< next_lcp_indexes.size() << ", " << (r.size() - total_counter) << ", " << this->king_counter << ", " << this->king_counter2 << std::endl;
+                    }
+
                     if (next_lcp_indexes.size() == 0 && this->queue.size() == 1)
                     {
                         break;

@@ -21,7 +21,7 @@ void Constructor::construct_from_string(RLBWT_STR &rlbwt, std::string &text)
 {
     using CHAR = typename RLBWT_STR::char_type;
     using INDEX = typename RLBWT_STR::index_type;
-    using RUNVEC = typename RLBWT_STR::run_vec_type;
+    //using RUNVEC = typename RLBWT_STR::run_vec_type;
 
     std::vector<CHAR> cVec;
     std::vector<INDEX> nVec;
