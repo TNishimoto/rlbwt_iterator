@@ -20,13 +20,6 @@ namespace stool
     namespace rlbwt
     {
 
-        struct HoleStackData
-        {
-            uint64_t lrun_index;
-            uint64_t hole_pos;
-            uint64_t hole_length;
-        };
-
         class RLBWTFunctions
         {
         public:
@@ -58,6 +51,7 @@ namespace stool
                 }
                 return output;
             }
+
             /*
     Let R be the output array of length r.
     R[i] stores the index of the L-run corresponding to i-th F-run.
@@ -95,79 +89,6 @@ namespace stool
             {
                 std::vector<typename RLBWT_STR::index_type> indexes = construct_rle_fl_mapper(rlbwt);
                 return stool::rlbwt::change_inv(std::move(indexes));
-            }
-
-            template <typename RLBWT_STR, typename INDEX = typename RLBWT_STR::index_type>
-            static void construct_hole_array(const RLBWT_STR &rlbwt, std::vector<INDEX> &fpos_array, std::vector<INDEX> &output_hole_pos_array, std::vector<INDEX> &output_hole_length_array)
-            {
-                //using INDEX = typename RLBWT_STR::index_type;
-
-                output_hole_pos_array.resize(rlbwt.rle_size(), std::numeric_limits<INDEX>::max() );
-                output_hole_length_array.resize(rlbwt.rle_size(), std::numeric_limits<INDEX>::max());
-                INDEX rleSize = rlbwt.rle_size();
-                std::stack<HoleStackData> stack;
-                //std::vector<bool> checker;
-                //checker.resize(rleSize, false);
-                for (INDEX i = 0; i < rleSize; i++)
-                {
-                    if (output_hole_length_array[i] == std::numeric_limits<INDEX>::max())
-                    {
-                        HoleStackData hsd;
-                        hsd.hole_length = 1;
-                        hsd.hole_pos = fpos_array[i];
-                        hsd.lrun_index = i;
-                        stack.push(hsd);
-
-                    }
-                    while (stack.size() > 0)
-                    {
-                        HoleStackData top = stack.top();
-                        stack.pop();
-
-                        uint64_t begin_lindex = rlbwt.get_lindex_containing_the_position(top.hole_pos);
-                        uint64_t begin_diff = top.hole_pos - rlbwt.get_lpos(begin_lindex);
-
-                        uint64_t end_pos = top.hole_pos + rlbwt.get_run(top.lrun_index) - 1;
-                        uint64_t end_lindex = rlbwt.get_lindex_containing_the_position(end_pos);
-                        bool b = end_pos == (rlbwt.get_lpos(end_lindex) + rlbwt.get_run(end_lindex) - 1);
-
-                        if (begin_lindex != end_lindex || (begin_lindex == end_lindex && b))
-                        {
-                            output_hole_pos_array[top.lrun_index] = top.hole_pos;
-                            output_hole_length_array[top.lrun_index] = top.hole_length;
-                        }
-                        else
-                        {
-                            if (output_hole_length_array[begin_lindex] == std::numeric_limits<INDEX>::max())
-                            {
-                                stack.push(top);
-                                HoleStackData hsd;
-                                hsd.hole_length = 1;
-                                hsd.hole_pos = fpos_array[begin_lindex];
-                                hsd.lrun_index = begin_lindex;
-                                stack.push(hsd);
-                            }
-                            else
-                            {
-
-                                top.hole_length = top.hole_length + output_hole_length_array[begin_lindex];
-
-                                top.hole_pos = output_hole_pos_array[begin_lindex] + begin_diff;
-                                stack.push(top);
-                            }
-                        }
-                    }
-                }
-
-                uint64_t max = 0;
-                for (uint64_t i = 0; i < rleSize; i++)
-                {
-                    if (output_hole_length_array[i] > max)
-                    {
-                        max = output_hole_length_array[i];
-                    }
-                }
-                std::cout << "max: " << max << std::endl;
             }
         };
         class RLBWTArrayFunctions

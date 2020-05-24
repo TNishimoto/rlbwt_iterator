@@ -69,12 +69,12 @@ target_link_libraries(fn online_rlbwt Basics BTree sdsl)
 add_executable(compress.out src/main/compress_main.cpp)
 target_link_libraries(compress.out fn)
 
-add_executable(slcp.out src/debug/slcp_main.cpp)
-target_link_libraries(slcp.out fn)
+##add_executable(slcp.out src/debug/slcp_main.cpp)
+##target_link_libraries(slcp.out fn)
 
 
-add_executable(check.out src/debug/check_main.cpp)
-target_link_libraries(check.out fn)
+##add_executable(check.out src/debug/check_main.cpp)
+##target_link_libraries(check.out fn)
 
 ##add_executable(time.out src/debug/time_main.cpp)
 ##target_link_libraries(time.out fn)
@@ -91,19 +91,19 @@ target_link_libraries(check.out fn)
 ##add_executable(lcp_test.out src/debug/lcp_test_main.cpp)
 ##target_link_libraries(lcp_test.out fn)
 
-add_executable(time_lcp.out src/debug/time_lcp_main.cpp)
-target_link_libraries(time_lcp.out fn)
+#add_executable(time_lcp.out src/debug/time_lcp_main.cpp)
+#target_link_libraries(time_lcp.out fn)
 
 add_executable(sampling_sa.out src/debug/sampling_sa_main.cpp)
 target_link_libraries(sampling_sa.out fn)
 
 
-add_executable(vfa.out src/debug/variable_fixed_array_test_main.cpp)
-target_link_libraries(vfa.out fn)
+##add_executable(vfa.out src/debug/variable_fixed_array_test_main.cpp)
+##target_link_libraries(vfa.out fn)
 
 
-add_executable(weiner.out src/debug/weiner_main.cpp)
-target_link_libraries(weiner.out fn)
+##add_executable(weiner.out src/debug/weiner_main.cpp)
+##target_link_libraries(weiner.out fn)
 
 
 ##add_executable(interval_test.out src/debug/interval_tree_main.cpp)

@@ -7,6 +7,8 @@
 #include <queue>
 
 #include "./range_distinct.hpp"
+#include "../sampling_functions.hpp"
+
 #include "stool/src/debug.hpp"
 
 namespace stool
@@ -48,13 +50,9 @@ namespace stool
                 this->fposArray.swap(v1);
                 this->checkerArray.resize(_rlbwt.rle_size(), false);
 
-                //auto v2 = RLBWTFunctions2::construct_rle_lf_lorder(_rlbwt);
-                //this->frunStartingPositionMapperArray.swap(v2);
-
                 this->queue.push(WeinerInterval<INDEX_SIZE>::get_special());
 
                 range_distinct_data_structure.preprocess(_rlbwt.get_char_vec());
-
             }
             vector<WeinerInterval<INDEX_SIZE>> computeFirstWeinerIntervals()
             {
@@ -63,7 +61,7 @@ namespace stool
                 INDEX_SIZE end_lindex = _rlbwt.rle_size() - 1;
                 INDEX_SIZE end_diff = _rlbwt.get_run(end_lindex) - 1;
                 //return this->naiveWeinerQuery(begin_lindex, begin_diff, end_lindex, end_diff);
-                return RangeDistinctDataStructureOnRLBWT<RLBWT_STR,INDEX_SIZE>::range_distinct(_rlbwt, range_distinct_data_structure, begin_lindex, begin_diff, end_lindex, end_diff);
+                return RangeDistinctDataStructureOnRLBWT<RLBWT_STR, INDEX_SIZE>::range_distinct(_rlbwt, range_distinct_data_structure, begin_lindex, begin_diff, end_lindex, end_diff);
             }
             std::pair<WeinerInterval<INDEX_SIZE>, INDEX_SIZE> getHoleWeinerInterval(WeinerInterval<INDEX_SIZE> &interval, INDEX_SIZE lcp, bool skip_flag)
             {
@@ -182,7 +180,9 @@ namespace stool
                                 {
                                     auto insertResult = this->hyperMap.insert(std::pair<INDEX_SIZE, std::vector<WeinerInterval<INDEX_SIZE>>>(front_info.second, std::vector<WeinerInterval<INDEX_SIZE>>()));
                                     insertResult.first->second.push_back(front_info.first);
-                                }else{
+                                }
+                                else
+                                {
                                     findResult->second.push_back(front_info.first);
                                 }
                                 //this->hyperMap[front_info.second].push_back(front_info.first);
@@ -226,14 +226,19 @@ namespace stool
 
                 std::vector<uint64_t> r;
                 r.resize(this->_rlbwt.rle_size(), 0);
-                uint64_t skip_threshold = (r.size() * (skip_ratio-1)) / skip_ratio; 
+                uint64_t skip_threshold = (r.size() * (skip_ratio - 1)) / skip_ratio;
 
                 while (!(r.size() == total_counter))
                 {
                     //bool b = false;
 
-                    if(this->hole_pos_array.size() == 0 && (total_counter > skip_threshold)){
-                        RLBWTFunctions::construct_hole_array<RLBWT_STR, INDEX_SIZE>(_rlbwt, this->fposArray, hole_pos_array, hole_length_array);
+                    if (this->hole_pos_array.size() == 0 && (total_counter > skip_threshold))
+                    {
+                        auto start_prep = std::chrono::system_clock::now();
+                        SamplingFunctions::construct_hole_array<RLBWT_STR, INDEX_SIZE>(_rlbwt, this->fposArray, hole_pos_array, hole_length_array);
+                        auto end_prep = std::chrono::system_clock::now();
+                        double prep_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_prep - start_prep).count();
+                        std::cout << "time " << prep_time << "[ms]" << std::endl;
 
                     }
 
@@ -253,7 +258,7 @@ namespace stool
                         std::cout << "LCP = " << this->current_length  << ", " << (r.size() - total_counter) << "/" << (total_counter > skip_threshold) << std::endl;
                     }
                     */
-                    
+
                     this->current_length++;
                 }
 
@@ -262,14 +267,16 @@ namespace stool
             static std::vector<uint64_t> construct_sampling_lcp_array(const RLBWT_STR &__rlbwt)
             {
                 uint64_t size = __rlbwt.str_size();
-                if(size > ((uint64_t)(UINT32_MAX) - 10)){
+                if (size > ((uint64_t)(UINT32_MAX)-10))
+                {
                     HyperWeiner<RLBWT_STR, uint64_t> weiner(__rlbwt);
                     return weiner._construct_sampling_lcp_array();
-                }else{
+                }
+                else
+                {
                     HyperWeiner<RLBWT_STR, uint32_t> weiner(__rlbwt);
 
                     return weiner._construct_sampling_lcp_array();
-
                 }
             }
         };
