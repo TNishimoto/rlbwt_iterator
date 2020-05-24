@@ -6,10 +6,6 @@
 
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
-#include "../include/sampling_lcp/succinct_slcp_constructor.hpp"
-#include "../include/weiner/weiner.hpp"
-#include "../include/weiner/hyper_weiner.hpp"
-#include "../include/sampling_functions.hpp"
 
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
@@ -49,7 +45,7 @@ int main(int argc, char *argv[])
     {
         using POWVEC = typename RLBWT_STR::run_vec_type;
         stool::rlbwt::BackwardISA<POWVEC, std::vector<INDEX>> tpb;
-        tpb.construct_from_rlbwt(&rlestr, true);
+        tpb.construct_from_rlbwt(&rlestr, false);
         std::pair<std::vector<INDEX>, std::vector<INDEX>> r = stool::rlbwt::ForwardSA<>::iterator::construct_sampling_sa_lorder(rlestr, tpb.begin(), tpb.end());
         tpb.clear();
         ssa.first.swap(r.first);
@@ -57,10 +53,14 @@ int main(int argc, char *argv[])
     }else
     {
         mode = "faster";
-
-        auto r = stool::rlbwt::SamplingFunctions::construct_sampling_sa_lorder(rlestr);
+        using POWVEC = typename RLBWT_STR::run_vec_type;
+        stool::rlbwt::BackwardISA<POWVEC, std::vector<INDEX>> tpb;
+        tpb.construct_from_rlbwt(&rlestr, true);
+        std::pair<std::vector<INDEX>, std::vector<INDEX>> r = stool::rlbwt::ForwardSA<>::iterator::construct_sampling_sa_lorder(rlestr, tpb.begin(), tpb.end());
+        tpb.clear();
         ssa.first.swap(r.first);
         ssa.second.swap(r.second);
+
     }
         if (rlestr.rle_size() < 100)
         {
@@ -76,18 +76,6 @@ int main(int argc, char *argv[])
     {
         check_sum += ssa.first[i] + ssa.second[i];
     }
-    /*
-    if (rlestr.rle_size() < 100)
-    {
-        stool::Printer::print(r.first);
-        stool::Printer::print(r.second);
-
-        stool::Printer::print(res.first);
-        stool::Printer::print(res.second);
-    }
-    bool b1 = stool::equal_check(r.first, res.first);
-    bool b2 = stool::equal_check(r.second, res.second);
-    */
 
     std::cout << "OK!" << std::endl;
 
