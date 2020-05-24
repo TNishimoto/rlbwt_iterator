@@ -234,11 +234,11 @@ namespace stool
 
                     if (this->hole_pos_array.size() == 0 && (total_counter > skip_threshold))
                     {
-                        auto start_prep = std::chrono::system_clock::now();
+                        //auto start_prep = std::chrono::system_clock::now();
                         SamplingFunctions::construct_hole_array<RLBWT_STR, INDEX_SIZE>(_rlbwt, this->fposArray, hole_pos_array, hole_length_array);
-                        auto end_prep = std::chrono::system_clock::now();
-                        double prep_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_prep - start_prep).count();
-                        std::cout << "time " << prep_time << "[ms]" << std::endl;
+                        //auto end_prep = std::chrono::system_clock::now();
+                        //double prep_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_prep - start_prep).count();
+                        //std::cout << "time " << prep_time << "[ms]" << std::endl;
 
                     }
 
