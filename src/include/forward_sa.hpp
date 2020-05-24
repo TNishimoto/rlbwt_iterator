@@ -521,7 +521,7 @@ public:
   {
     using POWVEC = typename RLBWT_STR::run_vec_type;
     BackwardISA<POWVEC, std::vector<INDEX>> tpb;
-    tpb.construct_from_rlbwt(rlbwt);
+    tpb.construct_from_rlbwt(rlbwt, true);
     std::pair<std::vector<INDEX>, std::vector<INDEX>> r = iterator::construct_sampling_sa_lorder(*rlbwt, tpb.begin(), tpb.end());
 
     tpb.clear();
