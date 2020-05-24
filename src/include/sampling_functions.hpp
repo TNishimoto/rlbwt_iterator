@@ -248,16 +248,61 @@ namespace stool
                 std::vector<INDEX2> &beginVec = r.first;
                 std::vector<INDEX2> &endVec = r.second;
                 INDEX rleSize = rlbwt.rle_size();
+                INDEX end_lindex = rlbwt.get_end_rle_lposition();
 
                 beginVec.resize(rleSize, MAXFLAG);
                 endVec.resize(rleSize, MAXFLAG);
 
                 uint64_t total = 0;
 
-                std::stack<SamplingSAStackData> stack;
-                uint64_t i = 0;
-                bool is_i_start = true;
-                    SamplingSAStackData ssd;
+                //std::stack<SamplingSAStackData> stack;
+                //uint64_t i = 0;
+                //bool is_i_start = true;
+                //SamplingSAStackData ssd;
+
+                int64_t current_sa_value = rlbwt.str_size() - 1;
+                uint64_t current_lindex = end_lindex;
+                uint64_t current_diff = 0;
+                beginVec[end_lindex] = current_sa_value;
+                endVec[end_lindex] = current_sa_value;
+
+                while (current_sa_value > 0)
+                {
+                    uint64_t lindex = current_lindex;
+                    uint64_t diff = current_diff;
+                    uint64_t pos = 0;
+                    uint64_t distance = 0;
+                    //bool b = rlbwt.get_run(lindex) == 1;
+                    while (true)
+                    {
+                        pos = hole_pos_array[lindex] + diff;
+                        distance += hole_length_array[lindex];
+                        lindex = rlbwt.get_lindex_containing_the_position(pos);
+                        diff = pos - rlbwt.get_lpos(lindex);
+                        if (diff == 0 || diff == rlbwt.get_run(lindex) - 1)
+                        {
+                            current_sa_value -= distance;
+                            if (lindex == end_lindex)
+                            {
+                                break;
+                            }
+
+                            if (diff == 0)
+                            {
+                                beginVec[lindex] = current_sa_value;
+                            }
+                            if (diff == rlbwt.get_run(lindex) - 1)
+                            {
+                                endVec[lindex] = current_sa_value;
+                            }
+                            current_lindex = lindex;
+                            current_diff = diff;
+                            break;
+                        }
+                    }
+                }
+
+                /*
                 while (i < rleSize)
                 {
                     bool i_is_empty = false;
@@ -308,21 +353,9 @@ namespace stool
                                 ssd.is_start = output.is_start;
                                 ssd.distance = 0;
                             }
-                            /*
-                            if (stack.size() % 100000 == 0)
-                            {
-                                std::cout << i << "/" << stack.size() << ", " << (rleSize * 2) << std::endl;
-                            }
-                            */
                         }
                         while (stack.size() > 0)
                         {
-                            /*
-                            if (stack.size() % 100000 == 0)
-                            {
-                                std::cout << stack.size() << ", " << (rleSize * 2) << std::endl;
-                            }
-                            */
 
                             auto top = stack.top();
                             stack.pop();
@@ -357,6 +390,7 @@ namespace stool
                         i++;
                     }
                 }
+                */
                 return r;
             }
             template <typename RLBWT_STR, typename INDEX = typename RLBWT_STR::index_type>

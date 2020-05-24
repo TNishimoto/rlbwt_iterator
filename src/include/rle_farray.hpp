@@ -111,14 +111,16 @@ public:
     R[i] stores the index of the L-run contains the starting position of f_{i}.
     */
     template <typename RLBWT_STR>
-    static std::vector<uint64_t> construct_rle_lf_lorder(const RLBWT_STR &__rlbwt)
+    static std::vector<uint64_t> construct_rle_lf_lorder(const RLBWT_STR &__rlbwt, std::vector<bool> &filterVec, uint64_t threshold)
     {
         //using CHAR = typename RLBWT_STR::char_type;
         using INDEX = typename RLBWT_STR::index_type;
         RLEFArray<RLBWT_STR> generator(__rlbwt);
         std::vector<uint64_t> rle_lf_lorder;
         rle_lf_lorder.resize(__rlbwt.rle_size(), std::numeric_limits<uint64_t>::max());
+        filterVec.resize(__rlbwt.rle_size(), false);
         INDEX k = 0;
+        uint64_t prev_lindex = UINT64_MAX;
         for (typename RLEFArray<RLBWT_STR>::iterator it = generator.begin(), end = generator.end(); it != end; ++it)
         {
             INDEX findex = *it;
@@ -126,7 +128,13 @@ public:
             {
                 k++;
             }
-            rle_lf_lorder[it.rle_lindex()] = k - 1;
+            uint64_t lindex = it.rle_lindex();
+            rle_lf_lorder[lindex] = k - 1;
+            uint64_t prev_size = k - rle_lf_lorder[prev_lindex];
+            if(prev_lindex != UINT64_MAX){
+                filterVec[prev_lindex] = prev_size < threshold;
+            }
+            prev_lindex = lindex;
         }
         return rle_lf_lorder;
     }

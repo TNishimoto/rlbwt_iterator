@@ -34,6 +34,7 @@ private:
   const RUNVEC &_run_vec;
   const VEC &_findexes_lorder;
   const VEC *_rle_lf_lorder = nullptr;
+  const std::vector<bool> *_filterVec = nullptr;
 
   //const RLBWT_STR &_rlbwt;
   INDEX _diff = std::numeric_limits<INDEX>::max();
@@ -65,6 +66,10 @@ public:
   {
     this->_rle_lf_lorder = __rle_lf_lorder;
   }
+  void set_filter_vec(std::vector<bool> *__filterVec)
+  {
+    this->_filterVec = __filterVec;
+  }
 
   INDEX lpos() const
   {
@@ -81,7 +86,7 @@ public:
 
   iterator &operator++()
   {
-    if (this->_rle_lf_lorder == nullptr)
+    if (this->_rle_lf_lorder == nullptr || !((*this->_filterVec)[this->_rle_lposition]) )
     {
       //INDEX next_lpos = this->_rlbwt.get_lindex_containing_the_position(this->fpos());
       INDEX next_lpos = RLBWTArrayFunctions::get_lindex_containing_the_position(this->_run_vec, this->fpos());
@@ -149,6 +154,7 @@ private:
   const RUNVEC *_run_vec = nullptr;
   const VEC *_findexes_lorder = nullptr;
   VEC *_rle_lf_lorder = nullptr;
+  std::vector<bool> *_filterVec = nullptr;
   INDEX _rle_end_lposition;
   bool deleteFlag = false;
 
@@ -185,11 +191,13 @@ public:
     //this->_end_character_position = 0;
     this->deleteFlag = true;
   }
-  void set(const RUNVEC *__run_vec, VEC &&__findexes_lorder, VEC &&__rle_lf_lorder, INDEX __end_rle_lposition)
+  void set(const RUNVEC *__run_vec, VEC &&__findexes_lorder, VEC &&__rle_lf_lorder, std::vector<bool> &&__filter_vec, INDEX __end_rle_lposition)
   {
     this->_run_vec = __run_vec;
     this->_findexes_lorder = new VEC(std::move(__findexes_lorder));
     this->_rle_lf_lorder = new VEC(std::move(__rle_lf_lorder));
+    this->_filterVec = new std::vector<bool>(std::move(__filter_vec));
+
     this->_rle_end_lposition = __end_rle_lposition;
     this->deleteFlag = true;
   }
@@ -225,6 +233,9 @@ public:
       delete this->_findexes_lorder;
       if (_rle_lf_lorder != nullptr)
         delete this->_rle_lf_lorder;
+      if(_filterVec != nullptr){
+        delete this->_filterVec;
+      }
       deleteFlag = false;
     }
   }
@@ -239,6 +250,7 @@ public:
     if (_rle_lf_lorder != nullptr)
     {
       p.set_rle_lf_lorder(this->_rle_lf_lorder);
+      p.set_filter_vec(this->_filterVec);
     }
     return p;
   }
@@ -265,11 +277,15 @@ public:
   }
 
   template <typename RLBWT_STR>
-  void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false)
+  void construct_from_rlbwt(const RLBWT_STR *_rlbwt, bool faster = false, uint64_t threshold = 32)
   {
     if (faster)
     {
-      this->set(_rlbwt->get_run_vec(), RLBWTFunctions::construct_fpos_array(*_rlbwt), RLBWTFunctions2::construct_rle_lf_lorder<RLBWT_STR>(*_rlbwt), _rlbwt->get_end_rle_lposition());
+      std::vector<bool> filterVec;
+      
+      auto lf_mapper = RLBWTFunctions2::construct_rle_lf_lorder<RLBWT_STR>(*_rlbwt, filterVec, threshold);
+      
+      this->set(_rlbwt->get_run_vec(), RLBWTFunctions::construct_fpos_array(*_rlbwt), std::move(lf_mapper), std::move(filterVec) , _rlbwt->get_end_rle_lposition());
     }
     else
     {
