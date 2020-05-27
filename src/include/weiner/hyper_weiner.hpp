@@ -210,13 +210,14 @@ namespace stool
 
                 while (!(r.size() == total_counter))
                 {
-                    if (is_skip && this->hole_pos_array.size() == 0 && (total_counter > skip_threshold))
+                    bool skip_flag = is_skip && total_counter > skip_threshold;
+                    if (this->hole_pos_array.size() == 0 && skip_flag )
                     {
                         SamplingFunctions::construct_hole_array<RLBWT_STR, INDEX_SIZE>(_rlbwt, this->fposArray, hole_pos_array, hole_length_array);
 
                     }
 
-                    std::vector<LPOS> next_lcp_indexes = this->compute_next_lcp_indexes(total_counter > skip_threshold);
+                    std::vector<LPOS> next_lcp_indexes = this->compute_next_lcp_indexes(skip_flag);
                     for (auto it : next_lcp_indexes)
                     {
                         if (it.second == this->_rlbwt.get_run(it.first) - 1)
