@@ -192,6 +192,7 @@ public:
     std::vector<INDEX> succ_slcp_lorder = stool::rlbwt::HyperSamplingLCPArrayConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(*_rlbwt, faster);
     auto end_prep = std::chrono::system_clock::now();
     double prep_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_prep - start_prep).count();
+    std::cout << "ab1" << std::endl;
 
     auto start_prep1 = std::chrono::system_clock::now();
     std::pair<std::vector<INDEX>, std::vector<INDEX>> pairVec = SA::construct_sampling_sa(_rlbwt, faster);
@@ -201,6 +202,7 @@ public:
     std::vector<INDEX> _first_psa = std::move(pairVec.first);
     std::vector<INDEX> _last_psa = std::move(pairVec.second);
     INDEX _first_psa_value = _first_psa[0];
+    std::cout << "ab2" << std::endl;
 
     //std::vector<INDEX> succ_slcp_yorder = PracticalSamplingLCPConstructor<RLBWT_STR>::construct_sampling_lcp_array(*_rlbwt, _last_psa);
     std::vector<INDEX> succ_slcp_yorder = PracticalSamplingLCPConstructor<RLBWT_STR>::to_succ_sampling_lcp_array_yorder(std::move(succ_slcp_lorder),*_rlbwt, _last_psa);
