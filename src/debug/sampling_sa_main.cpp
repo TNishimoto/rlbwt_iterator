@@ -50,7 +50,33 @@ int main(int argc, char *argv[])
         tpb.clear();
         ssa.first.swap(r.first);
         ssa.second.swap(r.second);
-    }else
+    }
+    else if (mode == "analyze")
+    {
+        std::vector<uint64_t> thresholds;
+        thresholds.push_back(8);
+        thresholds.push_back(16);
+        thresholds.push_back(32);
+        thresholds.push_back(64);
+
+        for (auto threshold : thresholds)
+        {
+            std::vector<bool> filterVec;
+            auto lf_mapper = stool::rlbwt::RLBWTFunctions2::construct_rle_lf_lorder<RLBWT_STR>(rlestr, filterVec, threshold);
+
+            uint64_t sum = 0;
+            for (uint64_t i = 0; i < rlestr.rle_size(); i++)
+            {
+                if (filterVec[i])
+                {
+                    sum += rlestr.get_run(i);
+                }
+            }
+            std::cout << "Threshold: " << threshold << std::endl;
+            std::cout << "Skipped predecessor queries: " << sum << std::endl;
+        }
+    }
+    else
     {
         mode = "faster";
         using POWVEC = typename RLBWT_STR::run_vec_type;
@@ -60,19 +86,18 @@ int main(int argc, char *argv[])
         tpb.clear();
         ssa.first.swap(r.first);
         ssa.second.swap(r.second);
-
     }
-        if (rlestr.rle_size() < 100)
-        {
-            stool::Printer::print(ssa.first);
-            stool::Printer::print(ssa.second);
-        }
+    if (rlestr.rle_size() < 100)
+    {
+        stool::Printer::print(ssa.first);
+        stool::Printer::print(ssa.second);
+    }
 
     auto end = std::chrono::system_clock::now();
     double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
     uint64_t check_sum = 0;
-    for (uint64_t i = 0; i < rlestr.rle_size(); i++)
+    for (uint64_t i = 0; i < ssa.first.size(); i++)
     {
         check_sum += ssa.first[i] + ssa.second[i];
     }

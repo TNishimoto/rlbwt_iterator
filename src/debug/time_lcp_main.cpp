@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
         std::cout << "plain : " << (rlestr.rle_size() * sizeof(uint64_t)) << "Bytes" << std::endl; 
 
         //std::vector<uint64_t> slcp_new = stool::rlbwt::SamplingLCPArrayConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(rlestr);
-        std::vector<uint64_t> slcp_new = stool::rlbwt::HyperSamplingLCPArrayConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(rlestr);
+        std::vector<uint64_t> slcp_new = stool::rlbwt::HyperSamplingLCPArrayConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(rlestr, true);
 
         rle_size = rlestr.rle_size();
         textSize = rlestr.str_size();
