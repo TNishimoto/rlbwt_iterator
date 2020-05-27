@@ -517,13 +517,13 @@ public:
 
 public:
   template <typename RLBWT_STR>
-  static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa(const RLBWT_STR *rlbwt)
+  static std::pair<std::vector<INDEX>, std::vector<INDEX>> construct_sampling_sa(const RLBWT_STR *rlbwt, bool faster = true)
   {
     using POWVEC = typename RLBWT_STR::run_vec_type;
     BackwardISA<POWVEC, std::vector<INDEX>> tpb;
-    tpb.construct_from_rlbwt(rlbwt, true);
+    
+    tpb.construct_from_rlbwt(rlbwt, faster);
     std::pair<std::vector<INDEX>, std::vector<INDEX>> r = iterator::construct_sampling_sa_lorder(*rlbwt, tpb.begin(), tpb.end());
-
     tpb.clear();
 
     std::vector<INDEX> mapper = RLBWTFunctions::construct_rle_lf_mapper(*rlbwt);
