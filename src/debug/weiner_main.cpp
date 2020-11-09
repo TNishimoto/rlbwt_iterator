@@ -3,12 +3,11 @@
 
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
-#include "../include/weiner/weiner.hpp"
+#include "../include/weiner/hyper_weiner.hpp"
 
 #include "stool/src/io.hpp"
 #include "stool/src/cmdline.h"
 #include "stool/src/debug.hpp"
-
 
 using namespace std;
 using namespace stool;
@@ -51,28 +50,19 @@ int main(int argc, char *argv[])
 
     RLBWT<>::check_text_for_rlbwt(text);
 
-    //std::vector<char> charText;
+    using RLBWT_STR = stool::rlbwt::RLBWT<std::vector<CHAR>, std::vector<INDEX>>;
+
+
+    std::vector<uint64_t> slcp_new = stool::rlbwt::HyperSamplingLCPArrayConstructor<RLBWT_STR>::construct_sampling_lcp_array_lorder(rlestr, true);
+    stool::Printer::print(slcp_new);
     /*
-    stool::rlbwt::RangeDistinctDataStructure<std::string> rd(&text);
-
-    std::vector<uint64_t> output;
-    std::vector<uint64_t> output_last;
-    
-    auto r = rd.range_distinct(1, 13);
-    for(auto it : r){
-        std::cout << "[" << it.first << ", " << it.second << "]" << std::endl;
-    }
-    */
-
-    
     vector<INDEX> sa = stool::rlbwt::SuffixArrayConstructor::naive_sa<INDEX>(text);
     vector<INDEX> isa = stool::rlbwt::SuffixArrayConstructor::construct_isa(sa);
     vector<INDEX> lcpArray = stool::rlbwt::SuffixArrayConstructor::construct_lcp(text, sa, isa);
-
 
     auto weiner = stool::rlbwt::Weiner<RLBWT<>>(rlestr);
     vector<INDEX> testLCPArray = weiner.construct_lcp_array();
     stool::equal_check(lcpArray, testLCPArray);
     std::cout << "OK!" << std::endl;
-    
+    */
 }

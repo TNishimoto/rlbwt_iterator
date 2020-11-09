@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
-#include "./rlbwt_functions.hpp"
+#include "../rlbwt_functions.hpp"
 
 namespace stool
 {
@@ -87,6 +87,7 @@ namespace stool
                     }
                 }
             }
+            /*
             template <typename RLBWT_STR, typename INDEX = typename RLBWT_STR::index_type>
             static void construct_SA_hole_array(const RLBWT_STR &rlbwt, std::vector<INDEX> &output_hole_pos_array, std::vector<INDEX> &output_hole_length_array)
             {
@@ -148,6 +149,7 @@ namespace stool
                     }
                 }
             }
+            */
 
             /*
             template <typename RLBWT_STR, typename INDEX = typename RLBWT_STR::index_type, typename INDEX2 = typename RLBWT_STR::index_type>

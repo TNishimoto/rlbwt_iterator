@@ -7,7 +7,7 @@
 #include <queue>
 
 #include "./range_distinct.hpp"
-#include "../sampling_functions.hpp"
+#include "./sampling_functions.hpp"
 
 #include "stool/src/debug.hpp"
 

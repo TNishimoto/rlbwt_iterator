@@ -102,8 +102,8 @@ target_link_libraries(sampling_sa.out fn)
 ##target_link_libraries(vfa.out fn)
 
 
-##add_executable(weiner.out src/debug/weiner_main.cpp)
-##target_link_libraries(weiner.out fn)
+add_executable(weiner.out src/debug/weiner_main.cpp)
+target_link_libraries(weiner.out fn)
 
 
 ##add_executable(interval_test.out src/debug/interval_tree_main.cpp)
