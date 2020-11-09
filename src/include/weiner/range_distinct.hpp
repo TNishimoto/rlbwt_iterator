@@ -19,7 +19,7 @@ namespace stool
     namespace rlbwt
     {
         template <typename INDEX_SIZE>
-        struct WeinerInterval
+        struct RInterval
         {
             INDEX_SIZE beginIndex;
             INDEX_SIZE beginDiff;
@@ -50,9 +50,9 @@ namespace stool
                 return this->beginIndex == std::numeric_limits<INDEX_SIZE>::max();
             }
 
-            static WeinerInterval get_special()
+            static RInterval get_special()
             {
-                WeinerInterval r;
+                RInterval r;
                 r.beginIndex = std::numeric_limits<INDEX_SIZE>::max();
                 return r;
             }
@@ -267,10 +267,11 @@ namespace stool
         public:
             using CHAR = typename RLBWT_STR::char_type;
             using CHAR_VEC = typename RLBWT_STR::char_vec_type;
-            static std::vector<WeinerInterval<INDEX_SIZE>> range_distinct(const RLBWT_STR &_rlbwt, RangeDistinctDataStructure<CHAR_VEC, INDEX_SIZE> &rd, INDEX_SIZE &begin_lindex, INDEX_SIZE &begin_diff, INDEX_SIZE &end_lindex, INDEX_SIZE &end_diff)
+            
+            static std::vector<RInterval<INDEX_SIZE>> range_distinct(const RLBWT_STR &_rlbwt, RangeDistinctDataStructure<CHAR_VEC, INDEX_SIZE> &rd, INDEX_SIZE &begin_lindex, INDEX_SIZE &begin_diff, INDEX_SIZE &end_lindex, INDEX_SIZE &end_diff)
             {
 
-                vector<WeinerInterval<INDEX_SIZE>> r;
+                vector<RInterval<INDEX_SIZE>> r;
 
                 vector<std::pair<INDEX_SIZE, INDEX_SIZE>> rangeVec = rd.range_distinct(begin_lindex, end_lindex);
 
@@ -282,7 +283,7 @@ namespace stool
                     INDEX_SIZE cBeginDiff = cBeginIndex == begin_lindex ? begin_diff : 0;
                     INDEX_SIZE cEndDiff = cEndIndex == end_lindex ? end_diff : _rlbwt.get_run(cEndIndex) - 1;
 
-                    WeinerInterval<INDEX_SIZE> cInterval;
+                    RInterval<INDEX_SIZE> cInterval;
                     cInterval.beginIndex = cBeginIndex;
                     cInterval.beginDiff = cBeginDiff;
                     cInterval.endIndex = cEndIndex;

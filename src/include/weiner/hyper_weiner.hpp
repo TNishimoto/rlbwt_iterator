@@ -25,12 +25,12 @@ namespace stool
             using LPOS = std::pair<INDEX_SIZE, INDEX_SIZE>;
 
             const RLBWT_STR &_rlbwt;
-            std::queue<WeinerInterval<INDEX_SIZE>> queue;
+            std::queue<RInterval<INDEX_SIZE>> queue;
             std::vector<bool> checkerArray;
             std::vector<INDEX_SIZE> fposArray;
             std::vector<INDEX_SIZE> hole_pos_array;
             std::vector<INDEX_SIZE> hole_length_array;
-            std::map<INDEX_SIZE, std::vector<WeinerInterval<INDEX_SIZE>>> hyperMap;
+            std::map<INDEX_SIZE, std::vector<RInterval<INDEX_SIZE>>> hyperMap;
 
             //std::vector<INDEX_SIZE> frunStartingPositionMapperArray;
 
@@ -53,11 +53,11 @@ namespace stool
                 this->fposArray.swap(v1);
                 this->checkerArray.resize(_rlbwt.rle_size(), false);
 
-                this->queue.push(WeinerInterval<INDEX_SIZE>::get_special());
+                this->queue.push(RInterval<INDEX_SIZE>::get_special());
 
                 range_distinct_data_structure.preprocess(_rlbwt.get_char_vec());
             }
-            vector<WeinerInterval<INDEX_SIZE>> computeFirstWeinerIntervals()
+            vector<RInterval<INDEX_SIZE>> computeFirstWeinerIntervals()
             {
                 INDEX_SIZE begin_lindex = 0;
                 INDEX_SIZE begin_diff = 0;
@@ -66,9 +66,9 @@ namespace stool
                 //return this->naiveWeinerQuery(begin_lindex, begin_diff, end_lindex, end_diff);
                 return RangeDistinctDataStructureOnRLBWT<RLBWT_STR, INDEX_SIZE>::range_distinct(_rlbwt, range_distinct_data_structure, begin_lindex, begin_diff, end_lindex, end_diff);
             }
-            std::pair<WeinerInterval<INDEX_SIZE>, INDEX_SIZE> getHoleWeinerInterval(WeinerInterval<INDEX_SIZE> &interval, INDEX_SIZE lcp, bool skip_flag)
+            std::pair<RInterval<INDEX_SIZE>, INDEX_SIZE> getHoleWeinerInterval(RInterval<INDEX_SIZE> &interval, INDEX_SIZE lcp, bool skip_flag)
             {
-                WeinerInterval<INDEX_SIZE> output;
+                RInterval<INDEX_SIZE> output;
                 INDEX_SIZE begin_pos = this->fposArray[interval.beginIndex] + interval.beginDiff;
                 output.beginIndex = _rlbwt.get_lindex_containing_the_position(begin_pos);
                 output.beginDiff = begin_pos - _rlbwt.get_lpos(output.beginIndex);
@@ -96,7 +96,7 @@ namespace stool
                     //if(output.beginIndex != output.endIndex){
                    // }
                 }
-                return std::pair<WeinerInterval<INDEX_SIZE>, INDEX_SIZE>(output, lcp);
+                return std::pair<RInterval<INDEX_SIZE>, INDEX_SIZE>(output, lcp);
             }
             void process_hyper_map(std::vector<LPOS> &output)
             {
@@ -105,7 +105,7 @@ namespace stool
                 {
                     for (auto &it : map_top->second)
                     {
-                        vector<WeinerInterval<INDEX_SIZE>> result = RangeDistinctDataStructureOnRLBWT<RLBWT_STR, INDEX_SIZE>::range_distinct(_rlbwt, range_distinct_data_structure, it.beginIndex, it.beginDiff, it.endIndex, it.endDiff);
+                        vector<RInterval<INDEX_SIZE>> result = RangeDistinctDataStructureOnRLBWT<RLBWT_STR, INDEX_SIZE>::range_distinct(_rlbwt, range_distinct_data_structure, it.beginIndex, it.beginDiff, it.endIndex, it.endDiff);
                         for (auto it2 : result)
                         {
                             //INDEX_SIZE end_pos = this->fposArray[it.endIndex] + it.endDiff;
@@ -133,7 +133,7 @@ namespace stool
                 if (this->current_length == 0)
                 {
                     this->queue.pop();
-                    vector<WeinerInterval<INDEX_SIZE>> vec = this->computeFirstWeinerIntervals();
+                    vector<RInterval<INDEX_SIZE>> vec = this->computeFirstWeinerIntervals();
                     for (auto it : vec)
                     {
                         //INDEX_SIZE end_pos = this->fposArray[it.endIndex] + it.endDiff;
@@ -142,28 +142,28 @@ namespace stool
 
                         this->queue.push(it);
                     }
-                    this->queue.push(WeinerInterval<INDEX_SIZE>::get_special());
+                    this->queue.push(RInterval<INDEX_SIZE>::get_special());
                 }
                 else
                 {
                     while (true)
                     {
-                        WeinerInterval<INDEX_SIZE> front = this->queue.front();
+                        RInterval<INDEX_SIZE> front = this->queue.front();
                         //front.print2(this->fposArray);
                         if (front.is_special())
                         {
                             this->process_hyper_map(r);
                             this->queue.pop();
-                            this->queue.push(WeinerInterval<INDEX_SIZE>::get_special());
+                            this->queue.push(RInterval<INDEX_SIZE>::get_special());
                             break;
                         }
                         else
                         {
-                            std::pair<WeinerInterval<INDEX_SIZE>, INDEX_SIZE> front_info = this->getHoleWeinerInterval(front, this->current_length, skip_flag);
+                            std::pair<RInterval<INDEX_SIZE>, INDEX_SIZE> front_info = this->getHoleWeinerInterval(front, this->current_length, skip_flag);
 
                             if (this->current_length == front_info.second)
                             {
-                                vector<WeinerInterval<INDEX_SIZE>> result = RangeDistinctDataStructureOnRLBWT<RLBWT_STR, INDEX_SIZE>::range_distinct(_rlbwt, range_distinct_data_structure, front_info.first.beginIndex, front_info.first.beginDiff, front_info.first.endIndex, front_info.first.endDiff);
+                                vector<RInterval<INDEX_SIZE>> result = RangeDistinctDataStructureOnRLBWT<RLBWT_STR, INDEX_SIZE>::range_distinct(_rlbwt, range_distinct_data_structure, front_info.first.beginIndex, front_info.first.beginDiff, front_info.first.endIndex, front_info.first.endDiff);
                                 for (auto it : result)
                                 {
                                     bool b = _rlbwt.get_run(it.endIndex) == (it.endDiff + 1);
@@ -184,7 +184,7 @@ namespace stool
                                 auto findResult = this->hyperMap.find(front_info.second);
                                 if (findResult == this->hyperMap.end())
                                 {
-                                    auto insertResult = this->hyperMap.insert(std::pair<INDEX_SIZE, std::vector<WeinerInterval<INDEX_SIZE>>>(front_info.second, std::vector<WeinerInterval<INDEX_SIZE>>()));
+                                    auto insertResult = this->hyperMap.insert(std::pair<INDEX_SIZE, std::vector<RInterval<INDEX_SIZE>>>(front_info.second, std::vector<RInterval<INDEX_SIZE>>()));
                                     insertResult.first->second.push_back(front_info.first);
                                 }
                                 else
