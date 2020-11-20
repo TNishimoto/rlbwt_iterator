@@ -26,11 +26,11 @@ namespace stool
             INDEX_SIZE endIndex;
             INDEX_SIZE endDiff;
 
-            void print()
+            void print() const
             {
                 std::cout << "[" << this->beginIndex << ", " << this->beginDiff << ", " << this->endIndex << ", " << this->endDiff << "]" << std::endl;
             }
-            void print2(std::vector<INDEX_SIZE> &fposArray)
+            void print2(std::vector<INDEX_SIZE> &fposArray) const
             {
                 if (this->is_special())
                 {
@@ -45,7 +45,7 @@ namespace stool
                 }
             }
 
-            bool is_special()
+            bool is_special() const
             {
                 return this->beginIndex == std::numeric_limits<INDEX_SIZE>::max();
             }
