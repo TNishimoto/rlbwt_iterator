@@ -28,9 +28,9 @@ namespace stool
 
             void print() const
             {
-                std::cout << "[" << this->beginIndex << ", " << this->beginDiff << ", " << this->endIndex << ", " << this->endDiff << "]" << std::endl;
+                std::cout << "[(" << this->beginIndex << ", " << this->beginDiff << "), (" << this->endIndex << ", " << this->endDiff << ")]" << std::endl;
             }
-            void print2(std::vector<INDEX_SIZE> &fposArray) const
+            void print2(const std::vector<INDEX_SIZE> &fposArray) const
             {
                 if (this->is_special())
                 {
@@ -38,10 +38,17 @@ namespace stool
                 }
                 else
                 {
-                INDEX_SIZE begin_pos = fposArray[this->beginIndex] + this->beginDiff;
+                    assert(this->beginIndex < fposArray.size());
+                    assert(this->endIndex < fposArray.size());
+                    //stool::Printer::print(fposArray);
+
+                    INDEX_SIZE begin_pos = fposArray[this->beginIndex] + this->beginDiff;
                     INDEX_SIZE end_pos = fposArray[this->endIndex] + this->endDiff;
 
+                std::cout << "[(" << this->beginIndex << ", " << this->beginDiff << "), (" << this->endIndex << ", " << this->endDiff << ")]" << std::flush;
                     std::cout << "[" << begin_pos << ", " << end_pos << "]" << std::endl;
+                    assert(begin_pos <= end_pos);
+
                 }
             }
 
