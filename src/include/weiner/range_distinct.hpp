@@ -30,7 +30,8 @@ namespace stool
             {
                 std::cout << "[(" << this->beginIndex << ", " << this->beginDiff << "), (" << this->endIndex << ", " << this->endDiff << ")]" << std::endl;
             }
-            void print2(const std::vector<INDEX_SIZE> &fposArray) const
+            template <typename FPOSDS>
+            void print2(const FPOSDS &fposArray) const
             {
                 if (this->is_special())
                 {
