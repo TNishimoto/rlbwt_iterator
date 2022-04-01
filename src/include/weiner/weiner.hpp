@@ -23,7 +23,7 @@ namespace stool
             using LPOS = std::pair<uint64_t, uint64_t>;
 
             const RLBWT_STR &_rlbwt;
-            std::queue<WeinerInterval<INDEX_SIZE>> queue;
+            std::queue<RInterval<INDEX_SIZE>> queue;
             std::vector<bool> checkerArray;
             std::vector<uint64_t> fposArray;
             std::vector<uint64_t> frunStartingPositionMapperArray;
@@ -45,11 +45,11 @@ namespace stool
                 auto v2 = RLBWTFunctions2::construct_rle_lf_lorder(_rlbwt);
                 this->frunStartingPositionMapperArray.swap(v2);
 
-                this->queue.push(WeinerInterval<INDEX_SIZE>::get_special());
+                this->queue.push(RInterval<INDEX_SIZE>::get_special());
 
                 range_distinct_data_structure.preprocess(_rlbwt.get_char_vec());
             }
-            vector<WeinerInterval<INDEX_SIZE>> computeFirstWeinerIntervals()
+            vector<RInterval<INDEX_SIZE>> computeFirstWeinerIntervals()
             {
                 uint64_t begin_lindex = 0;
                 uint64_t begin_diff = 0;
@@ -65,7 +65,7 @@ namespace stool
                 if (this->current_length == 0)
                 {
                     this->queue.pop();
-                    vector<WeinerInterval<INDEX_SIZE>> vec = this->computeFirstWeinerIntervals();
+                    vector<RInterval<INDEX_SIZE>> vec = this->computeFirstWeinerIntervals();
                     for (auto it : vec)
                     {
                         //uint64_t end_pos = this->fposArray[it.endIndex] + it.endDiff;
@@ -74,18 +74,18 @@ namespace stool
 
                         this->queue.push(it);
                     }
-                    this->queue.push(WeinerInterval<INDEX_SIZE>::get_special());
+                    this->queue.push(RInterval<INDEX_SIZE>::get_special());
                 }
                 else
                 {
                     while (true)
                     {
-                        WeinerInterval<INDEX_SIZE> front = this->queue.front();
+                        RInterval<INDEX_SIZE> front = this->queue.front();
                         //front.print2(this->fposArray);
                         if (front.is_special())
                         {
                             this->queue.pop();
-                            this->queue.push(WeinerInterval<INDEX_SIZE>::get_special());
+                            this->queue.push(RInterval<INDEX_SIZE>::get_special());
                             break;
                         }
                         else
@@ -101,8 +101,8 @@ namespace stool
 
                             uint64_t end_diff = end_pos - _rlbwt.get_lpos(end_lindex);
 
-                            //vector<WeinerInterval> result = this->naiveWeinerQuery(begin_lindex, begin_diff, end_lindex, end_diff);
-                            vector<WeinerInterval<INDEX_SIZE>> result = RangeDistinctDataStructureOnRLBWT<RLBWT_STR,INDEX_SIZE>::range_distinct(_rlbwt, range_distinct_data_structure, begin_lindex, begin_diff, end_lindex, end_diff);
+                            //vector<RInterval> result = this->naiveWeinerQuery(begin_lindex, begin_diff, end_lindex, end_diff);
+                            vector<RInterval<INDEX_SIZE>> result = RangeDistinctDataStructureOnRLBWT<RLBWT_STR,INDEX_SIZE>::range_distinct(_rlbwt, range_distinct_data_structure, begin_lindex, begin_diff, end_lindex, end_diff);
                             if (begin_lindex == end_lindex)
                             {
                                 king_counter++;
@@ -199,9 +199,9 @@ namespace stool
                 return r;
             }
             /*
-            vector<WeinerInterval> naiveWeinerQuery(uint64_t &begin_lindex, uint64_t &begin_diff, uint64_t &end_lindex, uint64_t &end_diff)
+            vector<RInterval> naiveWeinerQuery(uint64_t &begin_lindex, uint64_t &begin_diff, uint64_t &end_lindex, uint64_t &end_diff)
             {
-                vector<WeinerInterval> r;
+                vector<RInterval> r;
 
                 std::unordered_map<CHAR, uint64_t> beginMap;
                 std::unordered_map<CHAR, uint64_t> endMap;
@@ -234,7 +234,7 @@ namespace stool
                     uint64_t cBeginDiff = cBeginIndex == begin_lindex ? begin_diff : 0;
                     uint64_t cEndDiff = cEndIndex == end_lindex ? end_diff : _rlbwt.get_run(cEndIndex) - 1;
 
-                    WeinerInterval cInterval;
+                    RInterval cInterval;
                     cInterval.beginIndex = cBeginIndex;
                     cInterval.beginDiff = cBeginDiff;
                     cInterval.endIndex = cEndIndex;

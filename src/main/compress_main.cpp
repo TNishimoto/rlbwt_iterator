@@ -74,7 +74,9 @@ int main(int argc, char *argv[])
         {
             bwt.push_back(it);
         }
-        stool::write_vector(outputFile, bwt, false);
+        //stool::write_vector(outputFile, bwt, false);
+        stool::IO::write(outputFile, bwt);
+
     }
 
     auto end = std::chrono::system_clock::now();
