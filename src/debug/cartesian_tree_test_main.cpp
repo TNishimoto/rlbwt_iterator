@@ -1,10 +1,10 @@
 #include <cassert>
 #include <chrono>
 
-#include "stool/src/io.hpp"
-#include "stool/src/cmdline.h"
-#include "stool/src/debug.hpp"
-#include "stool/src/value_array.hpp"
+#include "stool/include/io.hpp"
+#include "stool/include/cmdline.h"
+#include "stool/include/debug.hpp"
+#include "stool/include/value_array.hpp"
 
 #include "../include/cartesian_tree.hpp"
 

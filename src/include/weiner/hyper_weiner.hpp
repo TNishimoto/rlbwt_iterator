@@ -9,7 +9,7 @@
 #include "./range_distinct.hpp"
 #include "./sampling_functions.hpp"
 
-#include "stool/src/debug.hpp"
+#include "stool/include/debug.hpp"
 
 namespace stool
 {

@@ -4,9 +4,9 @@
 //#include "../common/print.hpp"
 //#include "../common/io.h"
 
-#include "stool/src/io.hpp"
-#include "stool/src/cmdline.h"
-#include "stool/src/debug.hpp"
+#include "stool/include/io.hpp"
+#include "stool/include/cmdline.h"
+#include "stool/include/debug.hpp"
 
 #include "../include/rlbwt_iterator.hpp"
 #include "../include/bwt.hpp"
@@ -100,7 +100,13 @@ template <typename RLBWT_TYPE>
 TestResult test(RLBWT_TYPE &rlestr, std::string filename, std::string name)
 {
 
-    string text = stool::load_string_from_file(filename, false);
+std::vector<char> _text;
+        stool::IO::load(filename, _text);
+        std::string text;
+        for (auto &it : _text)
+        {
+            text.push_back(it);
+        }
     Constructor::construct_from_string(rlestr, text);
 
     BackwardText<typename RLBWT_TYPE::char_vec_type, typename RLBWT_TYPE::run_vec_type> w1;

@@ -8,9 +8,9 @@
 #include "./wt_select_on_rlbwt.hpp"
 
 #include "./succinct_interval_tree.hpp"
-#include "stool/src/debug.hpp"
+#include "stool/include/debug.hpp"
 #include <sdsl/wavelet_trees.hpp>
-#include "stool/src/elias_fano_vector.hpp"
+#include "stool/include/elias_fano_vector.hpp"
 
 namespace stool
 {

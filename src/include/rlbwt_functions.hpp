@@ -12,7 +12,7 @@
 //#include "other_functions.hpp"
 #include "OnlineRlbwt/online_rlbwt.hpp"
 #include "rlbwt.hpp"
-#include "stool/src/elias_fano_vector.hpp"
+#include "stool/include/elias_fano_vector.hpp"
 //using namespace std;
 
 namespace stool

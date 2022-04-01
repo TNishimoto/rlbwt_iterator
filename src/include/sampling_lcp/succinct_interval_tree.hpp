@@ -4,9 +4,9 @@
 //#include "../common/print.hpp"
 //#include "../common/io.h"
 
-#include "stool/src/io.hpp"
-#include "stool/src/cmdline.h"
-#include "stool/src/elias_fano_vector.hpp"
+#include "stool/include/io.hpp"
+#include "stool/include/cmdline.h"
+#include "stool/include/elias_fano_vector.hpp"
 #include "./variable_fixed_array.hpp"
 
 namespace stool

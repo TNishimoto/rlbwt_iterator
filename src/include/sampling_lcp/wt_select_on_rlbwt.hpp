@@ -4,9 +4,9 @@
 #include <random>
 #include <algorithm>
 #include <unordered_set>
-#include "stool/src/debug.hpp"
+#include "stool/include/debug.hpp"
 #include <sdsl/wavelet_trees.hpp>
-#include "stool/src/elias_fano_vector.hpp"
+#include "stool/include/elias_fano_vector.hpp"
 
 namespace stool
 {

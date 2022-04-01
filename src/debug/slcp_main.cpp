@@ -10,9 +10,9 @@
 #include "../include/weiner/weiner.hpp"
 #include "../include/weiner/hyper_weiner.hpp"
 
-#include "stool/src/io.hpp"
-#include "stool/src/cmdline.h"
-#include "stool/src/debug.hpp"
+#include "stool/include/io.hpp"
+#include "stool/include/cmdline.h"
+#include "stool/include/debug.hpp"
 
 
 using namespace std;
@@ -42,7 +42,13 @@ int main(int argc, char *argv[])
 
     //string text = "";
     std::cout << "Loading : " << inputFile << std::endl;
-    string text = stool::load_string_from_file(inputFile, false);
+std::vector<char> _text;
+        stool::IO::load(inputFile, _text);
+        std::string text;
+        for (auto &it : _text)
+        {
+            text.push_back(it);
+        }
 
     RLBWT<> rlestr;
     //Constructor::construct_from_bwt<CHAR, INDEX>(rlestr, bwt);

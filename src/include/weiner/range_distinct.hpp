@@ -10,8 +10,8 @@
 #include "../backward_text.hpp"
 #include "../rle_farray.hpp"
 #include "../rlbwt_functions.hpp"
-#include "stool/src/debug.hpp"
-#include "stool/src/elias_fano_vector.hpp"
+#include "stool/include/debug.hpp"
+#include "stool/include/elias_fano_vector.hpp"
 #include <sdsl/rmq_support.hpp> // include header for range minimum queries
 
 namespace stool

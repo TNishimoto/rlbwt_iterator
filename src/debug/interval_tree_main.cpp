@@ -8,9 +8,9 @@
 #include "../include/bwt.hpp"
 #include "../include/sampling_lcp/succinct_interval_tree.hpp"
 
-#include "stool/src/io.hpp"
-#include "stool/src/cmdline.h"
-#include "stool/src/debug.hpp"
+#include "stool/include/io.hpp"
+#include "stool/include/cmdline.h"
+#include "stool/include/debug.hpp"
 
 #include <sdsl/bp_support.hpp>
 

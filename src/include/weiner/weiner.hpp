@@ -7,7 +7,7 @@
 #include <queue>
 
 #include "./range_distinct.hpp"
-#include "stool/src/debug.hpp"
+#include "stool/include/debug.hpp"
 
 namespace stool
 {
